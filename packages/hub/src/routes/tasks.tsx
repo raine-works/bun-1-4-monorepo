@@ -57,34 +57,44 @@ export function TasksPage() {
             <h2 className="text-base font-bold text-white flex items-center gap-2">
               📋 Tasks Manager
             </h2>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-slate-300">
               Live REST API integration (<code className="text-pink-300 font-mono">/api/items</code>
               )
             </p>
           </div>
-          <Link to="/" className="text-xs text-sky-400 hover:underline">
+          <Link
+            to="/"
+            aria-label="Back to Dashboard"
+            className="text-xs text-sky-300 hover:text-sky-200 hover:underline min-h-[36px] inline-flex items-center"
+          >
             &larr; Back to Dashboard
           </Link>
         </div>
 
         <form onSubmit={handleAdd} className="flex gap-2">
+          <label htmlFor="task-title" className="sr-only">
+            New task title
+          </label>
           <input
+            id="task-title"
             type="text"
-            className="flex-1 bg-[#0d1117] border border-[#30363d] text-[#e6edf3] placeholder:text-slate-500 px-3 py-1.5 rounded-lg text-xs focus:outline-none focus:border-sky-400"
+            aria-label="New task title"
+            className="flex-1 bg-[#0d1117] border border-[#30363d] text-[#e6edf3] placeholder:text-slate-400 px-3 py-2 rounded-lg text-xs focus:outline-none focus:border-sky-400 min-h-[36px]"
             placeholder="Add new task..."
             value={title}
             onChange={(e) => setTitle(e.target.value)}
           />
           <button
             type="submit"
-            className="bg-pink-500 hover:bg-pink-400 text-slate-950 font-semibold px-3 py-1.5 rounded-lg text-xs transition-colors"
+            aria-label="Add new task"
+            className="bg-pink-500 hover:bg-pink-400 text-slate-950 font-semibold px-4 py-2 rounded-lg text-xs transition-colors min-h-[36px]"
           >
             Add Task
           </button>
         </form>
 
         {loading ? (
-          <div className="text-xs text-slate-500 py-4 text-center">
+          <div className="text-xs text-slate-400 py-4 text-center">
             Loading tasks from backend...
           </div>
         ) : (
@@ -94,10 +104,10 @@ export function TasksPage() {
                 key={item.id}
                 className="flex items-center justify-between bg-white/[0.02] border border-[#30363d] px-3 py-2 rounded-lg text-xs"
               >
-                <span className={item.completed ? "line-through text-slate-500" : "text-slate-200"}>
+                <span className={item.completed ? "line-through text-slate-400" : "text-slate-200"}>
                   {item.title}
                 </span>
-                <span className="text-[10px] font-mono text-slate-500">#{item.id.slice(0, 4)}</span>
+                <span className="text-[11px] font-mono text-slate-400">#{item.id.slice(0, 4)}</span>
               </li>
             ))}
           </ul>

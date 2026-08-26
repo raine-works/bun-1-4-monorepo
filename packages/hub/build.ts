@@ -13,6 +13,7 @@ import tailwind from "bun-plugin-tailwind";
  */
 
 const isWatch = process.argv.includes("--watch");
+const isProduction = process.env.NODE_ENV === "production" || !isWatch;
 const outdir = "./dist";
 
 /**
@@ -29,8 +30,13 @@ async function build() {
     publicPath: "/",
     plugins: [tailwind],
     reactCompiler: true,
-    minify: !isWatch,
-    sourcemap: "linked",
+    target: "browser",
+    minify: isProduction,
+    define: {
+      "process.env.NODE_ENV": JSON.stringify(isProduction ? "production" : "development"),
+    },
+    splitting: true,
+    sourcemap: isWatch ? "linked" : "none",
   });
 
   if (!buildResult.success) {

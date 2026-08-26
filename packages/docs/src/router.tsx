@@ -1,7 +1,10 @@
-import { createMemoryHistory, createRoute, createRouter } from "@tanstack/react-router";
+import {
+  createMemoryHistory,
+  createRoute,
+  createRouter,
+  lazyRouteComponent,
+} from "@tanstack/react-router";
 import { Route as rootRoute } from "./routes/__root";
-import { DocsApiPage } from "./routes/api";
-import { DocsGuidesPage } from "./routes/guides";
 import { DocsOverviewPage } from "./routes/index";
 import { NotFoundPage } from "./routes/not-found";
 
@@ -14,13 +17,13 @@ const indexRoute = createRoute({
 const guidesRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/guides",
-  component: DocsGuidesPage,
+  component: lazyRouteComponent(() => import("./routes/guides"), "DocsGuidesPage"),
 });
 
 const apiRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/api",
-  component: DocsApiPage,
+  component: lazyRouteComponent(() => import("./routes/api"), "DocsApiPage"),
 });
 
 export const routeTree = rootRoute.addChildren([indexRoute, guidesRoute, apiRoute]);

@@ -175,13 +175,14 @@ export async function injectLiveReload(fileOrHtml: Bun.BunFile | string): Promis
 }
 
 /**
- * Serves a development static asset (JS, CSS, images) with cache-busting headers
+ * Serves a static asset (JS, CSS, images) with cache headers
  * and retry handling if the asset file is in the middle of being written to disk.
  *
  * @param file - The `BunFile` handle to stream to the client.
- * @returns An HTTP `Response` with no-cache headers.
+ * @param filePath - Optional file path or name to determine cache-control strategy.
+ * @returns An HTTP `Response` with appropriate cache headers.
  */
-export async function serveDevAsset(file: Bun.BunFile): Promise<Response> {
+export async function serveDevAsset(file: Bun.BunFile, filePath?: string): Promise<Response> {
   // If file was just created and size is 0 (write in progress), wait briefly
   if (file.size === 0) {
     for (let attempt = 0; attempt < 8; attempt++) {
@@ -190,9 +191,16 @@ export async function serveDevAsset(file: Bun.BunFile): Promise<Response> {
     }
   }
 
+  const name = filePath || file.name || "";
+  const isHashedChunk = /chunk-[a-zA-Z0-9_-]+\.(js|css)(\.map)?$/.test(name);
+  const cacheControl = isHashedChunk
+    ? "public, max-age=31536000, immutable"
+    : "public, max-age=3600, must-revalidate";
+
   return new Response(file, {
     headers: {
-      "Cache-Control": "no-cache, no-store, must-revalidate",
+      "Cache-Control": cacheControl,
+      "X-Content-Type-Options": "nosniff",
     },
   });
 }

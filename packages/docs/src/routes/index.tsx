@@ -16,14 +16,15 @@ export function DocsOverviewPage() {
             <h2 className="text-base font-bold text-white flex items-center gap-2">
               📖 Documentation Overview
             </h2>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-slate-300">
               Monorepo architecture specification and package map
             </p>
           </div>
           <div className="flex items-center gap-2">
             <Link
               to="/guides"
-              className="bg-sky-500 hover:bg-sky-400 text-slate-950 font-semibold px-3 py-1 rounded-lg text-xs transition-colors"
+              aria-label="View Developer Guides"
+              className="bg-sky-500 hover:bg-sky-400 text-slate-950 font-semibold px-3.5 py-1.5 rounded-lg text-xs transition-colors min-h-[36px] inline-flex items-center"
             >
               View Guides &rarr;
             </Link>
@@ -38,11 +39,11 @@ export function DocsOverviewPage() {
             >
               <div className="flex items-center justify-between">
                 <span className="font-mono font-bold text-sky-300">{pkg.name}</span>
-                <code className="text-[10px] bg-white/5 text-slate-400 px-1.5 py-0.5 rounded border border-white/10">
+                <code className="text-[11px] bg-white/5 text-slate-200 px-2 py-0.5 rounded border border-white/10 font-mono">
                   {pkg.path}
                 </code>
               </div>
-              <p className="text-slate-400 text-[11px] mt-1">{pkg.role}</p>
+              <p className="text-slate-300 text-[11px] mt-1">{pkg.role}</p>
             </div>
           ))}
         </div>

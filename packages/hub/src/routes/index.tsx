@@ -41,35 +41,35 @@ export function DashboardPage() {
             <h2 className="text-base font-bold text-white flex items-center gap-2">
               ⚡ System &amp; Runtime Overview
             </h2>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-slate-300">
               Bun native runtime telemetry and backend API status
             </p>
           </div>
-          <span className="text-xs px-2.5 py-1 rounded-full font-mono font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+          <span className="text-xs px-2.5 py-1 rounded-full font-mono font-semibold bg-emerald-500/10 text-emerald-300 border border-emerald-500/30">
             {healthStatus}
           </span>
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs font-mono">
           <div className="bg-[#0d1117] p-3 rounded-lg border border-[#30363d]">
-            <div className="text-slate-500 text-[10px]">RUNTIME</div>
-            <div className="text-pink-400 font-bold mt-1">
+            <div className="text-slate-400 font-semibold text-[11px]">RUNTIME</div>
+            <div className="text-pink-300 font-bold mt-1">
               Bun v{serverInfo?.bunVersion || "1.4.0"}
             </div>
           </div>
           <div className="bg-[#0d1117] p-3 rounded-lg border border-[#30363d]">
-            <div className="text-slate-500 text-[10px]">PLATFORM</div>
-            <div className="text-sky-400 font-bold mt-1">
+            <div className="text-slate-400 font-semibold text-[11px]">PLATFORM</div>
+            <div className="text-sky-300 font-bold mt-1">
               {serverInfo ? `${serverInfo.platform} (${serverInfo.arch})` : "darwin (arm64)"}
             </div>
           </div>
           <div className="bg-[#0d1117] p-3 rounded-lg border border-[#30363d]">
-            <div className="text-slate-500 text-[10px]">ROUTER</div>
-            <div className="text-emerald-400 font-bold mt-1">TanStack v1.170</div>
+            <div className="text-slate-400 font-semibold text-[11px]">ROUTER</div>
+            <div className="text-emerald-300 font-bold mt-1">TanStack v1.170</div>
           </div>
           <div className="bg-[#0d1117] p-3 rounded-lg border border-[#30363d]">
-            <div className="text-slate-500 text-[10px]">COMPILER</div>
-            <div className="text-amber-400 font-bold mt-1">React 19 Native</div>
+            <div className="text-slate-400 font-semibold text-[11px]">COMPILER</div>
+            <div className="text-amber-300 font-bold mt-1">React 19 Native</div>
           </div>
         </div>
       </section>
@@ -85,7 +85,7 @@ export function DashboardPage() {
               </span>
             </div>
             <h3 className="text-sm font-bold text-white">Intra-MFE Client Transitions</h3>
-            <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+            <p className="text-xs text-slate-300 mt-1 leading-relaxed">
               TanStack Router handles routing purely in-memory on the client. State persists and
               transitions occur with zero page reloads.
             </p>
@@ -95,13 +95,15 @@ export function DashboardPage() {
             <button
               type="button"
               onClick={() => setCount((c) => c + 1)}
-              className="bg-white/10 hover:bg-white/15 text-slate-200 px-3 py-1.5 rounded-md font-mono transition-colors"
+              aria-label={`Increment state counter. Current count is ${count}`}
+              className="bg-white/10 hover:bg-white/15 text-slate-100 px-3 py-1.5 rounded-md font-mono transition-colors min-h-[36px]"
             >
               State Counter: {count}
             </button>
             <Link
               to="/tasks"
-              className="text-sky-400 hover:text-sky-300 font-medium flex items-center gap-1"
+              aria-label="Navigate to Tasks Manager"
+              className="text-sky-300 hover:text-sky-200 font-medium flex items-center gap-1 min-h-[36px]"
             >
               Open Tasks &rarr;
             </Link>
@@ -117,7 +119,7 @@ export function DashboardPage() {
               </span>
             </div>
             <h3 className="text-sm font-bold text-white">Inter-MFE Shell Navigation</h3>
-            <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+            <p className="text-xs text-slate-300 mt-1 leading-relaxed">
               Navigating across micro-frontends loads the respective MFE package bundle hosted under
               scoped sub-paths by the Bun server.
             </p>
@@ -126,13 +128,15 @@ export function DashboardPage() {
           <div className="flex items-center gap-2 pt-3 border-t border-white/5 text-xs">
             <a
               href="/store"
-              className="bg-pink-500/20 hover:bg-pink-500/30 text-pink-300 border border-pink-500/30 px-3 py-1.5 rounded-md font-semibold transition-colors flex-1 text-center"
+              aria-label="Navigate to Store Micro-Frontend"
+              className="bg-pink-500/20 hover:bg-pink-500/30 text-pink-200 border border-pink-500/40 px-3 py-1.5 rounded-md font-semibold transition-colors flex-1 text-center min-h-[36px] flex items-center justify-center"
             >
               Store MFE (/store)
             </a>
             <a
               href="/docs"
-              className="bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 border border-sky-500/30 px-3 py-1.5 rounded-md font-semibold transition-colors flex-1 text-center"
+              aria-label="Navigate to Docs Micro-Frontend"
+              className="bg-sky-500/20 hover:bg-sky-500/30 text-sky-200 border border-sky-500/40 px-3 py-1.5 rounded-md font-semibold transition-colors flex-1 text-center min-h-[36px] flex items-center justify-center"
             >
               Docs MFE (/docs)
             </a>

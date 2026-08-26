@@ -1,4 +1,5 @@
 import { handleApiRequest } from "@/api";
+import { applyCompression } from "@/lib/compression";
 import { LiveReloadManager } from "@/lib/live-reload";
 import { isStandaloneMode, resolveFrontendDist, serveMicroFrontend } from "@/lib/mfe";
 import type { Item, ServerInfo, ServerOptions } from "@/types";
@@ -43,14 +44,15 @@ export function createServer(optionsOrPort: number | ServerOptions = 3000) {
         liveReloadManager,
       });
       if (apiResponse) {
-        return apiResponse;
+        return applyCompression(req, apiResponse);
       }
 
       // 2. Micro-Frontend resolution and serving
-      return serveMicroFrontend(req, {
+      const mfeResponse = await serveMicroFrontend(req, {
         distDir,
         enableLiveReload,
       });
+      return applyCompression(req, mfeResponse);
     },
   });
 

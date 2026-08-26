@@ -14,12 +14,16 @@ export function StoreDealsPage() {
             <h2 className="text-base font-bold text-white flex items-center gap-2">
               ⚡ Flash Deals &amp; Coupons
             </h2>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-slate-300">
               TanStack Router route:{" "}
               <code className="text-emerald-300 font-mono">/store/deals</code>
             </p>
           </div>
-          <Link to="/" className="text-xs text-sky-400 hover:underline">
+          <Link
+            to="/"
+            aria-label="Back to Catalog"
+            className="text-xs text-sky-300 hover:text-sky-200 hover:underline min-h-[36px] inline-flex items-center"
+          >
             &larr; Back to Catalog
           </Link>
         </div>
@@ -32,11 +36,11 @@ export function StoreDealsPage() {
             >
               <div>
                 <span className="font-semibold text-white block">{deal.desc}</span>
-                <span className="text-[11px] text-emerald-400 font-mono font-bold mt-0.5 block">
+                <span className="text-[11px] text-emerald-300 font-mono font-bold mt-0.5 block">
                   {deal.discount}
                 </span>
               </div>
-              <code className="font-mono bg-white/5 text-slate-300 border border-white/10 px-2 py-1 rounded text-xs">
+              <code className="font-mono bg-white/5 text-slate-200 border border-white/10 px-2.5 py-1.5 rounded text-xs">
                 {deal.code}
               </code>
             </div>

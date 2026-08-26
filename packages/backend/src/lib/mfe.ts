@@ -13,6 +13,66 @@ export interface ServeMicroFrontendOptions {
 }
 
 /**
+ * Returns the MIME content type based on the file extension.
+ *
+ * @param filePath - Path or filename of the asset.
+ * @returns Standard MIME content type with charset if applicable.
+ */
+export function getMimeType(filePath: string): string {
+  const clean = filePath.split("?")[0].toLowerCase();
+  if (clean.endsWith(".html")) return "text/html; charset=utf-8";
+  if (clean.endsWith(".js") || clean.endsWith(".mjs")) return "text/javascript; charset=utf-8";
+  if (clean.endsWith(".css")) return "text/css; charset=utf-8";
+  if (clean.endsWith(".json")) return "application/json; charset=utf-8";
+  if (clean.endsWith(".svg")) return "image/svg+xml";
+  if (clean.endsWith(".png")) return "image/png";
+  if (clean.endsWith(".jpg") || clean.endsWith(".jpeg")) return "image/jpeg";
+  if (clean.endsWith(".webp")) return "image/webp";
+  if (clean.endsWith(".ico")) return "image/x-icon";
+  if (clean.endsWith(".woff2")) return "font/woff2";
+  if (clean.endsWith(".woff")) return "font/woff";
+  if (clean.endsWith(".map")) return "application/json";
+  if (clean.endsWith(".txt")) return "text/plain; charset=utf-8";
+  return "application/octet-stream";
+}
+
+/**
+ * Returns HTTP caching and security headers optimized for Lighthouse scores.
+ * Hashed assets (chunk-*.js, chunk-*.css) receive immutable 1-year caching.
+ * HTML documents receive max-age=0 must-revalidate for fresh updates.
+ *
+ * @param filePath - The path or filename of the asset.
+ * @param isDev - Whether live reload development mode is active.
+ * @returns Headers dictionary.
+ */
+export function getAssetHeaders(filePath: string, isDev = false): Record<string, string> {
+  const mimeType = getMimeType(filePath);
+  const isHtml = mimeType.startsWith("text/html");
+  const isHashedChunk = /chunk-[a-zA-Z0-9_-]+\.(js|css)(\.map)?$/.test(filePath);
+
+  let cacheControl: string;
+  if (isHtml) {
+    cacheControl = isDev
+      ? "no-cache, no-store, must-revalidate"
+      : "public, max-age=0, must-revalidate";
+  } else if (isHashedChunk) {
+    cacheControl = "public, max-age=31536000, immutable";
+  } else if (/\.(woff2?|png|jpe?g|svg|webp|ico|txt)$/.test(filePath)) {
+    cacheControl = "public, max-age=86400";
+  } else {
+    cacheControl = isDev ? "no-cache, must-revalidate" : "public, max-age=3600";
+  }
+
+  return {
+    "Content-Type": mimeType,
+    "Cache-Control": cacheControl,
+    "X-Content-Type-Options": "nosniff",
+    "X-Frame-Options": "SAMEORIGIN",
+    "Referrer-Policy": "strict-origin-when-cross-origin",
+  };
+}
+
+/**
  * Determines whether the current process is executing within a self-contained Bun standalone binary.
  * Standalone binaries embed assets in Bun's virtual filesystem (`/$bunfs` or `Bun.embeddedFiles`).
  *
@@ -64,15 +124,16 @@ export function resolveFrontendDist(): string {
 
 /**
  * Serves micro-frontend assets and handles SPA routing fallbacks across both standalone binary
- * (embedded virtual assets) and development (local filesystem) modes.
+ * (embedded virtual assets) and development/production (local filesystem) modes.
  *
  * Route Resolution Rules:
- * 1. Scoped micro-frontends (e.g., `/store/*`, `/docs/*`):
- *    - Serves matching static files if requested (`/store/chunk-xyz.js`).
+ * 1. Special assets (/robots.txt, /favicon.ico) are answered directly with caching headers.
+ * 2. Scoped micro-frontends (e.g., `/store/*`, `/docs/*`):
+ *    - Serves matching static files with immutable caching for hashed chunks.
  *    - Falls back to the scoped MFE's `index.html` for client-side navigation.
- * 2. Root frontend (`/` and unmatched client routes):
+ * 3. Root frontend (`/` and unmatched client routes):
  *    - Serves hub static files or falls back to hub's `index.html`.
- * 3. In development mode with live reload active, injects the live-reload script into HTML files.
+ * 4. In development mode with live reload active, injects the live-reload script into HTML files.
  *
  * @param req - The incoming HTTP `Request`.
  * @param options - Micro-frontend serving options.
@@ -84,6 +145,24 @@ export async function serveMicroFrontend(
 ): Promise<Response> {
   const url = new URL(req.url);
   const urlPath = url.pathname;
+
+  // Handle standard SEO & browser default requests
+  if (urlPath === "/robots.txt") {
+    return new Response("User-agent: *\nAllow: /\n", {
+      headers: getAssetHeaders("robots.txt", false),
+    });
+  }
+
+  if (urlPath === "/favicon.ico") {
+    const svgFavicon = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>`;
+    return new Response(svgFavicon, {
+      headers: {
+        "Content-Type": "image/svg+xml",
+        "Cache-Control": "public, max-age=86400",
+      },
+    });
+  }
+
   const pathSegments = urlPath.split("/").filter(Boolean);
   const firstSegment = pathSegments[0] || "";
   const enableLiveReload = Boolean(options.enableLiveReload);
@@ -92,7 +171,7 @@ export async function serveMicroFrontend(
   // 1. Embedded assets resolution (when compiled to standalone binary)
   const embeddedFiles = (Bun.embeddedFiles ?? []) as Array<Blob & { name?: string }>;
   if (embeddedFiles.length > 0) {
-    // Case A: Scoped sub-path MFE (e.g. /dashboard/* -> mfes/dashboard/*)
+    // Case A: Scoped sub-path MFE (e.g. /store/* -> mfes/store/*, /docs/* -> mfes/docs/*)
     if (firstSegment && embeddedFiles.some((f) => f.name?.startsWith(`mfes/${firstSegment}/`))) {
       const subPath = pathSegments.slice(1).join("/");
       if (subPath) {
@@ -101,7 +180,11 @@ export async function serveMicroFrontend(
             f.name === `mfes/${firstSegment}/${subPath}` ||
             f.name?.endsWith(`/${firstSegment}/${subPath}`)
         );
-        if (mfeAsset) return new Response(mfeAsset);
+        if (mfeAsset) {
+          return new Response(mfeAsset, {
+            headers: getAssetHeaders(subPath, false),
+          });
+        }
         if (/\.[a-zA-Z0-9]+$/.test(subPath)) {
           return new Response("Not Found", { status: 404 });
         }
@@ -111,7 +194,7 @@ export async function serveMicroFrontend(
       const mfeIndex = embeddedFiles.find((f) => f.name === `mfes/${firstSegment}/index.html`);
       if (mfeIndex) {
         return new Response(mfeIndex, {
-          headers: { "Content-Type": "text/html; charset=utf-8" },
+          headers: getAssetHeaders("index.html", false),
         });
       }
     }
@@ -127,7 +210,11 @@ export async function serveMicroFrontend(
           f.name === `dist/${cleanPath}` ||
           f.name?.endsWith(`/${cleanPath}`)
       );
-      if (rootAsset) return new Response(rootAsset);
+      if (rootAsset) {
+        return new Response(rootAsset, {
+          headers: getAssetHeaders(cleanPath, false),
+        });
+      }
       if (/\.[a-zA-Z0-9]+$/.test(cleanPath)) {
         return new Response("Not Found", { status: 404 });
       }
@@ -140,12 +227,12 @@ export async function serveMicroFrontend(
       embeddedFiles.find((f) => f.name?.endsWith("index.html"));
     if (rootIndex) {
       return new Response(rootIndex, {
-        headers: { "Content-Type": "text/html; charset=utf-8" },
+        headers: getAssetHeaders("index.html", false),
       });
     }
   }
 
-  // 2. Local filesystem resolution (development mode)
+  // 2. Local filesystem resolution (development / production mode)
   // Case A: Scoped sub-path MFE in packages/<segment>/dist
   if (firstSegment) {
     const scopedMfeDir = join(import.meta.dir, `../../../${firstSegment}/dist`);
@@ -169,7 +256,9 @@ export async function serveMicroFrontend(
         if (exists) {
           return scopedAsset.type === "text/html" && enableLiveReload
             ? injectLiveReload(scopedAsset)
-            : serveDevAsset(scopedAsset);
+            : new Response(scopedAsset, {
+                headers: getAssetHeaders(subPath, enableLiveReload),
+              });
         }
         if (/\.[a-zA-Z0-9]+$/.test(subPath)) {
           return new Response("Not Found", { status: 404 });
@@ -190,7 +279,11 @@ export async function serveMicroFrontend(
       }
 
       if (indexExists) {
-        return enableLiveReload ? injectLiveReload(scopedIndex) : new Response(scopedIndex);
+        return enableLiveReload
+          ? injectLiveReload(scopedIndex)
+          : new Response(scopedIndex, {
+              headers: getAssetHeaders("index.html", false),
+            });
       }
     }
   }
@@ -215,7 +308,9 @@ export async function serveMicroFrontend(
     if (assetPath.endsWith(".html") && enableLiveReload) {
       return injectLiveReload(assetFile);
     }
-    return serveDevAsset(assetFile);
+    return new Response(assetFile, {
+      headers: getAssetHeaders(urlPath, enableLiveReload),
+    });
   }
 
   if (/\.[a-zA-Z0-9]+$/.test(urlPath)) {
@@ -237,7 +332,11 @@ export async function serveMicroFrontend(
   }
 
   if (rootIndexExists) {
-    return enableLiveReload ? injectLiveReload(indexFile) : new Response(indexFile);
+    return enableLiveReload
+      ? injectLiveReload(indexFile)
+      : new Response(indexFile, {
+          headers: getAssetHeaders("index.html", false),
+        });
   }
 
   if (enableLiveReload) {
@@ -246,9 +345,10 @@ export async function serveMicroFrontend(
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Bun 1.4 micro-frontend compilation loader" />
   <title>Building Frontend...</title>
   <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #0f172a; color: #f8fafc; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #0d1117; color: #f8fafc; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
     .card { background: #1e293b; padding: 2rem 2.5rem; border-radius: 12px; border: 1px solid #334155; text-align: center; max-width: 480px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3); }
     .spinner { border: 3px solid #334155; border-top: 3px solid #38bdf8; border-radius: 50%; width: 36px; height: 36px; animation: spin 0.8s linear infinite; margin: 0 auto 1.25rem; }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
@@ -269,6 +369,6 @@ export async function serveMicroFrontend(
 
   return new Response("Frontend not built yet. Run 'bun run build' or start in dev mode.", {
     status: 503,
-    headers: { "Content-Type": "text/plain" },
+    headers: { "Content-Type": "text/plain; charset=utf-8" },
   });
 }

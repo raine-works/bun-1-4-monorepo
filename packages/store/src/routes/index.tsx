@@ -24,7 +24,7 @@ export function StoreCatalogPage() {
             <h2 className="text-base font-bold text-white flex items-center gap-2">
               🛍️ Store Catalog
             </h2>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-slate-300">
               Micro-frontend e-commerce module with scoped basepath{" "}
               <code className="text-emerald-300 font-mono">/store</code>
             </p>
@@ -35,7 +35,8 @@ export function StoreCatalogPage() {
             </span>
             <Link
               to="/cart"
-              className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold px-3 py-1 rounded-lg text-xs transition-colors"
+              aria-label="View shopping cart"
+              className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold px-3.5 py-1.5 rounded-lg text-xs transition-colors min-h-[36px] inline-flex items-center"
             >
               View Cart &rarr;
             </Link>
@@ -50,14 +51,15 @@ export function StoreCatalogPage() {
             >
               <div>
                 <h3 className="text-xs font-bold text-white">{prod.name}</h3>
-                <span className="text-xs font-mono font-bold text-emerald-400 mt-1 block">
+                <span className="text-xs font-mono font-bold text-emerald-300 mt-1 block">
                   ${prod.price.toFixed(2)}
                 </span>
               </div>
               <button
                 type="button"
+                aria-label={`Add ${prod.name} to cart`}
                 onClick={() => setCartCount((c) => c + 1)}
-                className="bg-white/10 hover:bg-white/15 text-slate-200 font-medium py-1.5 px-3 rounded-md text-xs transition-colors"
+                className="bg-white/10 hover:bg-white/15 text-slate-100 font-medium py-2 px-3 rounded-md text-xs transition-colors min-h-[36px]"
               >
                 + Add to Cart
               </button>

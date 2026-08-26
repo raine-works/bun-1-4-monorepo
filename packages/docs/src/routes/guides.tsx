@@ -44,11 +44,15 @@ export function DocsGuidesPage() {
             <h2 className="text-base font-bold text-white flex items-center gap-2">
               🛠️ Developer Guides
             </h2>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-slate-300">
               Complete architecture, routing, bundling, and deployment guides
             </p>
           </div>
-          <Link to="/" className="text-xs text-sky-400 hover:underline">
+          <Link
+            to="/"
+            aria-label="Back to Overview"
+            className="text-xs text-sky-300 hover:text-sky-200 hover:underline min-h-[36px] inline-flex items-center"
+          >
             &larr; Back to Overview
           </Link>
         </div>
@@ -60,7 +64,7 @@ export function DocsGuidesPage() {
               className="bg-[#0d1117] border border-[#30363d] rounded-lg p-3 text-xs"
             >
               <h3 className="font-bold text-sky-300 mb-1">{g.title}</h3>
-              <p className="text-slate-400 text-[11px] leading-relaxed">{g.desc}</p>
+              <p className="text-slate-300 text-[11px] leading-relaxed">{g.desc}</p>
             </div>
           ))}
         </div>
