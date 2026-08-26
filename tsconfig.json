@@ -22,22 +22,26 @@
         "./packages/hub/src/*",
         "./packages/store/src/*"
       ],
+      "@backend": ["./packages/backend/src/index.ts"],
       "@backend/*": ["./packages/backend/src/*"],
       "@data": ["./packages/data/src/index.ts"],
       "@data/*": ["./packages/data/src/*"],
+      "@docs": ["./packages/docs/src/index.tsx"],
       "@docs/*": ["./packages/docs/src/*"],
+      "@hub": ["./packages/hub/src/index.tsx"],
       "@hub/*": ["./packages/hub/src/*"],
+      "@store": ["./packages/store/src/index.tsx"],
       "@store/*": ["./packages/store/src/*"],
-      "@app/backend/*": ["./packages/backend/src/*"],
       "@app/backend": ["./packages/backend/src/index.ts"],
-      "@app/data/*": ["./packages/data/src/*"],
+      "@app/backend/*": ["./packages/backend/src/*"],
       "@app/data": ["./packages/data/src/index.ts"],
-      "@app/docs/*": ["./packages/docs/src/*"],
+      "@app/data/*": ["./packages/data/src/*"],
       "@app/docs": ["./packages/docs/src/index.ts"],
-      "@app/hub/*": ["./packages/hub/src/*"],
+      "@app/docs/*": ["./packages/docs/src/*"],
       "@app/hub": ["./packages/hub/src/index.ts"],
-      "@app/store/*": ["./packages/store/src/*"],
-      "@app/store": ["./packages/store/src/index.ts"]
+      "@app/hub/*": ["./packages/hub/src/*"],
+      "@app/store": ["./packages/store/src/index.ts"],
+      "@app/store/*": ["./packages/store/src/*"]
     }
   }
 }

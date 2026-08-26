@@ -7,7 +7,14 @@
       "@data": ["./src/index.ts"],
       "@data/*": ["./src/*"],
       "@app/data": ["./src/index.ts"],
-      "@app/data/*": ["./src/*"]
+      "@app/data/*": ["./src/*"],
+      "@contracts": ["./src/contracts/index.ts"],
+      "@contracts/*": ["./src/contracts/*"],
+      "@queries": ["./src/queries/index.ts"],
+      "@queries/*": ["./src/queries/*"],
+      "@client": ["./src/client.ts"],
+      "@config": ["./src/config.ts"],
+      "@migrator": ["./src/migrator.ts"]
     }
   },
   "include": ["src/**/*", "scripts/**/*", "tests/**/*"]

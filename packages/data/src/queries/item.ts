@@ -1,6 +1,6 @@
-import type { BunSql } from "../client";
-import type { CreateItemInput, Item, ItemFilter, UpdateItemInput } from "../contracts/item";
-import { parseCount } from "./common";
+import type { BunSql } from "@/client";
+import type { CreateItemInput, Item, ItemFilter, UpdateItemInput } from "@/contracts/item";
+import { parseCount } from "@/queries/common";
 
 /**
  * Creates type-safe database query operations for the `items` table.

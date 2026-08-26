@@ -7,6 +7,13 @@
   "types": "./src/index.ts",
   "exports": {
     ".": "./src/index.ts",
+    "./client": "./src/client.ts",
+    "./config": "./src/config.ts",
+    "./contracts": "./src/contracts/index.ts",
+    "./contracts/*": "./src/contracts/*.ts",
+    "./migrator": "./src/migrator.ts",
+    "./queries": "./src/queries/index.ts",
+    "./queries/*": "./src/queries/*.ts",
     "./*": "./src/*"
   },
   "scripts": {

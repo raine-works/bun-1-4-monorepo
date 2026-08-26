@@ -1,12 +1,12 @@
+import { Route as rootRoute } from "@hub/routes/__root";
+import { DashboardPage } from "@hub/routes/index";
+import { NotFoundPage } from "@hub/routes/not-found";
 import {
   createMemoryHistory,
   createRoute,
   createRouter,
   lazyRouteComponent,
 } from "@tanstack/react-router";
-import { Route as rootRoute } from "./routes/__root";
-import { DashboardPage } from "./routes/index";
-import { NotFoundPage } from "./routes/not-found";
 
 const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
@@ -17,13 +17,13 @@ const indexRoute = createRoute({
 const tasksRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/tasks",
-  component: lazyRouteComponent(() => import("./routes/tasks"), "TasksPage"),
+  component: lazyRouteComponent(() => import("@hub/routes/tasks"), "TasksPage"),
 });
 
 const aboutRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/about",
-  component: lazyRouteComponent(() => import("./routes/about"), "AboutPage"),
+  component: lazyRouteComponent(() => import("@hub/routes/about"), "AboutPage"),
 });
 
 export const routeTree = rootRoute.addChildren([indexRoute, tasksRoute, aboutRoute]);

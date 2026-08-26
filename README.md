@@ -77,6 +77,30 @@ bun-1-4-monorepo/
 │   │           ├── cors.ts        # CORS headers and jsonResponse helper
 │   │           ├── live-reload.ts # LiveReloadManager & SSE broker
 │   │           └── mfe.ts         # MFE resolver and virtual asset server
+│   ├── data/                      # Lightweight Type-Safe Data Layer (Bun SQL)
+│   │   ├── README.md              # Data layer architecture & guide
+│   │   ├── package.json           # Data package manifest (@app/data)
+│   │   ├── tsconfig.json          # Data TypeScript configuration (@/* & @data aliases)
+│   │   ├── migrations/            # Handwritten SQL migration files
+│   │   │   ├── 0001_create_users.sql
+│   │   │   └── 0002_create_items.sql
+│   │   ├── scripts/
+│   │   │   └── migrate.ts         # CLI migration runner (up/down/status/create/reset)
+│   │   ├── src/
+│   │   │   ├── index.ts           # Public exports
+│   │   │   ├── client.ts          # Bun SQL Database client & transaction wrapper
+│   │   │   ├── config.ts          # Connection URL & env var resolution
+│   │   │   ├── migrator.ts        # Migration engine
+│   │   │   ├── contracts/         # Strongly typed model & DTO contracts
+│   │   │   │   ├── index.ts
+│   │   │   │   ├── item.ts
+│   │   │   │   └── user.ts
+│   │   │   └── queries/           # Type-safe raw SQL query operations
+│   │   │       ├── index.ts
+│   │   │       ├── common.ts
+│   │   │       ├── item.ts
+│   │   │       └── user.ts
+│   │   └── tests/                 # Data layer unit test suite
 │   │
 │   ├── hub/                       # Primary Hub Shell Micro-Frontend (Basepath: /)
 │   │   ├── index.html             # Shell HTML entrypoint

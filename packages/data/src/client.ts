@@ -1,11 +1,11 @@
 import { SQL } from "bun";
-import { type DatabaseConfig, getDatabaseUrl } from "./config";
+import { type DatabaseConfig, getDatabaseUrl } from "@/config";
 import {
   createItemsQueries,
   createUsersQueries,
   type ItemsQueries,
   type UsersQueries,
-} from "./queries";
+} from "@/queries";
 
 export type BunSql = InstanceType<typeof SQL>;
 

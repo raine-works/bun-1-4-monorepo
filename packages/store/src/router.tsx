@@ -1,12 +1,12 @@
+import { Route as rootRoute } from "@store/routes/__root";
+import { StoreCatalogPage } from "@store/routes/index";
+import { NotFoundPage } from "@store/routes/not-found";
 import {
   createMemoryHistory,
   createRoute,
   createRouter,
   lazyRouteComponent,
 } from "@tanstack/react-router";
-import { Route as rootRoute } from "./routes/__root";
-import { StoreCatalogPage } from "./routes/index";
-import { NotFoundPage } from "./routes/not-found";
 
 const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
@@ -16,14 +16,14 @@ const indexRoute = createRoute({
 
 const cartRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: "/cart",
-  component: lazyRouteComponent(() => import("./routes/cart"), "StoreCartPage"),
+  path: "cart",
+  component: lazyRouteComponent(() => import("@store/routes/cart"), "StoreCartPage"),
 });
 
 const dealsRoute = createRoute({
   getParentRoute: () => rootRoute,
-  path: "/deals",
-  component: lazyRouteComponent(() => import("./routes/deals"), "StoreDealsPage"),
+  path: "deals",
+  component: lazyRouteComponent(() => import("@store/routes/deals"), "StoreDealsPage"),
 });
 
 export const routeTree = rootRoute.addChildren([indexRoute, cartRoute, dealsRoute]);

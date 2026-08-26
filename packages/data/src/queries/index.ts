@@ -1,3 +1,3 @@
-export * from "./common";
-export * from "./item";
-export * from "./user";
+export * from "@/queries/common";
+export * from "@/queries/item";
+export * from "@/queries/user";

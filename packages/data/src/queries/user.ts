@@ -1,6 +1,6 @@
-import type { BunSql } from "../client";
-import type { CreateUserInput, UpdateUserInput, User, UserFilter } from "../contracts/user";
-import { parseCount } from "./common";
+import type { BunSql } from "@/client";
+import type { CreateUserInput, UpdateUserInput, User, UserFilter } from "@/contracts/user";
+import { parseCount } from "@/queries/common";
 
 /**
  * Creates type-safe database query operations for the `users` table.

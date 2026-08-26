@@ -4,7 +4,15 @@
     "jsx": "react-jsx",
     "types": ["bun", "react", "react-dom"],
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@hub": ["./src/index.tsx"],
+      "@hub/*": ["./src/*"],
+      "@app/hub": ["./src/index.tsx"],
+      "@app/hub/*": ["./src/*"],
+      "@data": ["../data/src/index.ts"],
+      "@data/*": ["../data/src/*"],
+      "@app/data": ["../data/src/index.ts"],
+      "@app/data/*": ["../data/src/*"]
     }
   },
   "include": ["src/**/*", "scripts/**/*"]

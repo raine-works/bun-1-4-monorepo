@@ -1,5 +1,5 @@
+import { NotFoundPage } from "@docs/routes/not-found";
 import { createRootRoute, Link, Outlet, useLocation } from "@tanstack/react-router";
-import { NotFoundPage } from "./not-found";
 
 export const Route = createRootRoute({
   component: DocsRootLayout,
@@ -49,7 +49,7 @@ function DocsRootLayout() {
             <nav className="flex gap-1.5 flex-wrap" aria-label="Global Micro-Frontends">
               <a
                 href="/"
-                className="text-slate-300 hover:text-white hover:bg-white/5 border border-transparent font-medium px-3 py-1.5 rounded-md transition-colors min-h-[36px] inline-flex items-center justify-center"
+                className="text-slate-300 hover:text-white hover:bg-white/5 border border-transparent font-medium px-3 py-1.5 rounded-md transition-colors min-h-9 inline-flex items-center justify-center"
                 title="Hub MFE (Root Basepath)"
                 aria-label="Hub Micro-Frontend (/)"
               >
@@ -57,7 +57,7 @@ function DocsRootLayout() {
               </a>
               <a
                 href="/store"
-                className="text-slate-300 hover:text-white hover:bg-white/5 border border-transparent font-medium px-3 py-1.5 rounded-md transition-colors min-h-[36px] inline-flex items-center justify-center"
+                className="text-slate-300 hover:text-white hover:bg-white/5 border border-transparent font-medium px-3 py-1.5 rounded-md transition-colors min-h-9 inline-flex items-center justify-center"
                 title="Store MFE (/store Basepath)"
                 aria-label="Store Micro-Frontend (/store)"
               >
@@ -65,7 +65,7 @@ function DocsRootLayout() {
               </a>
               <a
                 href="/docs"
-                className="bg-sky-500/20 text-sky-200 border border-sky-500/50 font-semibold px-3 py-1.5 rounded-md transition-colors min-h-[36px] inline-flex items-center justify-center"
+                className="bg-sky-500/20 text-sky-200 border border-sky-500/50 font-semibold px-3 py-1.5 rounded-md transition-colors min-h-9 inline-flex items-center justify-center"
                 title="Docs MFE (/docs Basepath)"
                 aria-label="Docs Micro-Frontend (/docs)"
               >
@@ -88,7 +88,7 @@ function DocsRootLayout() {
                 inactiveProps={{
                   className: "text-slate-300 hover:text-white hover:bg-white/5 border-transparent",
                 }}
-                className="px-3 py-1.5 rounded-md border transition-all text-xs min-h-[36px] inline-flex items-center justify-center"
+                className="px-3 py-1.5 rounded-md border transition-all text-xs min-h-9 inline-flex items-center justify-center"
                 activeOptions={{ exact: true }}
               >
                 Overview
@@ -101,7 +101,7 @@ function DocsRootLayout() {
                 inactiveProps={{
                   className: "text-slate-300 hover:text-white hover:bg-white/5 border-transparent",
                 }}
-                className="px-3 py-1.5 rounded-md border transition-all text-xs min-h-[36px] inline-flex items-center justify-center"
+                className="px-3 py-1.5 rounded-md border transition-all text-xs min-h-9 inline-flex items-center justify-center"
               >
                 Guides
               </Link>
@@ -113,13 +113,13 @@ function DocsRootLayout() {
                 inactiveProps={{
                   className: "text-slate-300 hover:text-white hover:bg-white/5 border-transparent",
                 }}
-                className="px-3 py-1.5 rounded-md border transition-all text-xs min-h-[36px] inline-flex items-center justify-center"
+                className="px-3 py-1.5 rounded-md border transition-all text-xs min-h-9 inline-flex items-center justify-center"
               >
                 API
               </Link>
               <Link
                 to="/not-found-demo"
-                className="text-rose-300 hover:bg-rose-500/15 border border-rose-500/30 px-2.5 py-1.5 rounded-md transition-colors text-xs font-mono min-h-[36px] inline-flex items-center justify-center"
+                className="text-rose-300 hover:bg-rose-500/15 border border-rose-500/30 px-2.5 py-1.5 rounded-md transition-colors text-xs font-mono min-h-9 inline-flex items-center justify-center"
                 title="Test Docs 404 Handler"
               >
                 Test 404

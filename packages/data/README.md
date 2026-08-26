@@ -111,3 +111,35 @@ CREATE TABLE IF NOT EXISTS example (
 -- down
 DROP TABLE IF EXISTS example CASCADE;
 ```
+
+---
+
+## 🔗 Import Aliases & Subpath Exports
+
+The `@app/data` package is configured with full import aliases and subpath exports across the monorepo:
+
+### Internal Package Aliases
+Within `packages/data/` (source code, scripts, tests), relative imports (`./`, `../`) are disallowed in favor of clean aliases:
+- `@/*` -> `./src/*` (`@/client`, `@/config`, `@/contracts`, `@/queries`, `@/migrator`)
+- `@contracts`, `@contracts/*` -> `./src/contracts/*`
+- `@queries`, `@queries/*` -> `./src/queries/*`
+- `@client`, `@config`, `@migrator`
+
+### Cross-Package Consuming Aliases
+Other packages (`@app/backend`, `@app/hub`, `@app/store`, `@app/docs`) can import via:
+```ts
+// Full package import
+import { db, Database, Migrator } from "@app/data";
+import type { User, Item } from "@app/data";
+
+// Subpath imports & aliases
+import { createDatabase } from "@app/data/client";
+import { getDatabaseUrl } from "@app/data/config";
+import type { CreateUserInput } from "@app/data/contracts";
+import { createItemsQueries } from "@app/data/queries";
+
+// Shorthand aliases
+import { db } from "@data";
+import type { User } from "@data/contracts";
+```
+
