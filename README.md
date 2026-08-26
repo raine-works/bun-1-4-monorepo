@@ -2,6 +2,10 @@
 
 A lightweight full-stack monorepo built with **Bun**, **React 19**, and **Biome**. Compiles the backend and all micro-frontends into a single, self-contained standalone binary.
 
+## 📋 Prerequisites
+
+- [Bun](https://bun.sh) `v1.4.0` or higher
+
 ## 🚀 Quick Start
 
 ```bash
