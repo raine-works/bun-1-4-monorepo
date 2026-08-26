@@ -1,0 +1,50 @@
+import { createMemoryHistory, createRoute, createRouter } from "@tanstack/react-router";
+import { Route as rootRoute } from "./routes/__root";
+import { DocsApiPage } from "./routes/api";
+import { DocsGuidesPage } from "./routes/guides";
+import { DocsOverviewPage } from "./routes/index";
+import { NotFoundPage } from "./routes/not-found";
+
+const indexRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/",
+  component: DocsOverviewPage,
+});
+
+const guidesRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/guides",
+  component: DocsGuidesPage,
+});
+
+const apiRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/api",
+  component: DocsApiPage,
+});
+
+export const routeTree = rootRoute.addChildren([indexRoute, guidesRoute, apiRoute]);
+
+/**
+ * Creates a configured TanStack Router instance for the Docs micro-frontend.
+ * Scoped to basepath `/docs` with 404 handler and memory history for test/SSR.
+ *
+ * @param initialPath - The initial path used when instantiating in memory history mode (e.g. during SSR or unit tests).
+ * @returns A fully initialized TanStack Router instance with scoped basepath `/docs` and registered routes.
+ */
+export function createAppRouter(initialPath = "/docs/") {
+  return createRouter({
+    routeTree,
+    basepath: "/docs",
+    defaultNotFoundComponent: NotFoundPage,
+    history:
+      typeof window === "undefined"
+        ? createMemoryHistory({ initialEntries: [initialPath] })
+        : undefined,
+  });
+}
+
+/** Default browser router instance for the Docs micro-frontend. */
+export const defaultRouter = createAppRouter();
+/** Alias for defaultRouter. */
+export const router = defaultRouter;

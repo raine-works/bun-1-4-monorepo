@@ -1,41 +1,24 @@
+import { RouterProvider } from "@tanstack/react-router";
+import { createAppRouter, defaultRouter } from "@/router";
+
+/**
+ * Props passed to the Store application root component.
+ */
+export interface AppProps {
+  /** Optional preconfigured router instance (e.g. MemoryHistory router for server-side testing). */
+  router?: typeof defaultRouter;
+}
+
 /**
  * Root component for the Store micro-frontend (`/store`).
+ * Integrates TanStack Router with scoped basepath `/store` and client routes (`/store/`, `/store/cart`, `/store/deals`).
+ *
+ * @param props - Component properties including optional custom router instance.
+ * @returns The rendered TanStack `RouterProvider` component tree.
  */
-export function App() {
-  return (
-    <div className="mx-auto max-w-4xl w-full flex flex-col gap-6 py-8 px-4">
-      <header className="text-center mb-4">
-        <span className="inline-block bg-pink-500/15 text-pink-400 border border-pink-500/30 font-mono text-xs font-semibold px-3 py-1 rounded-full mb-3">
-          Store MFE
-        </span>
-        <h1 className="text-4xl font-extrabold bg-linear-to-r from-white via-pink-400 to-sky-400 bg-clip-text text-transparent mb-2">
-          Store
-        </h1>
-        <p className="text-slate-400 text-sm md:text-base">Micro-frontend store module</p>
-        <nav className="flex justify-center gap-3 mt-4">
-          <a
-            href="/"
-            className="text-slate-400 hover:text-white hover:bg-white/5 border border-transparent font-semibold text-sm px-3 py-1.5 rounded-md transition-colors"
-          >
-            Hub
-          </a>
-          <a
-            href="/store"
-            className="text-pink-400 bg-pink-500/10 border border-pink-500/30 font-semibold text-sm px-3 py-1.5 rounded-md transition-colors"
-          >
-            Store
-          </a>
-          <a
-            href="/docs"
-            className="text-slate-400 hover:text-white hover:bg-white/5 border border-transparent font-semibold text-sm px-3 py-1.5 rounded-md transition-colors"
-          >
-            Docs
-          </a>
-        </nav>
-      </header>
-      <section className="mx-auto bg-[#161b22] border border-[#30363d] rounded-xl p-5 shadow-lg text-slate-300">
-        <p>Store micro-frontend content goes here.</p>
-      </section>
-    </div>
-  );
+export function App(props?: AppProps) {
+  const routerInstance = props?.router ?? defaultRouter;
+  return <RouterProvider router={routerInstance} />;
 }
+
+export { createAppRouter, defaultRouter, defaultRouter as router };

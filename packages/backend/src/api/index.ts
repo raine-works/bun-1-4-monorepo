@@ -1,16 +1,29 @@
-import { handleCorsPreflight, jsonResponse } from "@/lib/cors";
-import type { LiveReloadManager } from "@/lib/live-reload";
-import { handleItems } from "@/api/api/items";
 import { handleHealth } from "@/api/health";
 import { handleInfo } from "@/api/info";
 import { handleLiveReloadRoute } from "@/api/live-reload";
+import { handleItems } from "@/api/routers/items";
+import { handleCorsPreflight, jsonResponse } from "@/lib/cors";
+import type { LiveReloadManager } from "@/lib/live-reload";
 
+/**
+ * Contextual configuration passed into the API router during HTTP request processing.
+ */
 export interface ApiRouterContext {
+  /** Whether the server is running inside a compiled standalone binary. */
   isStandalone: boolean;
+  /** Whether development live reload is enabled. */
   enableLiveReload: boolean;
+  /** The active LiveReloadManager instance, or null if live reload is inactive. */
   liveReloadManager: LiveReloadManager | null;
 }
 
+/**
+ * Dispatches incoming HTTP requests to corresponding API endpoint handlers or live reload routes.
+ *
+ * @param req - The incoming HTTP Request.
+ * @param context - Configuration context including standalone mode and live reload manager.
+ * @returns An HTTP Response if the route matches `/api/*`, `/live-reload`, or OPTIONS preflight; otherwise null.
+ */
 export async function handleApiRequest(
   req: Request,
   context: ApiRouterContext
