@@ -1,0 +1,21 @@
+{
+	"format_on_save": "on",
+	"formatter": [
+		{
+			"language_server": {
+				"name": "biome"
+			}
+		},
+		{
+			"code_action": "source.organizeImports"
+		},
+		{
+			"code_action": "source.fixAll.biome"
+		}
+	],
+	"languages": {
+		"CSS": {
+			"language_servers": ["biome", "!css-language-server"]
+		}
+	}
+}

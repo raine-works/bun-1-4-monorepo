@@ -1,0 +1,20 @@
+{
+  "name": "@app/backend",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "bun --watch src/index.ts",
+    "build": "bun build.ts",
+    "start": "./dist/server",
+    "test": "bun test",
+    "docker:build": "docker build -f Dockerfile -t app-backend ../..",
+    "docker:run": "docker run -p 3000:3000 app-backend"
+  },
+  "dependencies": {
+    "@app/frontend": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/bun": "catalog:"
+  }
+}

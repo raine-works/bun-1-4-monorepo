@@ -1,0 +1,39 @@
+{
+  "name": "bun-1-4-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "packages/*"
+  ],
+  "catalog": {
+    "@biomejs/biome": "2.5.10",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.5",
+    "@types/bun": "1.4.0",
+    "typescript": "7.0.2"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "catalog:",
+    "@types/bun": "catalog:",
+    "typescript": "catalog:"
+  },
+  "scripts": {
+    "dev": "bun run --parallel --filter '*' dev",
+    "build": "bun run --filter @app/frontend build && bun run --filter @app/backend build",
+    "start": "bun run --filter @app/backend start",
+    "test": "bun test --parallel",
+    "typecheck": "tsc --noEmit",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "format": "biome format --write .",
+    "dev:backend": "bun run --filter @app/backend dev",
+    "dev:frontend": "bun run --filter @app/frontend dev",
+    "build:backend": "bun run --filter @app/backend build",
+    "build:frontend": "bun run --filter @app/frontend build",
+    "docker:backend": "bun run --filter @app/backend docker:build",
+    "docker:run:backend": "bun run --filter @app/backend docker:run"
+  }
+}

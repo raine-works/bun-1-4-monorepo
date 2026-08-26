@@ -1,0 +1,12 @@
+[install]
+# Pin exact versions when installing packages
+save = true
+exact = true
+
+[test]
+# Configuration for bun test
+coverage = false
+
+[serve.static]
+# Sourcemap configuration for Bun.serve
+sourcemap = "linked"

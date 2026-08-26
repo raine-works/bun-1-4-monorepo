@@ -1,0 +1,12 @@
+node_modules
+**/node_modules
+dist
+**/dist
+*.bun-build
+.*.bun-build*
+.git
+.gitignore
+.zed
+*.log
+.DS_Store
+README.md
