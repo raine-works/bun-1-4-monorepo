@@ -57,6 +57,7 @@ bun-1-4-monorepo/
 ├── tsconfig.json                  # Monorepo root TypeScript configuration
 ├── packages/
 │   ├── backend/                   # Bun HTTP Server & Standalone Binary Compiler
+│   │   ├── .env.example           # Environment template for local dev (.env.local)
 │   │   ├── Dockerfile             # Multi-stage distroless Docker configuration
 │   │   ├── package.json           # Backend package manifest
 │   │   ├── tsconfig.json          # Backend TypeScript configuration (@/* aliases)
@@ -75,9 +76,11 @@ bun-1-4-monorepo/
 │   │       │       └── items.ts   # CRUD task items router (/api/items)
 │   │       └── lib/               # Server utility libraries
 │   │           ├── cors.ts        # CORS headers and jsonResponse helper
+│   │           ├── env.ts         # Zod-validated server environment schema
 │   │           ├── live-reload.ts # LiveReloadManager & SSE broker
 │   │           └── mfe.ts         # MFE resolver and virtual asset server
 │   ├── data/                      # Lightweight Type-Safe Data Layer (Bun SQL)
+│   │   ├── .env.example           # Environment template for local dev (.env.local)
 │   │   ├── README.md              # Data layer architecture & guide
 │   │   ├── package.json           # Data package manifest (@app/data)
 │   │   ├── tsconfig.json          # Data TypeScript configuration (@/* & @data aliases)
@@ -89,7 +92,7 @@ bun-1-4-monorepo/
 │   │   ├── src/
 │   │   │   ├── index.ts           # Public exports
 │   │   │   ├── client.ts          # Bun SQL Database client & transaction wrapper
-│   │   │   ├── config.ts          # Connection URL & env var resolution
+│   │   │   ├── env.ts             # Zod-validated database environment schema
 │   │   │   ├── migrator.ts        # Migration engine
 │   │   │   ├── contracts/         # Strongly typed model & DTO contracts
 │   │   │   │   ├── index.ts
@@ -227,6 +230,26 @@ All API routes return JSON payloads with standard CORS headers (`Access-Control-
 | `DELETE` | `/api/items/:id` | Delete a task item by ID | None | `200 OK` |
 | `GET` | `/api/live-reload` | Server-Sent Events stream for development live reload | None | `200 OK` (SSE) |
 | `OPTIONS` | `/*` | CORS preflight options handler | None | `200 OK` / `204 No Content` |
+
+---
+
+## ⚙️ Environment Configuration
+
+Environment variables are **scoped to each package** and validated with **Zod** at startup:
+
+- **Local Development**: Copy `.env.example` to `.env.local` inside each package:
+  ```bash
+  # Data package environment (.env.local)
+  cp packages/data/.env.example packages/data/.env.local
+
+  # Backend package environment (.env.local)
+  cp packages/backend/.env.example packages/backend/.env.local
+  ```
+- **Validated Variables**:
+  - `DATABASE_URL`: PostgreSQL connection string (required by `@app/data` & `@app/backend`).
+  - `PORT`: HTTP server port (defaults to `3000` in `@app/backend`).
+  - `PGMAX_POOL`: Connection pool limit (defaults to `10` in `@app/data`).
+  - `NODE_ENV`: `development` / `production` / `test` (defaults to `development`).
 
 ---
 

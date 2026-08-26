@@ -1,5 +1,5 @@
 import { SQL } from "bun";
-import { type DatabaseConfig, getDatabaseUrl } from "@/config";
+import { env } from "@/env";
 import {
   createItemsQueries,
   createUsersQueries,
@@ -10,6 +10,21 @@ import {
 export type BunSql = InstanceType<typeof SQL>;
 
 /**
+ * Database connection options.
+ */
+export interface DatabaseOptions {
+  /** PostgreSQL connection URL. Defaults to `env.DATABASE_URL`. */
+  url?: string;
+  /** Maximum pool connections. Defaults to `env.PGMAX_POOL` (10). */
+  max?: number;
+  /** Connection idle timeout in seconds. Defaults to 30. */
+  idleTimeout?: number;
+}
+
+/** Alias for DatabaseOptions for backwards compatibility. */
+export type DatabaseConfig = DatabaseOptions;
+
+/**
  * Lightweight, type-safe database layer wrapping Bun's native SQL driver.
  */
 export class Database {
@@ -17,7 +32,7 @@ export class Database {
   readonly users: UsersQueries;
   readonly items: ItemsQueries;
 
-  constructor(configOrUrlOrSql?: string | DatabaseConfig | BunSql) {
+  constructor(configOrUrlOrSql?: string | DatabaseOptions | BunSql) {
     if (
       configOrUrlOrSql &&
       typeof configOrUrlOrSql === "function" &&
@@ -26,26 +41,26 @@ export class Database {
       // Transaction or custom SQL instance passed
       this.sql = configOrUrlOrSql as BunSql;
     } else {
-      const url = getDatabaseUrl(
-        typeof configOrUrlOrSql === "string" ||
-          (typeof configOrUrlOrSql === "object" && configOrUrlOrSql !== null)
-          ? (configOrUrlOrSql as string | DatabaseConfig)
-          : undefined
-      );
+      const url =
+        typeof configOrUrlOrSql === "string"
+          ? configOrUrlOrSql
+          : typeof configOrUrlOrSql === "object" &&
+              configOrUrlOrSql !== null &&
+              configOrUrlOrSql.url
+            ? configOrUrlOrSql.url
+            : env.DATABASE_URL;
 
       const max =
         typeof configOrUrlOrSql === "object" &&
         configOrUrlOrSql !== null &&
-        "max" in configOrUrlOrSql
+        configOrUrlOrSql.max !== undefined
           ? configOrUrlOrSql.max
-          : process.env.PGMAX_POOL
-            ? Number(process.env.PGMAX_POOL)
-            : 10;
+          : env.PGMAX_POOL;
 
       const idleTimeout =
         typeof configOrUrlOrSql === "object" &&
         configOrUrlOrSql !== null &&
-        "idleTimeout" in configOrUrlOrSql
+        configOrUrlOrSql.idleTimeout !== undefined
           ? configOrUrlOrSql.idleTimeout
           : 30;
 
@@ -139,14 +154,14 @@ let defaultDbInstance: Database | null = null;
 /**
  * Creates a new Database instance.
  */
-export function createDatabase(configOrUrl?: string | DatabaseConfig | BunSql): Database {
+export function createDatabase(configOrUrl?: string | DatabaseOptions | BunSql): Database {
   return new Database(configOrUrl);
 }
 
 /**
  * Returns the default singleton Database instance.
  */
-export function getDatabase(configOrUrl?: string | DatabaseConfig): Database {
+export function getDatabase(configOrUrl?: string | DatabaseOptions): Database {
   if (!defaultDbInstance) {
     defaultDbInstance = new Database(configOrUrl);
   }

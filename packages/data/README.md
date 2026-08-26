@@ -17,6 +17,7 @@ A lightweight, high-performance, and type-safe data layer for PostgreSQL powered
 
 ```
 packages/data/
+├── .env.example            # Environment template for local dev (.env.local)
 ├── migrations/             # Handwritten SQL migration files
 │   ├── 0001_create_users.sql
 │   └── 0002_create_items.sql
@@ -24,7 +25,7 @@ packages/data/
 │   └── migrate.ts          # Migration CLI runner
 ├── src/
 │   ├── client.ts           # Bun SQL connection initialization and transaction wrapper
-│   ├── config.ts           # Connection URL & env var resolution
+│   ├── env.ts              # Zod-validated environment schema & DATABASE_URL
 │   ├── contracts/          # Type-safe model contracts and DTOs
 │   │   ├── user.ts         # User, CreateUserInput, UpdateUserInput, UserFilter
 │   │   ├── item.ts         # Item, CreateItemInput, UpdateItemInput, ItemFilter
@@ -36,6 +37,23 @@ packages/data/
 │   ├── migrator.ts         # Lightweight SQL migration engine
 │   └── index.ts            # Public package exports
 └── tests/                  # Unit and integration test suite
+```
+
+---
+
+## ⚙️ Environment Variables
+
+Environment variables are scoped to `packages/data/` and validated at startup using **Zod**:
+
+| Variable | Required | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `DATABASE_URL` | **Yes** | — | PostgreSQL connection string (`postgres://...` or `postgresql://...`) |
+| `NODE_ENV` | No | `development` | `development` / `production` / `test` |
+| `PGMAX_POOL` | No | `10` | Maximum connection pool size |
+
+For local development, copy the example configuration:
+```bash
+cp packages/data/.env.example packages/data/.env.local
 ```
 
 ---
@@ -120,21 +138,21 @@ The `@app/data` package is configured with full import aliases and subpath expor
 
 ### Internal Package Aliases
 Within `packages/data/` (source code, scripts, tests), relative imports (`./`, `../`) are disallowed in favor of clean aliases:
-- `@/*` -> `./src/*` (`@/client`, `@/config`, `@/contracts`, `@/queries`, `@/migrator`)
+- `@/*` -> `./src/*` (`@/client`, `@/env`, `@/contracts`, `@/queries`, `@/migrator`)
 - `@contracts`, `@contracts/*` -> `./src/contracts/*`
 - `@queries`, `@queries/*` -> `./src/queries/*`
-- `@client`, `@config`, `@migrator`
+- `@client`, `@env`, `@migrator`
 
 ### Cross-Package Consuming Aliases
 Other packages (`@app/backend`, `@app/hub`, `@app/store`, `@app/docs`) can import via:
 ```ts
 // Full package import
-import { db, Database, Migrator } from "@app/data";
+import { db, Database, Migrator, env } from "@app/data";
 import type { User, Item } from "@app/data";
 
 // Subpath imports & aliases
 import { createDatabase } from "@app/data/client";
-import { getDatabaseUrl } from "@app/data/config";
+import { env } from "@app/data/env";
 import type { CreateUserInput } from "@app/data/contracts";
 import { createItemsQueries } from "@app/data/queries";
 

@@ -13,7 +13,7 @@
       "@queries": ["./src/queries/index.ts"],
       "@queries/*": ["./src/queries/*"],
       "@client": ["./src/client.ts"],
-      "@config": ["./src/config.ts"],
+      "@env": ["./src/env.ts"],
       "@migrator": ["./src/migrator.ts"]
     }
   },

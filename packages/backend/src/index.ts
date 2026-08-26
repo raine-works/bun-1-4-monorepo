@@ -1,5 +1,6 @@
 import { handleApiRequest } from "@/api";
 import { applyCompression } from "@/lib/compression";
+import { env } from "@/lib/env";
 import { LiveReloadManager } from "@/lib/live-reload";
 import { isStandaloneMode, resolveFrontendDist, serveMicroFrontend } from "@/lib/mfe";
 import type { Item, ServerInfo, ServerOptions } from "@/types";
@@ -26,10 +27,11 @@ export { isStandaloneMode, resolveFrontendDist };
 export function createServer(optionsOrPort: number | ServerOptions = 3000) {
   const options: ServerOptions =
     typeof optionsOrPort === "number" ? { port: optionsOrPort } : optionsOrPort;
-  const port = options.port ?? 3000;
+  const port = options.port ?? env.PORT;
   const standalone = isStandaloneMode();
-  const isProduction = process.env.NODE_ENV === "production" || standalone;
-  const enableLiveReload = options.liveReload ?? (!isProduction && process.env.NODE_ENV !== "test");
+  const currentEnv = process.env.NODE_ENV ?? env.NODE_ENV;
+  const isProduction = currentEnv === "production" || standalone;
+  const enableLiveReload = options.liveReload ?? (!isProduction && currentEnv !== "test");
 
   const distDir = resolveFrontendDist();
   const liveReloadManager = enableLiveReload ? new LiveReloadManager() : null;
@@ -68,7 +70,7 @@ export function createServer(optionsOrPort: number | ServerOptions = 3000) {
 
 // Start server when executed directly
 if (import.meta.main) {
-  const port = Number(process.env.PORT || 3000);
+  const port = env.PORT;
   const server = createServer(port);
   const isStandalone = isStandaloneMode();
   console.log(`🚀 Server listening at http://localhost:${server.port}`);

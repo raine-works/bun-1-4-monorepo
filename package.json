@@ -15,14 +15,16 @@
     "typescript": "7.0.2",
     "tailwindcss": "4.3.3",
     "bun-plugin-tailwind": "0.1.2",
-    "@tanstack/react-router": "1.170.32"
+    "@tanstack/react-router": "1.170.32",
+    "zod": "4.4.3"
   },
   "devDependencies": {
     "@biomejs/biome": "catalog:",
     "@types/bun": "catalog:",
     "bun-plugin-tailwind": "catalog:",
     "tailwindcss": "catalog:",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "zod": "catalog:"
   },
   "scripts": {
     "build": "bun run --concurrent --filter '*' build",

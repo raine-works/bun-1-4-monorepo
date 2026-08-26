@@ -1,9 +1,8 @@
 // Database Client & Connection
 export * from "@/client";
-export * from "@/config";
-
 // Type-Safe Contracts (Data Models & DTOs)
 export * from "@/contracts";
+export * from "@/env";
 
 // Migrations
 export * from "@/migrator";

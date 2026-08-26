@@ -1,5 +1,6 @@
 import { existsSync } from "node:fs";
 import { join } from "node:path";
+import { env } from "@/lib/env";
 import { injectLiveReload } from "@/lib/live-reload";
 
 /**
@@ -91,8 +92,8 @@ export function isStandaloneMode(): boolean {
  * @returns The resolved path to the primary frontend's `dist` directory.
  */
 export function resolveFrontendDist(): string {
-  if (process.env.FRONTEND_DIST) {
-    return process.env.FRONTEND_DIST;
+  if (env.FRONTEND_DIST) {
+    return env.FRONTEND_DIST;
   }
 
   // 1. Embedded path inside compiled standalone binary

@@ -10,6 +10,7 @@
         "bun-plugin-tailwind": "catalog:",
         "tailwindcss": "catalog:",
         "typescript": "catalog:",
+        "zod": "catalog:",
       },
     },
     "packages/backend": {
@@ -19,6 +20,7 @@
         "@app/docs": "workspace:*",
         "@app/hub": "workspace:*",
         "@app/store": "workspace:*",
+        "zod": "catalog:",
       },
       "devDependencies": {
         "@types/bun": "catalog:",
@@ -27,6 +29,9 @@
     "packages/data": {
       "name": "@app/data",
       "version": "1.0.0",
+      "dependencies": {
+        "zod": "catalog:",
+      },
       "devDependencies": {
         "@types/bun": "catalog:",
       },
@@ -88,6 +93,7 @@
     "react-dom": "19.2.8",
     "tailwindcss": "4.3.3",
     "typescript": "7.0.2",
+    "zod": "4.4.3",
   },
   "packages": {
     "@app/backend": ["@app/backend@workspace:packages/backend"],
@@ -229,5 +235,7 @@
     "undici-types": ["undici-types@8.3.0", "", {}, "sha512-j375ScV60dom+YkPFIfTLcOiPxkN/buHz5GobjLhixFuANaNs3C9l4GmrWqejgXWJ7BbJcFYpTEUkS1Ge8bpZQ=="],
 
     "use-sync-external-store": ["use-sync-external-store@1.6.0", "", { "peerDependencies": { "react": "^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0" } }, "sha512-Pp6GSwGP/NrPIrxVFAIkOQeyw8lFenOHijQWkUTrDvrF4ALqylP2C/KCkeS9dpUM3KvYRQhna5vt7IL95+ZQ9w=="],
+
+    "zod": ["zod@4.4.3", "", {}, "sha512-ytENFjIJFl2UwYglde2jchW2Hwm4GJFLDiSXWdTrJQBIN9Fcyp7n4DhxJEiWNAJMV1/BqWfW/kkg71UDcHJyTQ=="],
   }
 }
