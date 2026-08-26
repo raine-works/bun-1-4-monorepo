@@ -1,9 +1,9 @@
 import { handleCorsPreflight, jsonResponse } from "@/lib/cors";
 import type { LiveReloadManager } from "@/lib/live-reload";
-import { handleItems } from "@/routes/api/items";
-import { handleHealth } from "@/routes/health";
-import { handleInfo } from "@/routes/info";
-import { handleLiveReloadRoute } from "@/routes/live-reload";
+import { handleItems } from "@/api/api/items";
+import { handleHealth } from "@/api/health";
+import { handleInfo } from "@/api/info";
+import { handleLiveReloadRoute } from "@/api/live-reload";
 
 export interface ApiRouterContext {
   isStandalone: boolean;
@@ -22,6 +22,11 @@ export async function handleApiRequest(
     return handleCorsPreflight();
   }
 
+  // Handle live reload on /live-reload or /api/live-reload
+  if (url.pathname === "/live-reload" || url.pathname === "/api/live-reload") {
+    return handleLiveReloadRoute(req, context.liveReloadManager);
+  }
+
   // Only handle /api/* endpoints
   if (!url.pathname.startsWith("/api/")) {
     return null;
@@ -36,10 +41,6 @@ export async function handleApiRequest(
       isStandalone: context.isStandalone,
       liveReload: context.enableLiveReload,
     });
-  }
-
-  if (url.pathname === "/api/live-reload") {
-    return handleLiveReloadRoute(req, context.liveReloadManager);
   }
 
   if (url.pathname === "/api/items" || url.pathname.startsWith("/api/items/")) {

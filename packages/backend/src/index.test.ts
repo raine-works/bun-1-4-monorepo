@@ -124,6 +124,10 @@ describe("Backend Server & Micro-Frontend Host", () => {
       expect(res.status).toBe(200);
       expect(res.headers.get("content-type")).toContain("text/event-stream");
 
+      const resDirect = await fetch(`${liveUrl}/live-reload`);
+      expect(resDirect.status).toBe(200);
+      expect(resDirect.headers.get("content-type")).toContain("text/event-stream");
+
       const htmlRes = await fetch(`${liveUrl}/`);
       const html = await htmlRes.text();
       expect(html).toContain("/api/live-reload");
@@ -179,6 +183,42 @@ describe("Backend Server & Micro-Frontend Host", () => {
       expect(html).toContain("Cache-Control");
     } finally {
       liveServer.stop();
+    }
+  });
+
+  it("should not inject live reload script or enable SSE route in production mode", async () => {
+    const origEnv = process.env.NODE_ENV;
+    process.env.NODE_ENV = "production";
+    const prodServer = createServer({ port: 0 });
+    const prodUrl = `http://localhost:${prodServer.port}`;
+
+    try {
+      // 1. Info endpoint reports liveReload: false
+      const infoRes = await fetch(`${prodUrl}/api/info`);
+      expect(infoRes.status).toBe(200);
+      const info = (await infoRes.json()) as { liveReload: boolean };
+      expect(info.liveReload).toBe(false);
+
+      // 2. /api/live-reload and /live-reload return 404
+      const sseRes = await fetch(`${prodUrl}/api/live-reload`);
+      expect(sseRes.status).toBe(404);
+
+      const sseDirectRes = await fetch(`${prodUrl}/live-reload`);
+      expect(sseDirectRes.status).toBe(404);
+
+      // 3. HTML responses do not contain live reload script or EventSource connection
+      const routes = ["/", "/store", "/docs"];
+      for (const route of routes) {
+        const res = await fetch(`${prodUrl}${route}`);
+        expect(res.status).toBe(200);
+        const html = await res.text();
+        expect(html).not.toContain("/api/live-reload");
+        expect(html).not.toContain("window.__LIVE_RELOAD_ACTIVE__");
+        expect(html).not.toContain("Live Reload Client");
+      }
+    } finally {
+      prodServer.stop();
+      process.env.NODE_ENV = origEnv;
     }
   });
 });

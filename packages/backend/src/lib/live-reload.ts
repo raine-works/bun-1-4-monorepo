@@ -2,6 +2,15 @@ import { existsSync, readdirSync, watch } from "node:fs";
 import { join } from "node:path";
 import { CORS_HEADERS } from "@/lib/cors";
 
+/**
+ * Injected client-side script that handles Server-Sent Events (SSE) live reload in development mode.
+ * Features:
+ * - Pre-flight verification before page reload to ensure assets are ready.
+ * - Automatic reconnection on connection drop.
+ * - Visibility change pausing/resuming.
+ * - Auto-recovery if a dynamic stylesheet or script chunk encounters a network error.
+ * - Clean connection teardown on page navigation to prevent HTTP/1 socket exhaustion.
+ */
 export const LIVE_RELOAD_SCRIPT = `
 <!-- Live Reload Client (Development Only) -->
 <script>
@@ -118,6 +127,13 @@ export const LIVE_RELOAD_SCRIPT = `
 </script>
 `;
 
+/**
+ * Injects the development live-reload client script into HTML content or file before the closing `</body>` tag.
+ * Includes retry logic to handle active file writes from concurrent builds in watch mode.
+ *
+ * @param fileOrHtml - The `BunFile` handle or raw HTML string.
+ * @returns An HTTP `Response` containing the modified HTML and no-cache headers.
+ */
 export async function injectLiveReload(fileOrHtml: Bun.BunFile | string): Promise<Response> {
   let html = "";
   if (typeof fileOrHtml === "string") {
@@ -158,6 +174,13 @@ export async function injectLiveReload(fileOrHtml: Bun.BunFile | string): Promis
   });
 }
 
+/**
+ * Serves a development static asset (JS, CSS, images) with cache-busting headers
+ * and retry handling if the asset file is in the middle of being written to disk.
+ *
+ * @param file - The `BunFile` handle to stream to the client.
+ * @returns An HTTP `Response` with no-cache headers.
+ */
 export async function serveDevAsset(file: Bun.BunFile): Promise<Response> {
   // If file was just created and size is 0 (write in progress), wait briefly
   if (file.size === 0) {
@@ -174,6 +197,9 @@ export async function serveDevAsset(file: Bun.BunFile): Promise<Response> {
   });
 }
 
+/**
+ * Manages Server-Sent Events (SSE) connections and filesystem watching for local development live reload.
+ */
 export class LiveReloadManager {
   private sseClients = new Set<ReadableStreamDefaultController>();
   private watcher: ReturnType<typeof watch> | null = null;
@@ -281,6 +307,9 @@ export class LiveReloadManager {
     }
   }
 
+  /**
+   * Broadcasts a `reload` message event to all active Server-Sent Event (SSE) browser clients.
+   */
   broadcastReload(): void {
     const message = new TextEncoder().encode("data: reload\n\n");
     for (const client of this.sseClients) {
@@ -292,6 +321,12 @@ export class LiveReloadManager {
     }
   }
 
+  /**
+   * Handles an incoming HTTP request for the live reload SSE stream endpoint (`/api/live-reload`).
+   *
+   * @param req - The incoming HTTP `Request`.
+   * @returns An HTTP `Response` configured with `text/event-stream` and CORS headers.
+   */
   handleSseRequest(req: Request): Response {
     let controller: ReadableStreamDefaultController | null = null;
     const removeClient = () => {
@@ -336,6 +371,9 @@ export class LiveReloadManager {
     });
   }
 
+  /**
+   * Closes all active SSE client connections, cancels file watchers, and clears heartbeat/debounce timers.
+   */
   stop(): void {
     if (this.heartbeatTimer) {
       clearInterval(this.heartbeatTimer);

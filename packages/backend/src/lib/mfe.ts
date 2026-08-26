@@ -2,19 +2,33 @@ import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { injectLiveReload, serveDevAsset } from "@/lib/live-reload";
 
+/**
+ * Configuration options for serving micro-frontend assets and SPAs.
+ */
 export interface ServeMicroFrontendOptions {
+  /** Absolute filesystem or virtual path to the primary frontend dist directory. */
   distDir: string;
+  /** Whether development live reload script injection is enabled. */
   enableLiveReload?: boolean;
 }
 
+/**
+ * Determines whether the current process is executing within a self-contained Bun standalone binary.
+ * Standalone binaries embed assets in Bun's virtual filesystem (`/$bunfs` or `Bun.embeddedFiles`).
+ *
+ * @returns `true` if running as a compiled standalone executable, `false` otherwise.
+ */
 export function isStandaloneMode(): boolean {
   return Boolean(Bun.embeddedFiles?.length > 0 || import.meta.dir.startsWith("/$bunfs"));
 }
 
 /**
- * Resolves the primary frontend distribution directory:
- * - When running as a standalone compiled binary, assets are embedded at /$bunfs/root/packages/hub/dist
- * - When running in development mode, resolves to ../../../hub/dist (relative to lib/)
+ * Resolves the primary frontend distribution directory based on the execution context:
+ * - Environment override (`process.env.FRONTEND_DIST`) if set.
+ * - Virtual embedded path inside compiled standalone binary (`/$bunfs/...`).
+ * - Workspace package path in local development (`packages/hub/dist`).
+ *
+ * @returns The resolved path to the primary frontend's `dist` directory.
  */
 export function resolveFrontendDist(): string {
   if (process.env.FRONTEND_DIST) {
@@ -49,8 +63,20 @@ export function resolveFrontendDist(): string {
 }
 
 /**
- * Serves micro-frontend assets and handles SPA routing fallbacks
- * across both standalone binary (embedded files) and development (filesystem) modes.
+ * Serves micro-frontend assets and handles SPA routing fallbacks across both standalone binary
+ * (embedded virtual assets) and development (local filesystem) modes.
+ *
+ * Route Resolution Rules:
+ * 1. Scoped micro-frontends (e.g., `/store/*`, `/docs/*`):
+ *    - Serves matching static files if requested (`/store/chunk-xyz.js`).
+ *    - Falls back to the scoped MFE's `index.html` for client-side navigation.
+ * 2. Root frontend (`/` and unmatched client routes):
+ *    - Serves hub static files or falls back to hub's `index.html`.
+ * 3. In development mode with live reload active, injects the live-reload script into HTML files.
+ *
+ * @param req - The incoming HTTP `Request`.
+ * @param options - Micro-frontend serving options.
+ * @returns An HTTP `Response` streaming the requested asset or HTML SPA shell.
  */
 export async function serveMicroFrontend(
   req: Request,

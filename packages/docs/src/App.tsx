@@ -1,3 +1,6 @@
+/**
+ * Root component for the Docs micro-frontend (`/docs`).
+ */
 export function App() {
   return (
     <div className="mx-auto max-w-4xl w-full flex flex-col gap-6 py-8 px-4">

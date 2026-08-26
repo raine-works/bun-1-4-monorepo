@@ -1,6 +1,15 @@
 import { cpSync, existsSync, mkdirSync, readdirSync, rmSync } from "node:fs";
 import { join } from "node:path";
 
+/**
+ * Standalone Binary Compilation Script
+ * ----------------------------------------------------------------------------
+ * 1. Discovers and builds all configured micro-frontends (@app/hub, @app/store, @app/docs).
+ * 2. Stages their build outputs under `packages/backend/dist/mfes/`.
+ * 3. Compiles `packages/backend/src/index.ts` with `--compile --bytecode --minify --asset=mfes`
+ *    into a single self-contained standalone executable binary (`packages/backend/dist/server`).
+ */
+
 console.log("⚡ Compiling standalone binary executable with Bun 1.4...");
 
 const repoRoot = join(import.meta.dir, "../..");
@@ -10,7 +19,7 @@ const outfile = join(backendDist, "server");
 
 /**
  * Micro-frontend applications to embed into the standalone binary.
- * To add a new MFE, simply add an entry to this array:
+ * To add a new MFE to the binary, register its package name, path, and mount route here.
  */
 const microFrontends = [
   { name: "@app/hub", path: "packages/hub", route: "hub" },
@@ -18,7 +27,11 @@ const microFrontends = [
   { name: "@app/docs", path: "packages/docs", route: "docs" },
 ];
 
-// Helper to clean up any temporary .bun-build artifacts left by Bun compiler
+/**
+ * Helper to clean up any temporary `.bun-build` artifacts emitted during compilation.
+ *
+ * @param dir - Directory path to inspect and clean.
+ */
 function cleanBunBuildArtifacts(dir: string) {
   if (!existsSync(dir)) return;
   for (const file of readdirSync(dir)) {
@@ -46,12 +59,10 @@ mkdirSync(stagedMfesDir, { recursive: true });
 
 // Build and stage each micro-frontend
 for (const mfe of microFrontends) {
-  const mfeDist = join(repoRoot, mfe.path, "dist");
-  if (!existsSync(mfeDist)) {
-    console.log(`🔨 Building ${mfe.name}...`);
-    await Bun.$`bun run --filter ${mfe.name} build`.cwd(repoRoot);
-  }
+  console.log(`🔨 Building ${mfe.name}...`);
+  await Bun.$`bun run --filter ${mfe.name} build`.cwd(repoRoot);
 
+  const mfeDist = join(repoRoot, mfe.path, "dist");
   const targetDir = join(stagedMfesDir, mfe.route);
   mkdirSync(targetDir, { recursive: true });
   cpSync(mfeDist, targetDir, { recursive: true });
@@ -59,7 +70,7 @@ for (const mfe of microFrontends) {
 }
 
 // Compile standalone binary (run within dist directory to contain compiler scratch files)
-await Bun.$`bun build --compile --minify --bytecode --asset=mfes --outfile=server ../src/index.ts`.cwd(
+await Bun.$`bun build --compile --minify --bytecode --define process.env.NODE_ENV='"production"' --asset=mfes --outfile=server ../src/index.ts`.cwd(
   backendDist
 );
 

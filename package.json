@@ -24,13 +24,14 @@
     "typescript": "catalog:"
   },
   "scripts": {
-    "dev": "bun run --parallel --filter '*' dev",
     "build": "bun run --concurrent --filter '*' build",
-    "start": "bun run --filter @app/backend start",
-    "test": "bun test --parallel",
-    "typecheck": "tsc --noEmit",
+    "dev": "bun run --parallel --filter '*' dev",
+    "docker:build": "bun run --parallel --filter '*' docker:build",
+    "format": "biome format --write .",
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
-    "format": "biome format --write ."
+    "start": "bun run --filter @app/backend start",
+    "test": "bun test --parallel",
+    "typecheck": "tsc --noEmit"
   }
 }

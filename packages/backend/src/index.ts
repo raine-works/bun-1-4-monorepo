@@ -1,17 +1,34 @@
+import { handleApiRequest } from "@/api";
 import { LiveReloadManager } from "@/lib/live-reload";
 import { isStandaloneMode, resolveFrontendDist, serveMicroFrontend } from "@/lib/mfe";
-import { handleApiRequest } from "@/routes";
 import type { Item, ServerInfo, ServerOptions } from "@/types";
 
 export type { Item, ServerInfo, ServerOptions };
 export { isStandaloneMode, resolveFrontendDist };
 
+/**
+ * Creates and starts a Bun HTTP server instance configured with API routing,
+ * micro-frontend hosting, SPA fallback resolution, and development live reload.
+ *
+ * @param optionsOrPort - Either a port number or a `ServerOptions` configuration object.
+ * @returns An active `Bun.Server` instance with extended `stop()` method for graceful teardown.
+ *
+ * @example
+ * ```ts
+ * // Start default development server on port 3000
+ * const server = createServer();
+ *
+ * // Start test server on ephemeral port with live reload disabled
+ * const testServer = createServer({ port: 0, liveReload: false });
+ * ```
+ */
 export function createServer(optionsOrPort: number | ServerOptions = 3000) {
   const options: ServerOptions =
     typeof optionsOrPort === "number" ? { port: optionsOrPort } : optionsOrPort;
   const port = options.port ?? 3000;
   const standalone = isStandaloneMode();
-  const enableLiveReload = options.liveReload ?? (!standalone && process.env.NODE_ENV !== "test");
+  const isProduction = process.env.NODE_ENV === "production" || standalone;
+  const enableLiveReload = options.liveReload ?? (!isProduction && process.env.NODE_ENV !== "test");
 
   const distDir = resolveFrontendDist();
   const liveReloadManager = enableLiveReload ? new LiveReloadManager() : null;

@@ -2,9 +2,22 @@ import { existsSync, rmSync, watch } from "node:fs";
 import { join } from "node:path";
 import tailwind from "bun-plugin-tailwind";
 
+/**
+ * Hub Frontend Build Script
+ * ----------------------------------------------------------------------------
+ * Bundles the Hub application using `Bun.build` with:
+ * - HTML entrypoint resolution (`index.html`)
+ * - Tailwind CSS plugin (`bun-plugin-tailwind`)
+ * - Native React 19 Compiler auto-memoization (`reactCompiler: true`)
+ * - Watch mode (`--watch`) with fast sub-millisecond incremental rebuilding
+ */
+
 const isWatch = process.argv.includes("--watch");
 const outdir = "./dist";
 
+/**
+ * Executes a single build pass of the Hub application bundle.
+ */
 async function build() {
   if (!isWatch && existsSync(outdir)) {
     rmSync(outdir, { recursive: true, force: true });

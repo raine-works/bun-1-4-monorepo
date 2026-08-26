@@ -2,9 +2,23 @@ import { existsSync, rmSync, watch } from "node:fs";
 import { join } from "node:path";
 import tailwind from "bun-plugin-tailwind";
 
+/**
+ * Docs Micro-Frontend Build Script
+ * ----------------------------------------------------------------------------
+ * Bundles the Docs MFE using `Bun.build` with:
+ * - HTML entrypoint resolution (`index.html`)
+ * - Public asset base path (`publicPath: "/docs/"`)
+ * - Tailwind CSS plugin (`bun-plugin-tailwind`)
+ * - Native React 19 Compiler auto-memoization (`reactCompiler: true`)
+ * - Watch mode (`--watch`) with fast sub-millisecond incremental rebuilding
+ */
+
 const isWatch = process.argv.includes("--watch");
 const outdir = "./dist";
 
+/**
+ * Executes a single build pass of the Docs application bundle.
+ */
 async function build() {
   if (!isWatch && existsSync(outdir)) {
     rmSync(outdir, { recursive: true, force: true });

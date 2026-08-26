@@ -15,6 +15,13 @@ interface Item {
   createdAt: string;
 }
 
+/**
+ * Main application component for the Hub frontend.
+ * Demonstrates:
+ * - Direct REST API integration with Bun backend (`/api/health`, `/api/info`, `/api/items`).
+ * - Native React Compiler automatic memoization (zero manual `useCallback`/`useMemo`).
+ * - Micro-frontend cross-navigation between `/`, `/store`, and `/docs`.
+ */
 export function App() {
   const [serverInfo, setServerInfo] = useState<ServerInfo | null>(null);
   const [healthStatus, setHealthStatus] = useState<string>("connecting...");
@@ -258,7 +265,12 @@ export function App() {
   );
 }
 
-// Helper calculation
+/**
+ * Computes the nth Fibonacci number iteratively to demonstrate CPU work caching via React Compiler.
+ *
+ * @param n - The Fibonacci index to calculate.
+ * @returns The nth Fibonacci number.
+ */
 function calculateFib(n: number): number {
   if (n <= 1) return n;
   let a = 0,

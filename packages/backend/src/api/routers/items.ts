@@ -1,7 +1,9 @@
 import { jsonResponse } from "@/lib/cors";
 import type { Item } from "@/types";
 
-// In-memory data store for backend API
+/**
+ * In-memory task items data store for the sample REST API.
+ */
 export const items: Item[] = [
   {
     id: "1",
@@ -23,6 +25,18 @@ export const items: Item[] = [
   },
 ];
 
+/**
+ * RESTful CRUD request handler for task items (`/api/items` and `/api/items/:id`).
+ *
+ * Supported Endpoints:
+ * - `GET /api/items`: List all items.
+ * - `POST /api/items`: Create a new item (requires JSON `{ "title": "..." }`).
+ * - `PATCH /api/items/:id`: Update item title and/or completed status.
+ * - `DELETE /api/items/:id`: Delete an item by ID.
+ *
+ * @param req - The incoming HTTP `Request`.
+ * @returns An HTTP `Response` with JSON body and appropriate HTTP status code.
+ */
 export async function handleItems(req: Request): Promise<Response> {
   const url = new URL(req.url);
 

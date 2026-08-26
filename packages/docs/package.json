@@ -3,8 +3,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "bun build.ts --watch",
     "build": "bun build.ts",
+    "dev": "bun build.ts --watch",
     "test": "bun test"
   },
   "dependencies": {
