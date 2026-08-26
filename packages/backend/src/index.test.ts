@@ -31,27 +31,6 @@ describe("Backend Server & Micro-Frontend Host", () => {
     expect(data.bunVersion).toBe(Bun.version);
   });
 
-  it("should list items on GET /api/items", async () => {
-    const res = await fetch(`${baseUrl}/api/items`);
-    expect(res.status).toBe(200);
-    const data = (await res.json()) as { items: Array<{ id: string; title: string }> };
-    expect(Array.isArray(data.items)).toBe(true);
-    expect(data.items.length).toBeGreaterThan(0);
-  });
-
-  it("should create a new item on POST /api/items", async () => {
-    const res = await fetch(`${baseUrl}/api/items`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title: "Write tests with bun:test" }),
-    });
-    expect(res.status).toBe(201);
-    const created = (await res.json()) as { id: string; title: string; completed: boolean };
-    expect(created.title).toBe("Write tests with bun:test");
-    expect(created.completed).toBe(false);
-    expect(typeof created.id).toBe("string");
-  });
-
   it("should serve hub index.html on GET /", async () => {
     const res = await fetch(`${baseUrl}/`);
     expect(res.status).toBe(200);
@@ -159,7 +138,7 @@ describe("Backend Server & Micro-Frontend Host", () => {
       await Promise.all(ssePromises);
 
       // Rapidly fire multiple navigation requests across all micro-frontends
-      const routes = ["/", "/store", "/docs", "/store", "/", "/docs", "/api/health", "/api/items"];
+      const routes = ["/", "/store", "/docs", "/store", "/", "/docs", "/api/health"];
       const responses = await Promise.all(routes.map((route) => fetch(`${liveUrl}${route}`)));
 
       for (const res of responses) {

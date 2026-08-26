@@ -1,3 +1,8 @@
+import type { Item, User } from "@app/data";
+
+export type { CreateItemInput, CreateUserInput, UpdateItemInput, UpdateUserInput } from "@app/data";
+export type { Item, User };
+
 /**
  * System and runtime telemetry returned by the `/api/info` diagnostic endpoint.
  */
@@ -20,20 +25,12 @@ export interface ServerInfo {
   memoryUsage?: NodeJS.MemoryUsage;
   /** Whether the development live reload SSE service is currently active. */
   liveReload?: boolean;
-}
-
-/**
- * Data model for a task item in the in-memory store.
- */
-export interface Item {
-  /** Unique UUID v4 identifier. */
-  id: string;
-  /** Task description / title. */
-  title: string;
-  /** Completion status of the task. */
-  completed: boolean;
-  /** ISO-8601 formatted creation timestamp. */
-  createdAt: string;
+  /** Database connection health status if configured. */
+  databaseHealth?: {
+    ok: boolean;
+    latencyMs: number;
+    database?: string;
+  };
 }
 
 /**

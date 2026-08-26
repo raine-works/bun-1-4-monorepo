@@ -3,7 +3,11 @@
   "compilerOptions": {
     "types": ["bun"],
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@data": ["../data/src/index.ts"],
+      "@data/*": ["../data/src/*"],
+      "@app/data": ["../data/src/index.ts"],
+      "@app/data/*": ["../data/src/*"]
     }
   },
   "include": ["src/**/*", "scripts/**/*"]

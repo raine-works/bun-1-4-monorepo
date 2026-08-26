@@ -32,3 +32,34 @@ export function jsonResponse(data: unknown, init?: ResponseInit): Response {
     },
   });
 }
+
+/**
+ * Creates a JSON error response with a standardized `{ error: message }` payload.
+ */
+export function jsonError(message: string, status = 400): Response {
+  return jsonResponse({ error: message }, { status });
+}
+
+/**
+ * Creates a standard 404 Not Found response.
+ */
+export function notFound(resource = "Resource"): Response {
+  return jsonResponse({ error: `${resource} not found` }, { status: 404 });
+}
+
+/**
+ * Creates a standard 405 Method Not Allowed response.
+ */
+export function methodNotAllowed(): Response {
+  return jsonResponse({ error: "Method not allowed" }, { status: 405 });
+}
+
+/**
+ * Extracts a single resource ID from a URL pathname matching `${prefix}/:id`.
+ */
+export function extractPathId(pathname: string, prefix: string): string | null {
+  const cleanPrefix = prefix.endsWith("/") ? prefix.slice(0, -1) : prefix;
+  const escaped = cleanPrefix.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const match = pathname.match(new RegExp(`^${escaped}/([^/]+)$`));
+  return match ? (match[1] ?? null) : null;
+}

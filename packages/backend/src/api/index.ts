@@ -2,6 +2,7 @@ import { handleHealth } from "@/api/health";
 import { handleInfo } from "@/api/info";
 import { handleLiveReloadRoute } from "@/api/live-reload";
 import { handleItems } from "@/api/routers/items";
+import { handleUsers } from "@/api/routers/users";
 import { handleCorsPreflight, jsonResponse } from "@/lib/cors";
 import type { LiveReloadManager } from "@/lib/live-reload";
 
@@ -54,6 +55,10 @@ export async function handleApiRequest(
       isStandalone: context.isStandalone,
       liveReload: context.enableLiveReload,
     });
+  }
+
+  if (url.pathname === "/api/users" || url.pathname.startsWith("/api/users/")) {
+    return handleUsers(req);
   }
 
   if (url.pathname === "/api/items" || url.pathname.startsWith("/api/items/")) {

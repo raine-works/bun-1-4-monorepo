@@ -31,6 +31,10 @@
     "format": "biome format --write .",
     "lint": "biome check .",
     "lint:fix": "biome check --write .",
+    "migrate": "bun run --filter @app/data migrate",
+    "migrate:create": "bun run --filter @app/data migrate:create",
+    "migrate:down": "bun run --filter @app/data migrate:down",
+    "migrate:status": "bun run --filter @app/data migrate:status",
     "start": "bun run --filter @app/backend start",
     "test": "bun test --parallel",
     "typecheck": "tsc --noEmit"

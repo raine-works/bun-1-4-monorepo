@@ -17,18 +17,27 @@
     "paths": {
       "@/*": [
         "./packages/backend/src/*",
+        "./packages/data/src/*",
         "./packages/docs/src/*",
         "./packages/hub/src/*",
         "./packages/store/src/*"
       ],
       "@backend/*": ["./packages/backend/src/*"],
+      "@data": ["./packages/data/src/index.ts"],
+      "@data/*": ["./packages/data/src/*"],
       "@docs/*": ["./packages/docs/src/*"],
       "@hub/*": ["./packages/hub/src/*"],
       "@store/*": ["./packages/store/src/*"],
       "@app/backend/*": ["./packages/backend/src/*"],
+      "@app/backend": ["./packages/backend/src/index.ts"],
+      "@app/data/*": ["./packages/data/src/*"],
+      "@app/data": ["./packages/data/src/index.ts"],
       "@app/docs/*": ["./packages/docs/src/*"],
+      "@app/docs": ["./packages/docs/src/index.ts"],
       "@app/hub/*": ["./packages/hub/src/*"],
-      "@app/store/*": ["./packages/store/src/*"]
+      "@app/hub": ["./packages/hub/src/index.ts"],
+      "@app/store/*": ["./packages/store/src/*"],
+      "@app/store": ["./packages/store/src/index.ts"]
     }
   }
 }

@@ -11,6 +11,7 @@
     "test": "bun test"
   },
   "dependencies": {
+    "@app/data": "workspace:*",
     "@app/docs": "workspace:*",
     "@app/hub": "workspace:*",
     "@app/store": "workspace:*"
