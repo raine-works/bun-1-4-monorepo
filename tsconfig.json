@@ -13,6 +13,22 @@
     "isolatedModules": true,
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
-    "types": ["bun"]
+    "types": ["bun"],
+    "paths": {
+      "@/*": [
+        "./packages/backend/src/*",
+        "./packages/docs/src/*",
+        "./packages/hub/src/*",
+        "./packages/store/src/*"
+      ],
+      "@backend/*": ["./packages/backend/src/*"],
+      "@docs/*": ["./packages/docs/src/*"],
+      "@hub/*": ["./packages/hub/src/*"],
+      "@store/*": ["./packages/store/src/*"],
+      "@app/backend/*": ["./packages/backend/src/*"],
+      "@app/docs/*": ["./packages/docs/src/*"],
+      "@app/hub/*": ["./packages/hub/src/*"],
+      "@app/store/*": ["./packages/store/src/*"]
+    }
   }
 }

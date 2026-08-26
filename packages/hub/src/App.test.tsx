@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
 import { renderToString } from "react-dom/server";
-import { App } from "./App";
+import { App } from "@/App";
 
 describe("Hub App Component", () => {
   it("renders without crashing using React 19 server renderer", () => {

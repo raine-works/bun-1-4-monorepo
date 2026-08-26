@@ -10,3 +10,4 @@ coverage = false
 [serve.static]
 # Sourcemap configuration for Bun.serve
 sourcemap = "linked"
+plugins = ["bun-plugin-tailwind"]

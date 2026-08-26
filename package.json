@@ -12,11 +12,15 @@
     "@types/react": "19.2.18",
     "@types/react-dom": "19.2.5",
     "@types/bun": "1.4.0",
-    "typescript": "7.0.2"
+    "typescript": "7.0.2",
+    "tailwindcss": "4.3.3",
+    "bun-plugin-tailwind": "0.1.2"
   },
   "devDependencies": {
     "@biomejs/biome": "catalog:",
     "@types/bun": "catalog:",
+    "bun-plugin-tailwind": "catalog:",
+    "tailwindcss": "catalog:",
     "typescript": "catalog:"
   },
   "scripts": {

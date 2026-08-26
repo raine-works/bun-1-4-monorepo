@@ -1,5 +1,5 @@
 import { afterAll, beforeAll, describe, expect, it } from "bun:test";
-import { createServer } from "./index";
+import { createServer } from "@/index";
 
 describe("Backend Server & Micro-Frontend Host", () => {
   let server: ReturnType<typeof createServer>;
@@ -128,6 +128,7 @@ describe("Backend Server & Micro-Frontend Host", () => {
       const html = await htmlRes.text();
       expect(html).toContain("/api/live-reload");
       expect(html).toContain("window.location.reload()");
+      expect(html).toContain("triggerSafeReload");
       expect(html).toContain("beforeunload");
       expect(html).toContain("pagehide");
     } finally {
@@ -160,6 +161,22 @@ describe("Backend Server & Micro-Frontend Host", () => {
       for (const res of responses) {
         expect(res.status).toBe(200);
       }
+    } finally {
+      liveServer.stop();
+    }
+  });
+
+  it("should inject safe live reload script with asset failure recovery", async () => {
+    const liveServer = createServer({ port: 0, liveReload: true });
+    const liveUrl = `http://localhost:${liveServer.port}`;
+
+    try {
+      const res = await fetch(`${liveUrl}/`);
+      expect(res.status).toBe(200);
+      const html = await res.text();
+      expect(html).toContain("triggerSafeReload");
+      expect(html).toContain("Asset load error detected");
+      expect(html).toContain("Cache-Control");
     } finally {
       liveServer.stop();
     }
