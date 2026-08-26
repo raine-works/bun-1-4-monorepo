@@ -1,0 +1,19 @@
+{
+  "name": "@app/store",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "bun build --watch index.html --outdir=dist --public-path=/store/ --react-compiler --sourcemap=linked",
+    "build": "bun build.ts",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "react": "catalog:",
+    "react-dom": "catalog:"
+  },
+  "devDependencies": {
+    "@types/bun": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:"
+  }
+}

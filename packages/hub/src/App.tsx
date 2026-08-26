@@ -114,6 +114,17 @@ export function App() {
         <p className="subtitle">
           Powered by Bun 1.4 Native Bundler, Built-in React Compiler, and Parallel Scripts
         </p>
+        <nav className="nav-bar">
+          <a href="/" className="nav-link active">
+            Hub
+          </a>
+          <a href="/store" className="nav-link">
+            Store
+          </a>
+          <a href="/docs" className="nav-link">
+            Docs
+          </a>
+        </nav>
       </header>
 
       <div className="grid">

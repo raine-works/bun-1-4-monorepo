@@ -52,7 +52,7 @@ describe("Backend Server & Micro-Frontend Host", () => {
     expect(typeof created.id).toBe("string");
   });
 
-  it("should serve frontend index.html on GET /", async () => {
+  it("should serve hub index.html on GET /", async () => {
     const res = await fetch(`${baseUrl}/`);
     expect(res.status).toBe(200);
     const html = await res.text();
@@ -60,8 +60,56 @@ describe("Backend Server & Micro-Frontend Host", () => {
     expect(html).toContain('<div id="root"></div>');
   });
 
+  it("should serve store micro-frontend on GET /store and resolve its JS bundle", async () => {
+    const res = await fetch(`${baseUrl}/store`);
+    expect(res.status).toBe(200);
+    const html = await res.text();
+    expect(html).toContain("<!DOCTYPE html>");
+    expect(html).toContain("Store");
+
+    // Extract script src and verify it resolves as javascript, not HTML fallback
+    const scriptSrcMatch = html.match(/src="([^"]+\.js)"/);
+    expect(scriptSrcMatch).not.toBeNull();
+    if (scriptSrcMatch) {
+      const scriptUrl = scriptSrcMatch[1].startsWith("/")
+        ? `${baseUrl}${scriptSrcMatch[1]}`
+        : `${baseUrl}/store/${scriptSrcMatch[1]}`;
+      const scriptRes = await fetch(scriptUrl);
+      expect(scriptRes.status).toBe(200);
+      expect(scriptRes.headers.get("content-type")).toContain("javascript");
+    }
+  });
+
+  it("should serve docs micro-frontend on GET /docs and resolve its JS bundle", async () => {
+    const res = await fetch(`${baseUrl}/docs`);
+    expect(res.status).toBe(200);
+    const html = await res.text();
+    expect(html).toContain("<!DOCTYPE html>");
+    expect(html).toContain("Docs");
+
+    // Extract script src and verify it resolves as javascript, not HTML fallback
+    const scriptSrcMatch = html.match(/src="([^"]+\.js)"/);
+    expect(scriptSrcMatch).not.toBeNull();
+    if (scriptSrcMatch) {
+      const scriptUrl = scriptSrcMatch[1].startsWith("/")
+        ? `${baseUrl}${scriptSrcMatch[1]}`
+        : `${baseUrl}/docs/${scriptSrcMatch[1]}`;
+      const scriptRes = await fetch(scriptUrl);
+      expect(scriptRes.status).toBe(200);
+      expect(scriptRes.headers.get("content-type")).toContain("javascript");
+    }
+  });
+
+  it("should return 404 for missing static assets with file extensions", async () => {
+    const res = await fetch(`${baseUrl}/nonexistent.js`);
+    expect(res.status).toBe(404);
+
+    const scopedRes = await fetch(`${baseUrl}/store/nonexistent.css`);
+    expect(scopedRes.status).toBe(404);
+  });
+
   it("should support SPA fallback on GET /any-client-route", async () => {
-    const res = await fetch(`${baseUrl}/dashboard/settings`);
+    const res = await fetch(`${baseUrl}/any-client-route`);
     expect(res.status).toBe(200);
     const html = await res.text();
     expect(html).toContain("<!DOCTYPE html>");
@@ -80,6 +128,38 @@ describe("Backend Server & Micro-Frontend Host", () => {
       const html = await htmlRes.text();
       expect(html).toContain("/api/live-reload");
       expect(html).toContain("window.location.reload()");
+      expect(html).toContain("beforeunload");
+      expect(html).toContain("pagehide");
+    } finally {
+      liveServer.stop();
+    }
+  });
+
+  it("should cleanly handle rapid SSE client disconnects and rapid micro-frontend navigation without hanging", async () => {
+    const liveServer = createServer({ port: 0, liveReload: true });
+    const liveUrl = `http://localhost:${liveServer.port}`;
+
+    try {
+      // Simulate rapid navigation opening and aborting multiple SSE connections
+      const abortControllers = Array.from({ length: 15 }, () => new AbortController());
+      const ssePromises = abortControllers.map((ac) =>
+        fetch(`${liveUrl}/api/live-reload`, { signal: ac.signal }).catch(() => {})
+      );
+
+      // Abort each connection rapidly to mimic fast page transitions
+      await Bun.sleep(10);
+      for (const ac of abortControllers) {
+        ac.abort();
+      }
+      await Promise.all(ssePromises);
+
+      // Rapidly fire multiple navigation requests across all micro-frontends
+      const routes = ["/", "/store", "/docs", "/store", "/", "/docs", "/api/health", "/api/items"];
+      const responses = await Promise.all(routes.map((route) => fetch(`${liveUrl}${route}`)));
+
+      for (const res of responses) {
+        expect(res.status).toBe(200);
+      }
     } finally {
       liveServer.stop();
     }

@@ -13,9 +13,9 @@ const outfile = join(backendDist, "server");
  * To add a new MFE, simply add an entry to this array:
  */
 const microFrontends = [
-  { name: "@app/frontend", path: "packages/frontend", route: "frontend" },
-  // Example for future MFEs:
-  // { name: "@app/dashboard", path: "packages/dashboard", route: "dashboard" },
+  { name: "@app/hub", path: "packages/hub", route: "hub" },
+  { name: "@app/store", path: "packages/store", route: "store" },
+  { name: "@app/docs", path: "packages/docs", route: "docs" },
 ];
 
 // Helper to clean up any temporary .bun-build artifacts left by Bun compiler

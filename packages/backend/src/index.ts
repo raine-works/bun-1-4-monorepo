@@ -54,9 +54,9 @@ export function isStandaloneMode(): boolean {
 }
 
 /**
- * Resolves the frontend distribution directory:
- * - When running as a standalone compiled binary, assets are embedded at /$bunfs/root/packages/frontend/dist
- * - When running in development mode, resolves to ../../frontend/dist
+ * Resolves the primary frontend distribution directory:
+ * - When running as a standalone compiled binary, assets are embedded at /$bunfs/root/packages/hub/dist
+ * - When running in development mode, resolves to ../../hub/dist
  */
 export function resolveFrontendDist(): string {
   if (process.env.FRONTEND_DIST) {
@@ -64,19 +64,19 @@ export function resolveFrontendDist(): string {
   }
 
   // 1. Embedded path inside compiled standalone binary
-  const embeddedPath = join(import.meta.dir, "packages/frontend/dist");
+  const embeddedPath = join(import.meta.dir, "packages/hub/dist");
   if (existsSync(embeddedPath)) {
     return embeddedPath;
   }
 
   // 2. Workspace path during standard development
-  const workspacePath = join(import.meta.dir, "../../frontend/dist");
+  const workspacePath = join(import.meta.dir, "../../hub/dist");
   if (existsSync(workspacePath)) {
     return workspacePath;
   }
 
   // 3. Adjacent path
-  const adjacentPath = join(import.meta.dir, "../frontend/dist");
+  const adjacentPath = join(import.meta.dir, "../hub/dist");
   if (existsSync(adjacentPath)) {
     return adjacentPath;
   }
@@ -88,20 +88,71 @@ const LIVE_RELOAD_SCRIPT = `
 <!-- Live Reload Client (Development Only) -->
 <script>
   (() => {
-    let es;
-    function connect() {
-      es = new EventSource('/api/live-reload');
-      es.onmessage = (event) => {
-        if (event.data === 'reload') {
-          console.log('⚡ [live-reload] Change detected in micro-frontend, reloading...');
-          window.location.reload();
-        }
-      };
-      es.onerror = () => {
-        es.close();
-        setTimeout(connect, 1000);
-      };
+    if (window.__LIVE_RELOAD_ACTIVE__) return;
+    window.__LIVE_RELOAD_ACTIVE__ = true;
+
+    let es = null;
+    let isUnloading = false;
+    let reconnectTimeout = null;
+
+    function cleanup() {
+      if (reconnectTimeout) {
+        clearTimeout(reconnectTimeout);
+        reconnectTimeout = null;
+      }
+      if (es) {
+        es.onmessage = null;
+        es.onerror = null;
+        try {
+          es.close();
+        } catch {}
+        es = null;
+      }
     }
+
+    function onUnload() {
+      isUnloading = true;
+      cleanup();
+    }
+
+    function connect() {
+      if (isUnloading) return;
+      cleanup();
+
+      try {
+        es = new EventSource('/api/live-reload');
+        es.onmessage = (event) => {
+          if (event.data === 'reload') {
+            console.log('⚡ [live-reload] Change detected in micro-frontend, reloading...');
+            onUnload();
+            window.location.reload();
+          }
+        };
+        es.onerror = () => {
+          cleanup();
+          // Never reconnect if page is unloading, hidden, or transitioning
+          if (!isUnloading && document.visibilityState === 'visible') {
+            reconnectTimeout = setTimeout(connect, 2000);
+          }
+        };
+      } catch {
+        // Ignore initialization errors
+      }
+    }
+
+    // Cleanly close SSE on navigation/unload to prevent HTTP/1.1 socket exhaustion in browser
+    window.addEventListener('beforeunload', onUnload);
+    window.addEventListener('pagehide', onUnload);
+
+    // Pause SSE when tab/page is hidden, resume when visible
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible' && !es && !isUnloading) {
+        connect();
+      } else if (document.visibilityState === 'hidden' && es) {
+        cleanup();
+      }
+    });
+
     connect();
   })();
 </script>
@@ -154,6 +205,21 @@ export function createServer(optionsOrPort: number | ServerOptions = 3000) {
     }
   }
 
+  // Periodic SSE keep-alive comment to detect disconnected TCP sockets early and prevent stale connections
+  let heartbeatTimer: ReturnType<typeof setInterval> | null = null;
+  if (enableLiveReload) {
+    heartbeatTimer = setInterval(() => {
+      const ping = new TextEncoder().encode(": keepalive\n\n");
+      for (const client of sseClients) {
+        try {
+          client.enqueue(ping);
+        } catch {
+          sseClients.delete(client);
+        }
+      }
+    }, 15000);
+  }
+
   // Watch for build changes across all micro-frontends in development mode
   if (enableLiveReload) {
     const packagesDir = join(import.meta.dir, "../..");
@@ -161,16 +227,22 @@ export function createServer(optionsOrPort: number | ServerOptions = 3000) {
       try {
         watcher = watch(packagesDir, { recursive: true }, (_eventType, filename) => {
           if (!filename) return;
-          // Trigger when any micro-frontend dist/ artifact is updated (excluding backend's own dist)
+          // Ignore node_modules, temp files, backend dist, hidden files
           if (
-            filename.includes("dist") &&
-            !filename.startsWith("backend/dist") &&
-            !filename.endsWith(".tmp")
+            filename.includes("node_modules") ||
+            filename.startsWith("backend") ||
+            filename.startsWith(".") ||
+            filename.endsWith(".tmp") ||
+            filename.endsWith(".bun-build")
           ) {
+            return;
+          }
+          // Trigger when any micro-frontend dist/ artifact is updated
+          if (filename.includes("dist")) {
             if (debounceTimer) clearTimeout(debounceTimer);
             debounceTimer = setTimeout(() => {
               broadcastReload();
-            }, 75);
+            }, 100);
           }
         });
       } catch (err) {
@@ -208,23 +280,42 @@ export function createServer(optionsOrPort: number | ServerOptions = 3000) {
           { headers: CORS_HEADERS }
         );
       },
-      "/api/live-reload": () => {
+      "/api/live-reload": (req) => {
         if (!enableLiveReload) {
           return new Response("Live reload disabled in production", { status: 404 });
         }
 
-        let controller: ReadableStreamDefaultController;
+        let controller: ReadableStreamDefaultController | null = null;
+        const removeClient = () => {
+          if (controller) {
+            sseClients.delete(controller);
+            try {
+              controller.close();
+            } catch {
+              // Already closed
+            }
+            controller = null;
+          }
+        };
+
         const stream = new ReadableStream({
           start(c) {
             controller = c;
             sseClients.add(controller);
-            controller.enqueue(new TextEncoder().encode("data: connected\n\n"));
-          },
-          cancel() {
-            if (controller) {
-              sseClients.delete(controller);
+            try {
+              controller.enqueue(new TextEncoder().encode("data: connected\n\n"));
+            } catch {
+              removeClient();
             }
           },
+          cancel() {
+            removeClient();
+          },
+        });
+
+        // Immediately unregister client when HTTP connection is aborted by browser/client
+        req.signal?.addEventListener("abort", () => {
+          removeClient();
         });
 
         return new Response(stream, {
@@ -336,6 +427,9 @@ export function createServer(optionsOrPort: number | ServerOptions = 3000) {
                 f.name?.endsWith(`/${firstSegment}/${subPath}`)
             );
             if (mfeAsset) return new Response(mfeAsset);
+            if (/\.[a-zA-Z0-9]+$/.test(subPath)) {
+              return new Response("Not Found", { status: 404 });
+            }
           }
 
           // SPA fallback for scoped MFE
@@ -347,21 +441,26 @@ export function createServer(optionsOrPort: number | ServerOptions = 3000) {
           }
         }
 
-        // Case B: Root / Primary MFE (mfes/frontend/* or dist/*)
+        // Case B: Root / Primary MFE (mfes/hub/*, mfes/frontend/* or dist/*)
         const cleanPath = urlPath.startsWith("/") ? urlPath.slice(1) : urlPath;
         if (cleanPath !== "") {
           const rootAsset = embeddedFiles.find(
             (f) =>
               f.name === cleanPath ||
+              f.name === `mfes/hub/${cleanPath}` ||
               f.name === `mfes/frontend/${cleanPath}` ||
               f.name === `dist/${cleanPath}` ||
               f.name?.endsWith(`/${cleanPath}`)
           );
           if (rootAsset) return new Response(rootAsset);
+          if (/\.[a-zA-Z0-9]+$/.test(cleanPath)) {
+            return new Response("Not Found", { status: 404 });
+          }
         }
 
-        // SPA fallback for root frontend
+        // SPA fallback for root frontend (hub)
         const rootIndex =
+          embeddedFiles.find((f) => f.name === "mfes/hub/index.html") ||
           embeddedFiles.find((f) => f.name === "mfes/frontend/index.html") ||
           embeddedFiles.find((f) => f.name?.endsWith("index.html"));
         if (rootIndex) {
@@ -384,6 +483,9 @@ export function createServer(optionsOrPort: number | ServerOptions = 3000) {
                 ? injectLiveReload(scopedAsset)
                 : serveDevAsset(scopedAsset);
             }
+            if (/\.[a-zA-Z0-9]+$/.test(subPath)) {
+              return new Response("Not Found", { status: 404 });
+            }
           }
           const scopedIndex = Bun.file(join(scopedMfeDir, "index.html"));
           if (await scopedIndex.exists()) {
@@ -402,6 +504,10 @@ export function createServer(optionsOrPort: number | ServerOptions = 3000) {
         return serveDevAsset(assetFile);
       }
 
+      if (/\.[a-zA-Z0-9]+$/.test(urlPath)) {
+        return new Response("Not Found", { status: 404 });
+      }
+
       // SPA fallback to index.html on local filesystem
       const indexFile = Bun.file(join(distDir, "index.html"));
       if (await indexFile.exists()) {
@@ -418,6 +524,10 @@ export function createServer(optionsOrPort: number | ServerOptions = 3000) {
   // Attach clean shutdown handler
   const originalStop = server.stop.bind(server);
   server.stop = (closeActiveConnections?: boolean) => {
+    if (heartbeatTimer) {
+      clearInterval(heartbeatTimer);
+      heartbeatTimer = null;
+    }
     if (watcher) {
       watcher.close();
       watcher = null;

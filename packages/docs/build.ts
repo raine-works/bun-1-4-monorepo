@@ -1,6 +1,6 @@
 import { existsSync, rmSync } from "node:fs";
 
-console.log("⚡ Building frontend with Bun.build and React Compiler...");
+console.log("⚡ Building docs with Bun.build and React Compiler...");
 
 const outdir = "./dist";
 if (existsSync(outdir)) {
@@ -10,6 +10,7 @@ if (existsSync(outdir)) {
 const buildResult = await Bun.build({
   entrypoints: ["index.html"],
   outdir,
+  publicPath: "/docs/",
   reactCompiler: true,
   minify: true,
   sourcemap: "linked",

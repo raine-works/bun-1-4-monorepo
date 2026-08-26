@@ -1,10 +1,9 @@
 {
-  "name": "@app/frontend",
-  "version": "1.0.0",
+  "name": "@app/hub",
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "bun build --watch index.html --outdir=dist --react-compiler --sourcemap=linked",
+    "dev": "bun build --watch index.html --outdir=dist --public-path=/ --react-compiler --sourcemap=linked",
     "build": "bun build.ts",
     "test": "bun test"
   },

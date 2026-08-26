@@ -12,17 +12,41 @@
     },
     "packages/backend": {
       "name": "@app/backend",
-      "version": "1.0.0",
       "dependencies": {
-        "@app/frontend": "workspace:*",
+        "@app/docs": "workspace:*",
+        "@app/hub": "workspace:*",
+        "@app/store": "workspace:*",
       },
       "devDependencies": {
         "@types/bun": "catalog:",
       },
     },
-    "packages/frontend": {
-      "name": "@app/frontend",
-      "version": "1.0.0",
+    "packages/docs": {
+      "name": "@app/docs",
+      "dependencies": {
+        "react": "catalog:",
+        "react-dom": "catalog:",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "@types/react": "catalog:",
+        "@types/react-dom": "catalog:",
+      },
+    },
+    "packages/hub": {
+      "name": "@app/hub",
+      "dependencies": {
+        "react": "catalog:",
+        "react-dom": "catalog:",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "@types/react": "catalog:",
+        "@types/react-dom": "catalog:",
+      },
+    },
+    "packages/store": {
+      "name": "@app/store",
       "dependencies": {
         "react": "catalog:",
         "react-dom": "catalog:",
@@ -46,7 +70,11 @@
   "packages": {
     "@app/backend": ["@app/backend@workspace:packages/backend"],
 
-    "@app/frontend": ["@app/frontend@workspace:packages/frontend"],
+    "@app/docs": ["@app/docs@workspace:packages/docs"],
+
+    "@app/hub": ["@app/hub@workspace:packages/hub"],
+
+    "@app/store": ["@app/store@workspace:packages/store"],
 
     "@biomejs/biome": ["@biomejs/biome@2.5.10", "", { "optionalDependencies": { "@biomejs/cli-darwin-arm64": "2.5.10", "@biomejs/cli-darwin-x64": "2.5.10", "@biomejs/cli-linux-arm64": "2.5.10", "@biomejs/cli-linux-arm64-musl": "2.5.10", "@biomejs/cli-linux-x64": "2.5.10", "@biomejs/cli-linux-x64-musl": "2.5.10", "@biomejs/cli-win32-arm64": "2.5.10", "@biomejs/cli-win32-x64": "2.5.10" }, "bin": { "biome": "bin/biome" } }, "sha512-WRKXARA3kTuiV5sxqTpobJ/I0MVd4vk3pOL6wnp5az4LntFIhWTj1RWZq3DI9PCEN3lXcqy7p5aqUHzvq8AXyQ=="],
 
