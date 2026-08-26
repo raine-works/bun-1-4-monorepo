@@ -1,6 +1,6 @@
 import { existsSync } from "node:fs";
 import { join } from "node:path";
-import { injectLiveReload, serveDevAsset } from "@/lib/live-reload";
+import { injectLiveReload } from "@/lib/live-reload";
 
 /**
  * Configuration options for serving micro-frontend assets and SPAs.

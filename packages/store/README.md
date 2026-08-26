@@ -23,10 +23,11 @@ The independent Store e-commerce micro-frontend for the **Bun 1.4 Full-Stack Mon
 
 ```
 packages/store/
-├── build.ts              # Bun.build script with publicPath: "/store/" and React Compiler
 ├── index.html            # Application HTML shell entrypoint
 ├── package.json          # Package manifest and dependencies
 ├── tsconfig.json         # TypeScript configuration with @/* path aliases
+├── scripts/
+│   └── build.ts          # Bun.build script with publicPath: "/store/" and React Compiler
 ├── src/
 │   ├── index.tsx         # Client DOM entrypoint (createRoot)
 │   ├── App.tsx           # Application root exporting App and createAppRouter

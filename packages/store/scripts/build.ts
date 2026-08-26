@@ -3,22 +3,24 @@ import { join } from "node:path";
 import tailwind from "bun-plugin-tailwind";
 
 /**
- * Docs Micro-Frontend Build Script
+ * Store Micro-Frontend Build Script
  * ----------------------------------------------------------------------------
- * Bundles the Docs MFE using `Bun.build` with:
+ * Bundles the Store MFE using `Bun.build` with:
  * - HTML entrypoint resolution (`index.html`)
- * - Public asset base path (`publicPath: "/docs/"`)
+ * - Public asset base path (`publicPath: "/store/"`)
  * - Tailwind CSS plugin (`bun-plugin-tailwind`)
  * - Native React 19 Compiler auto-memoization (`reactCompiler: true`)
  * - Watch mode (`--watch`) with fast sub-millisecond incremental rebuilding
  */
 
+const packageDir = join(import.meta.dir, "..");
 const isWatch = process.argv.includes("--watch");
 const isProduction = process.env.NODE_ENV === "production" || !isWatch;
-const outdir = "./dist";
+const outdir = join(packageDir, "dist");
+const entrypoint = join(packageDir, "index.html");
 
 /**
- * Executes a single build pass of the Docs application bundle.
+ * Executes a single build pass of the Store application bundle.
  */
 async function build() {
   if (!isWatch && existsSync(outdir)) {
@@ -26,9 +28,9 @@ async function build() {
   }
 
   const buildResult = await Bun.build({
-    entrypoints: ["index.html"],
+    entrypoints: [entrypoint],
     outdir,
-    publicPath: "/docs/",
+    publicPath: "/store/",
     plugins: [tailwind],
     reactCompiler: true,
     target: "browser",
@@ -57,19 +59,19 @@ async function build() {
   }
 }
 
-console.log("⚡ Building docs with Bun.build, Tailwind CSS, and React Compiler...");
+console.log("⚡ Building store with Bun.build, Tailwind CSS, and React Compiler...");
 await build();
 
 if (isWatch) {
-  console.log("👀 Watching for changes in docs (src/ and index.html)...");
-  const srcDir = join(import.meta.dir, "src");
-  const indexHtml = join(import.meta.dir, "index.html");
+  console.log("👀 Watching for changes in store (src/ and index.html)...");
+  const srcDir = join(packageDir, "src");
+  const indexHtml = join(packageDir, "index.html");
 
   let rebuildTimer: ReturnType<typeof setTimeout> | null = null;
   const triggerRebuild = (file: string) => {
     if (rebuildTimer) clearTimeout(rebuildTimer);
     rebuildTimer = setTimeout(async () => {
-      console.log(`🔄 File changed (${file}), rebuilding docs...`);
+      console.log(`🔄 File changed (${file}), rebuilding store...`);
       await build();
     }, 50);
   };
@@ -81,9 +83,12 @@ if (isWatch) {
     triggerRebuild("index.html");
   });
 
-  process.on("SIGINT", () => {
+  const cleanup = () => {
     srcWatcher.close();
     indexWatcher.close();
     process.exit(0);
-  });
+  };
+
+  process.on("SIGINT", cleanup);
+  process.on("SIGTERM", cleanup);
 }

@@ -8,7 +8,7 @@ export function DocsGuidesPage() {
     },
     {
       title: "2. Adding a Micro-Frontend",
-      desc: "Create `packages/<name>` with scoped `basepath: '/<name>'` in TanStack Router, configure `publicPath: '/<name>/'` in `build.ts`, and register in `backend/build.ts`.",
+      desc: "Create `packages/<name>` with scoped `basepath: '/<name>'` in TanStack Router, configure `publicPath: '/<name>/'` in `scripts/build.ts`, and register in `packages/backend/scripts/build.ts`.",
     },
     {
       title: "3. Inter-MFE vs Intra-MFE Routing",

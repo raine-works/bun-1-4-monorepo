@@ -23,6 +23,12 @@
         "@types/bun": "catalog:",
       },
     },
+    "packages/data": {
+      "name": "@app/data",
+      "devDependencies": {
+        "@types/bun": "catalog:",
+      },
+    },
     "packages/docs": {
       "name": "@app/docs",
       "dependencies": {
@@ -83,6 +89,8 @@
   },
   "packages": {
     "@app/backend": ["@app/backend@workspace:packages/backend"],
+
+    "@app/data": ["@app/data@workspace:packages/data"],
 
     "@app/docs": ["@app/docs@workspace:packages/docs"],
 

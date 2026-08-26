@@ -87,8 +87,7 @@ function StoreRootLayout() {
                     "text-emerald-200 bg-emerald-500/20 border-emerald-400/50 shadow-sm font-semibold",
                 }}
                 inactiveProps={{
-                  className:
-                    "text-slate-300 hover:text-white hover:bg-white/5 border-transparent",
+                  className: "text-slate-300 hover:text-white hover:bg-white/5 border-transparent",
                 }}
                 className="px-3 py-1.5 rounded-md border transition-all text-xs min-h-[36px] inline-flex items-center justify-center"
                 activeOptions={{ exact: true }}
@@ -102,8 +101,7 @@ function StoreRootLayout() {
                     "text-emerald-200 bg-emerald-500/20 border-emerald-400/50 shadow-sm font-semibold",
                 }}
                 inactiveProps={{
-                  className:
-                    "text-slate-300 hover:text-white hover:bg-white/5 border-transparent",
+                  className: "text-slate-300 hover:text-white hover:bg-white/5 border-transparent",
                 }}
                 className="px-3 py-1.5 rounded-md border transition-all text-xs min-h-[36px] inline-flex items-center justify-center"
               >
@@ -116,8 +114,7 @@ function StoreRootLayout() {
                     "text-emerald-200 bg-emerald-500/20 border-emerald-400/50 shadow-sm font-semibold",
                 }}
                 inactiveProps={{
-                  className:
-                    "text-slate-300 hover:text-white hover:bg-white/5 border-transparent",
+                  className: "text-slate-300 hover:text-white hover:bg-white/5 border-transparent",
                 }}
                 className="px-3 py-1.5 rounded-md border transition-all text-xs min-h-[36px] inline-flex items-center justify-center"
               >

@@ -12,8 +12,9 @@ import { join } from "node:path";
 
 console.log("⚡ Compiling standalone binary executable with Bun 1.4...");
 
-const repoRoot = join(import.meta.dir, "../..");
-const backendDist = join(import.meta.dir, "dist");
+const packageDir = join(import.meta.dir, "..");
+const repoRoot = join(packageDir, "../..");
+const backendDist = join(packageDir, "dist");
 const stagedMfesDir = join(backendDist, "mfes");
 const outfile = join(backendDist, "server");
 
@@ -47,7 +48,7 @@ function cleanBunBuildArtifacts(dir: string) {
 
 // Clean any leftover temp files before build
 cleanBunBuildArtifacts(repoRoot);
-cleanBunBuildArtifacts(import.meta.dir);
+cleanBunBuildArtifacts(packageDir);
 cleanBunBuildArtifacts(backendDist);
 
 // Ensure clean dist and staging directories
@@ -76,7 +77,7 @@ await Bun.$`bun build --compile --minify --bytecode --define process.env.NODE_EN
 
 // Clean up compiler scratch files immediately
 cleanBunBuildArtifacts(backendDist);
-cleanBunBuildArtifacts(import.meta.dir);
+cleanBunBuildArtifacts(packageDir);
 cleanBunBuildArtifacts(repoRoot);
 
 console.log(`✅ Standalone binary executable successfully created: ${outfile}`);

@@ -57,10 +57,11 @@ bun-1-4-monorepo/
 ├── tsconfig.json                  # Monorepo root TypeScript configuration
 ├── packages/
 │   ├── backend/                   # Bun HTTP Server & Standalone Binary Compiler
-│   │   ├── build.ts               # Standalone binary compiler script
 │   │   ├── Dockerfile             # Multi-stage distroless Docker configuration
 │   │   ├── package.json           # Backend package manifest
 │   │   ├── tsconfig.json          # Backend TypeScript configuration (@/* aliases)
+│   │   ├── scripts/
+│   │   │   └── build.ts           # Standalone binary compiler script
 │   │   └── src/
 │   │       ├── index.ts           # Server entrypoint and createServer() factory
 │   │       ├── index.test.ts      # Backend and MFE integration test suite
@@ -78,9 +79,10 @@ bun-1-4-monorepo/
 │   │           └── mfe.ts         # MFE resolver and virtual asset server
 │   │
 │   ├── hub/                       # Primary Hub Shell Micro-Frontend (Basepath: /)
-│   │   ├── build.ts               # Hub bundler (Bun.build + React Compiler + Tailwind)
 │   │   ├── index.html             # Shell HTML entrypoint
 │   │   ├── package.json           # Hub package manifest
+│   │   ├── scripts/
+│   │   │   └── build.ts           # Hub bundler (Bun.build + React Compiler + Tailwind)
 │   │   └── src/
 │   │       ├── index.tsx          # Client DOM mount entrypoint
 │   │       ├── App.tsx            # App root with TanStack RouterProvider
@@ -95,9 +97,10 @@ bun-1-4-monorepo/
 │   │           └── not-found.tsx  # Catch-all 404 page (/*)
 │   │
 │   ├── store/                     # Store Micro-Frontend (Basepath: /store)
-│   │   ├── build.ts               # Store bundler (publicPath: "/store/")
 │   │   ├── index.html             # Store HTML entrypoint
 │   │   ├── package.json           # Store package manifest
+│   │   ├── scripts/
+│   │   │   └── build.ts           # Store bundler (publicPath: "/store/")
 │   │   └── src/
 │   │       ├── index.tsx          # Client DOM mount entrypoint
 │   │       ├── App.tsx            # Store root with TanStack RouterProvider
@@ -112,9 +115,10 @@ bun-1-4-monorepo/
 │   │           └── not-found.tsx  # Scoped 404 page (/store/*)
 │   │
 │   └── docs/                      # Docs Micro-Frontend (Basepath: /docs)
-│       ├── build.ts               # Docs bundler (publicPath: "/docs/")
 │       ├── index.html             # Docs HTML entrypoint
 │       ├── package.json           # Docs package manifest
+│       ├── scripts/
+│       │   └── build.ts           # Docs bundler (publicPath: "/docs/")
 │       └── src/
 │           ├── index.tsx          # Client DOM mount entrypoint
 │           ├── App.tsx            # Docs root with TanStack RouterProvider
@@ -233,7 +237,7 @@ const result = await Bun.build({
 ```
 
 ### 2. Standalone Binary Compilation (`--asset=mfes`)
-The backend build script (`packages/backend/build.ts`) stages each micro-frontend's `dist` output into `packages/backend/dist/mfes/` and invokes:
+The backend build script (`packages/backend/scripts/build.ts`) stages each micro-frontend's `dist` output into `packages/backend/dist/mfes/` and invokes:
 ```bash
 bun build --compile --minify --bytecode --define process.env.NODE_ENV='"production"' --asset=mfes --outfile=server ../src/index.ts
 ```

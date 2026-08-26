@@ -19,10 +19,11 @@ The core backend package for the **Bun 1.4 Full-Stack Monorepo**. It serves as t
 
 ```
 packages/backend/
-├── build.ts              # Standalone binary compiler script (stages MFEs and runs bun build --compile)
 ├── Dockerfile            # Multi-stage distroless Docker configuration
 ├── package.json          # Package manifest and workspace scripts
 ├── tsconfig.json         # TypeScript configuration with @/* path aliases
+├── scripts/
+│   └── build.ts          # Standalone binary compiler script (stages MFEs and runs bun build --compile)
 ├── src/
 │   ├── index.ts          # Server entrypoint and createServer() factory
 │   ├── index.test.ts     # Integration tests with bun:test
@@ -72,7 +73,7 @@ packages/backend/
 
 ## 📦 Standalone Binary Compilation
 
-When running `bun run build`, `build.ts` performs the following steps:
+When running `bun run build`, `scripts/build.ts` performs the following steps:
 1. Builds all micro-frontends (`@app/hub`, `@app/store`, `@app/docs`) via `Bun.build`.
 2. Stages each micro-frontend's `dist/` artifacts under `packages/backend/dist/mfes/<route>/`.
 3. Invokes the Bun compiler:
