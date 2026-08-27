@@ -153,10 +153,3 @@ export const usersRouter = new Hono()
 			return c.json({ error: message }, 500);
 		}
 	});
-
-/**
- * Handles legacy direct requests for users.
- */
-export async function handleUsers(req: Request): Promise<Response> {
-	return await usersRouter.fetch(req);
-}

@@ -30,16 +30,15 @@ packages/backend/
 │   ├── index.test.ts     # Integration test suite with bun:test and Hono RPC client
 │   ├── rpc.ts            # Hono RPC client factory and singleton client instance
 │   ├── types.ts          # TypeScript interfaces, ServerVariables, and Zod DTO contracts
-│   ├── api/              # Modular Hono API sub-routers
+│   ├── routers/          # Modular Hono API sub-routers
 │   │   ├── index.ts      # Unified apiRouter combining all sub-routes
 │   │   ├── health.ts     # GET /api/health Hono sub-router
 │   │   ├── info.ts       # GET /api/info telemetry Hono sub-router
+│   │   ├── items.ts      # CRUD Hono sub-router with zValidator for /api/items
 │   │   ├── live-reload.ts# GET /api/live-reload SSE Hono sub-router
-│   │   └── routers/
-│   │       ├── items.ts  # CRUD Hono sub-router with zValidator for /api/items
-│   │       └── users.ts  # CRUD Hono sub-router with zValidator for /api/users
+│   │   └── users.ts      # CRUD Hono sub-router with zValidator for /api/users
 │   └── lib/              # Server utility libraries
-│       ├── cors.ts       # Standard CORS definitions and response helpers
+│       ├── cors.ts       # Standard CORS headers configuration
 │       ├── env.ts        # Zod-validated environment schema
 │       ├── live-reload.ts# LiveReloadManager and safe script injector
 │       └── mfe.ts        # Micro-frontend resolution & virtual asset resolver

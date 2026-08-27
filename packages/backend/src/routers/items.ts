@@ -127,10 +127,3 @@ export const itemsRouter = new Hono()
 			return c.json({ error: message }, 500);
 		}
 	});
-
-/**
- * Handles legacy direct requests for items.
- */
-export async function handleItems(req: Request): Promise<Response> {
-	return await itemsRouter.fetch(req);
-}

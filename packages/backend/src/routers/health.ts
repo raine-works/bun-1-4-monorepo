@@ -26,10 +26,3 @@ export function getHealthStatus(): HealthResponse {
 export const healthRouter = new Hono().get('/', (c) => {
 	return c.json(getHealthStatus(), 200);
 });
-
-/**
- * Handles `/api/health` requests returning a standard Response.
- */
-export function handleHealth(): Response {
-	return Response.json(getHealthStatus());
-}

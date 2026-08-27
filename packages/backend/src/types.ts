@@ -20,18 +20,6 @@ export {
 export type { Item, User };
 
 /**
- * Contextual configuration passed into the API router during HTTP request processing.
- */
-export interface ApiRouterContext {
-	/** Whether the server is running inside a compiled standalone binary. */
-	isStandalone: boolean;
-	/** Whether development live reload is enabled. */
-	enableLiveReload: boolean;
-	/** The active LiveReloadManager instance, or null if live reload is inactive. */
-	liveReloadManager: LiveReloadManager | null;
-}
-
-/**
  * Request-scoped variables attached to Hono Context throughout the HTTP pipeline.
  */
 export interface ServerVariables {

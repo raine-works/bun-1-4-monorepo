@@ -40,10 +40,3 @@ export const infoRouter = new Hono<{ Variables: ServerVariables }>().get('/', (c
 	const liveReload = c.get('enableLiveReload') ?? false;
 	return c.json(getServerInfo({ isStandalone, liveReload }), 200);
 });
-
-/**
- * Handles `/api/info` requests returning a standard Response.
- */
-export function handleInfo(options: InfoRouteOptions): Response {
-	return Response.json(getServerInfo(options));
-}

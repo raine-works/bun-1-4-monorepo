@@ -171,10 +171,6 @@ describe('Backend Server & Micro-Frontend Host', () => {
 			// SSE stream must not be compressed
 			expect(res.headers.get('content-encoding')).toBeNull();
 
-			const resDirect = await fetch(`${liveUrl}/live-reload`);
-			expect(resDirect.status).toBe(200);
-			expect(resDirect.headers.get('content-type')).toContain('text/event-stream');
-
 			const htmlRes = await fetch(`${liveUrl}/`);
 			const html = await htmlRes.text();
 			expect(html).toContain('/api/live-reload');
@@ -246,12 +242,9 @@ describe('Backend Server & Micro-Frontend Host', () => {
 			const info = (await infoRes.json()) as { liveReload: boolean };
 			expect(info.liveReload).toBe(false);
 
-			// 2. /api/live-reload and /live-reload return 404
+			// 2. /api/live-reload returns 404
 			const sseRes = await fetch(`${prodUrl}/api/live-reload`);
 			expect(sseRes.status).toBe(404);
-
-			const sseDirectRes = await fetch(`${prodUrl}/live-reload`);
-			expect(sseDirectRes.status).toBe(404);
 
 			// 3. HTML responses do not contain live reload script or EventSource connection
 			const routes = ['/', '/store', '/docs'];

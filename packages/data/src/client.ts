@@ -16,9 +16,6 @@ export interface DatabaseOptions {
 	idleTimeout?: number;
 }
 
-/** Alias for DatabaseOptions for backwards compatibility. */
-export type DatabaseConfig = DatabaseOptions;
-
 /**
  * Lightweight, type-safe database layer wrapping Bun's native SQL driver.
  */

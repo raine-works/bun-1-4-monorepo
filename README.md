@@ -70,16 +70,15 @@ bun-1-4-monorepo/
 │   │       ├── index.test.ts      # Backend, MFE, and Hono RPC integration test suite
 │   │       ├── rpc.ts            # Hono RPC client factory and typed singleton
 │   │       ├── types.ts           # Data models, ServerVariables, and Zod DTO contracts
-│   │       ├── api/               # Modular Hono API sub-routers
+│   │       ├── routers/           # Modular Hono API sub-routers
 │   │       │   ├── index.ts       # Unified apiRouter combining all sub-routes
 │   │       │   ├── health.ts      # Health check endpoint (/api/health)
 │   │       │   ├── info.ts        # Runtime telemetry endpoint (/api/info)
+│   │       │   ├── items.ts       # CRUD task items router with zValidator (/api/items)
 │   │       │   ├── live-reload.ts # Live reload SSE endpoint (/api/live-reload)
-│   │       │   └── routers/
-│   │       │       ├── items.ts   # CRUD task items router with zValidator (/api/items)
-│   │       │       └── users.ts   # CRUD users router with zValidator (/api/users)
+│   │       │   └── users.ts       # CRUD users router with zValidator (/api/users)
 │   │       └── lib/               # Server utility libraries
-│   │           ├── cors.ts        # CORS headers and jsonResponse helper
+│   │           ├── cors.ts        # Standard CORS headers configuration
 │   │           ├── env.ts         # Zod-validated server environment schema
 │   │           ├── live-reload.ts # LiveReloadManager & SSE broker
 │   │           └── mfe.ts         # MFE resolver and virtual asset server

@@ -1,10 +1,10 @@
 import { Hono } from 'hono';
 import { compress } from 'hono/compress';
 import { cors } from 'hono/cors';
-import { apiRouter } from '@/api';
 import { env } from '@/lib/env';
 import { LiveReloadManager } from '@/lib/live-reload';
 import { isStandaloneMode, resolveFrontendDist, serveMicroFrontend } from '@/lib/mfe';
+import { apiRouter } from '@/routers';
 import { type ApiClient, client, createApiClient } from '@/rpc';
 import type {
 	CreateItemInput,
@@ -101,18 +101,10 @@ export function createApp(optionsOrPort: number | ServerOptions = 3000) {
 		await next();
 	});
 
-	// 5. Direct live reload endpoint alias (/live-reload)
-	honoApp.get('/live-reload', (c) => {
-		if (!liveReloadManager) {
-			return c.text('Live reload disabled in production', 404);
-		}
-		return liveReloadManager.handleSseRequest(c.req.raw);
-	});
-
-	// 6. Mount API Sub-Router under /api
+	// 5. Mount API Sub-Router under /api
 	honoApp.route('/api', apiRouter);
 
-	// 7. Micro-Frontend & SPA resolution catch-all
+	// 6. Micro-Frontend & SPA resolution catch-all
 	honoApp.all('*', async (c) => {
 		const response = await serveMicroFrontend(c.req.raw, {
 			distDir,
