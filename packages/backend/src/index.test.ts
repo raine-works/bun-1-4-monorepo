@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from 'bun:test';
-import { createServer } from '@app/backend';
-import { createApiClient } from '@app/backend/rpc';
+import { createServer } from '@/index';
+import { createApiClient } from '@/rpc';
 
 describe('Backend Server & Micro-Frontend Host', () => {
 	let server: ReturnType<typeof createServer>;
@@ -260,5 +260,15 @@ describe('Backend Server & Micro-Frontend Host', () => {
 			prodServer.stop();
 			process.env.NODE_ENV = origEnv;
 		}
+	});
+
+	it('should support server.shutdown() graceful teardown', async () => {
+		const testServer = createServer({ port: 0, liveReload: false });
+		const url = `http://localhost:${testServer.port}`;
+
+		const healthRes = await fetch(`${url}/api/health`);
+		expect(healthRes.status).toBe(200);
+
+		await testServer.shutdown({ timeoutMs: 3000, exitProcess: false });
 	});
 });

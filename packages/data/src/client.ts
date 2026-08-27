@@ -18,13 +18,22 @@ export interface DatabaseOptions {
 
 /**
  * Lightweight, type-safe database layer wrapping Bun's native SQL driver.
+ * Includes active transaction tracking, connection flushing, and graceful shutdown capabilities.
  */
 export class Database {
 	readonly sql: BunSql;
 	readonly users: UsersQueries;
 	readonly items: ItemsQueries;
 
-	constructor(configOrUrlOrSql?: string | DatabaseOptions | BunSql) {
+	private readonly _root: Database;
+	private readonly _activeTransactions: Set<Promise<unknown>>;
+	private _isClosing: boolean;
+
+	constructor(configOrUrlOrSql?: string | DatabaseOptions | BunSql, parent?: Database) {
+		this._root = parent ? parent._root : this;
+		this._activeTransactions = parent ? parent._activeTransactions : new Set<Promise<unknown>>();
+		this._isClosing = false;
+
 		if (configOrUrlOrSql && typeof configOrUrlOrSql === 'function' && 'unsafe' in configOrUrlOrSql) {
 			// Transaction or custom SQL instance passed
 			this.sql = configOrUrlOrSql as BunSql;
@@ -58,14 +67,47 @@ export class Database {
 	}
 
 	/**
+	 * Number of currently in-flight SQL transactions.
+	 */
+	get activeTransactionCount(): number {
+		return this._root._activeTransactions.size;
+	}
+
+	/**
+	 * Whether the database is currently closing or shutting down.
+	 */
+	get isClosing(): boolean {
+		return this._root._isClosing;
+	}
+
+	/**
 	 * Executes a database transaction.
 	 * Automatically commits on return, rolls back if an error is thrown.
+	 * Tracks active transaction lifecycle for graceful shutdown draining.
+	 *
+	 * @throws Error if the database is in the process of shutting down.
 	 */
 	async transaction<T>(callback: (tx: Database) => Promise<T>): Promise<T> {
-		return await this.sql.begin(async (txSql: BunSql) => {
-			const txDb = new Database(txSql);
-			return await callback(txDb);
+		if (this._root._isClosing) {
+			throw new Error('Database is shutting down: new transactions are not accepted');
+		}
+
+		let txResolve!: () => void;
+		const txPromise = new Promise<void>((resolve) => {
+			txResolve = resolve;
 		});
+
+		this._root._activeTransactions.add(txPromise);
+
+		try {
+			return await this.sql.begin(async (txSql: BunSql) => {
+				const txDb = new Database(txSql, this._root);
+				return await callback(txDb);
+			});
+		} finally {
+			this._root._activeTransactions.delete(txPromise);
+			txResolve();
+		}
 	}
 
 	/**
@@ -122,11 +164,95 @@ export class Database {
 	}
 
 	/**
-	 * Closes all connections in the pool.
+	 * Waits for all in-flight SQL transactions to finish settling.
+	 *
+	 * @param timeoutMs - Maximum duration in ms to wait before timing out (default: 10,000ms).
 	 */
-	async close(): Promise<void> {
+	async waitForTransactions(timeoutMs = 10_000): Promise<void> {
+		if (this._root !== this) {
+			return await this._root.waitForTransactions(timeoutMs);
+		}
+
+		if (this._activeTransactions.size === 0) {
+			return;
+		}
+
+		const allPending = Promise.allSettled(Array.from(this._activeTransactions));
+		if (timeoutMs <= 0 || !Number.isFinite(timeoutMs)) {
+			await allPending;
+			return;
+		}
+
+		let timer: Timer | undefined;
+		const timeoutPromise = new Promise<void>((_, reject) => {
+			timer = setTimeout(() => {
+				reject(
+					new Error(
+						`Timed out waiting for ${this._activeTransactions.size} active SQL transaction(s) to finish after ${timeoutMs}ms`,
+					),
+				);
+			}, timeoutMs);
+		});
+
+		try {
+			await Promise.race([allPending, timeoutPromise]);
+		} finally {
+			if (timer) {
+				clearTimeout(timer);
+			}
+		}
+	}
+
+	/**
+	 * Flushes any pending buffered SQL writes/connections.
+	 */
+	async flush(): Promise<void> {
+		if (this.sql && typeof this.sql.flush === 'function') {
+			const result: unknown = this.sql.flush();
+			if (result && typeof result === 'object' && 'then' in result) {
+				await (result as Promise<unknown>);
+			}
+		}
+	}
+
+	/**
+	 * Flushes pending writes and closes all connections in the pool.
+	 */
+	async close(options?: { timeout?: number }): Promise<void> {
+		this._root._isClosing = true;
+		await this.flush();
 		if (this.sql && typeof this.sql.close === 'function') {
-			await this.sql.close();
+			await this.sql.close(options);
+		}
+		if (defaultDbInstance === this || defaultDbInstance === this._root) {
+			defaultDbInstance = null;
+		}
+	}
+
+	/**
+	 * Performs a complete graceful shutdown of the database client:
+	 * 1. Marks the database as closing (rejecting any new incoming transactions).
+	 * 2. Waits for all active in-flight transactions to complete (up to timeoutMs).
+	 * 3. Flushes any pending SQL connections.
+	 * 4. Closes the connection pool cleanly.
+	 *
+	 * @param options - Optional timeout configuration.
+	 */
+	async shutdown(options?: { timeoutMs?: number }): Promise<void> {
+		this._root._isClosing = true;
+		const timeoutMs = options?.timeoutMs ?? 10_000;
+
+		await this.waitForTransactions(timeoutMs);
+
+		await this.flush();
+
+		if (this.sql && typeof this.sql.close === 'function') {
+			const timeoutSeconds = Math.max(1, Math.ceil(timeoutMs / 1000));
+			await this.sql.close({ timeout: timeoutSeconds });
+		}
+
+		if (defaultDbInstance === this || defaultDbInstance === this._root) {
+			defaultDbInstance = null;
 		}
 	}
 }
@@ -148,6 +274,68 @@ export function getDatabase(configOrUrl?: string | DatabaseOptions): Database {
 		defaultDbInstance = new Database(configOrUrl);
 	}
 	return defaultDbInstance;
+}
+
+/**
+ * Resets the default singleton database instance.
+ */
+export function resetDatabase(): void {
+	defaultDbInstance = null;
+}
+
+/**
+ * Checks whether the default database is currently closing or shutting down.
+ */
+export function isDbClosing(): boolean {
+	return defaultDbInstance?.isClosing ?? false;
+}
+
+/**
+ * Returns the count of active in-flight transactions on the default database.
+ */
+export function getActiveDbTransactionsCount(): number {
+	return defaultDbInstance?.activeTransactionCount ?? 0;
+}
+
+/**
+ * Waits for all in-flight transactions on the default database to finish.
+ */
+export async function waitForDbTransactions(timeoutMs?: number): Promise<void> {
+	if (defaultDbInstance) {
+		await defaultDbInstance.waitForTransactions(timeoutMs);
+	}
+}
+
+/**
+ * Flushes all pending connections on the default database.
+ */
+export async function flushDatabase(): Promise<void> {
+	if (defaultDbInstance) {
+		await defaultDbInstance.flush();
+	}
+}
+
+/**
+ * Closes the default database connection pool.
+ */
+export async function closeDatabase(options?: { timeout?: number }): Promise<void> {
+	if (defaultDbInstance) {
+		const instance = defaultDbInstance;
+		defaultDbInstance = null;
+		await instance.close(options);
+	}
+}
+
+/**
+ * Gracefully shuts down the default database client by waiting for in-flight transactions,
+ * flushing connections, and terminating the connection pool.
+ */
+export async function shutdownDatabase(options?: { timeoutMs?: number }): Promise<void> {
+	if (defaultDbInstance) {
+		const instance = defaultDbInstance;
+		defaultDbInstance = null;
+		await instance.shutdown(options);
+	}
 }
 
 /**

@@ -1,7 +1,7 @@
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
-import { env } from '@app/backend/lib/env';
-import { injectLiveReload } from '@app/backend/lib/live-reload';
+import { env } from '@/lib/env';
+import { injectLiveReload } from '@/lib/live-reload';
 
 /**
  * Configuration options for serving micro-frontend assets and SPAs.

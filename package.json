@@ -31,7 +31,9 @@
 	"scripts": {
 		"build": "bun run --concurrent --filter '*' build",
 		"dev": "bun run --parallel --filter '*' dev",
+		"dev:init": "docker compose -f docker/compose.yaml up -d",
 		"docker:build": "bun run --parallel --filter '*' docker:build",
+		"docker:run": "bun run --filter @app/backend docker:run",
 		"format": "biome format --write .",
 		"lint": "biome check .",
 		"lint:fix": "biome check --write .",

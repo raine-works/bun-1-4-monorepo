@@ -15,7 +15,7 @@
 		"build": "bun scripts/build.ts",
 		"dev": "bun --watch src/index.ts",
 		"docker:build": "docker build -f Dockerfile -t app-backend ../..",
-		"docker:run": "docker run -p 3000:3000 app-backend",
+		"docker:run": "docker run --rm --network bun-1-4-monorepo_default -e DATABASE_URL=postgres://dev_user:dev_password@postgres:5432/dev_db -p 3000:3000 app-backend",
 		"start": "dist/server",
 		"test": "bun test"
 	},

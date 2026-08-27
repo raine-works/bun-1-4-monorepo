@@ -13,6 +13,8 @@ The core backend package for the **Bun 1.4 Full-Stack Monorepo**. It provides a 
 - **Standalone Binary Compilation**: Orchestrates building all micro-frontends and bundling the full-stack into a single binary executable (`dist/server`) with assets embedded in Bun's virtual filesystem (`--asset=mfes`).
 - **Resilient Development Live Reload**: Server-Sent Events (SSE) stream (`/api/live-reload`) with bundle write-readiness polling, reconnection resilience, and asset error auto-recovery.
 - **Distroless Container Support**: Ultra-lean ~47MB multi-stage Docker image built on `gcr.io/distroless/cc-debian12`.
+- **Graceful Shutdown & Connection Flushing**: Traps OS termination signals (`SIGINT`, `SIGTERM`, `SIGQUIT`), stops accepting new HTTP connections, drains in-flight requests, waits for active SQL transactions to finish, flushes connections, and cleanly closes the database connection pool.
+
 
 ---
 
@@ -41,7 +43,10 @@ packages/backend/
 │       ├── cors.ts       # Standard CORS headers configuration
 │       ├── env.ts        # Zod-validated environment schema
 │       ├── live-reload.ts# LiveReloadManager and safe script injector
-│       └── mfe.ts        # Micro-frontend resolution & virtual asset resolver
+│       ├── mfe.ts        # Micro-frontend resolution & virtual asset resolver
+│       ├── shutdown.ts   # GracefulShutdownHandler, signal listeners, connection flush & drain
+│       └── shutdown.test.ts # Unit tests for graceful shutdown lifecycle
+
 ```
 
 ---

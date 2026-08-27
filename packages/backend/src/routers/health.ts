@@ -1,10 +1,12 @@
+import { isDbClosing } from '@app/data';
 import { Hono } from 'hono';
+import { shutdownHandler } from '@/lib/shutdown';
 
 /**
  * Health response payload contract.
  */
 export interface HealthResponse {
-	status: 'healthy';
+	status: 'healthy' | 'shutting_down';
 	timestamp: string;
 	uptime: number;
 }
@@ -13,8 +15,9 @@ export interface HealthResponse {
  * Generates health response data payload.
  */
 export function getHealthStatus(): HealthResponse {
+	const isShuttingDown = shutdownHandler.isShuttingDown || isDbClosing();
 	return {
-		status: 'healthy',
+		status: isShuttingDown ? 'shutting_down' : 'healthy',
 		timestamp: new Date().toISOString(),
 		uptime: process.uptime(),
 	};
@@ -24,5 +27,7 @@ export function getHealthStatus(): HealthResponse {
  * Hono router handling `/api/health` GET requests.
  */
 export const healthRouter = new Hono().get('/', (c) => {
-	return c.json(getHealthStatus(), 200);
+	const health = getHealthStatus();
+	const httpStatus = health.status === 'healthy' ? 200 : 503;
+	return c.json(health, httpStatus);
 });

@@ -1,5 +1,6 @@
-import type { LiveReloadManager } from '@app/backend/lib/live-reload';
 import type { Item, User } from '@app/data';
+import type { LiveReloadManager } from '@/lib/live-reload';
+import type { ShutdownOptions, ShutdownState } from '@/lib/shutdown';
 
 export type {
 	CreateItemInput,
@@ -17,7 +18,7 @@ export {
 	updateUserSchema,
 	userFilterSchema,
 } from '@app/data';
-export type { Item, User };
+export type { Item, ShutdownOptions, ShutdownState, User };
 
 /**
  * Request-scoped variables attached to Hono Context throughout the HTTP pipeline.
@@ -51,6 +52,8 @@ export interface ServerInfo {
 	memoryUsage?: NodeJS.MemoryUsage;
 	/** Whether the development live reload SSE service is currently active. */
 	liveReload?: boolean;
+	/** Whether the server is currently shutting down. */
+	isShuttingDown?: boolean;
 	/** Database connection health status if configured. */
 	databaseHealth?: {
 		ok: boolean;
@@ -70,4 +73,14 @@ export interface ServerOptions {
 	 * If omitted, defaults to enabled in development and disabled in production / test / standalone.
 	 */
 	liveReload?: boolean;
+	/**
+	 * Maximum duration in ms to wait for SQL transactions and HTTP requests during graceful shutdown.
+	 * Defaults to 10,000ms.
+	 */
+	shutdownTimeoutMs?: number;
+	/**
+	 * Whether to automatically register OS signal handlers (SIGINT, SIGTERM) for graceful shutdown.
+	 * Defaults to false in test mode, true in development and production.
+	 */
+	autoRegisterSignals?: boolean;
 }

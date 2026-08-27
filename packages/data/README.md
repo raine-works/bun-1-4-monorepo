@@ -8,7 +8,8 @@ A lightweight, high-performance, and type-safe data layer for PostgreSQL powered
 - **Type-Safe Contracts**: Strongly typed models (`User`, `Item`) and mutation DTOs (`CreateUserInput`, `UpdateUserInput`, `CreateItemInput`, `UpdateItemInput`).
 - **Raw Parameterized SQL**: Hand-crafted, readable, and highly optimized PostgreSQL queries with automatic parameter injection.
 - **Handwritten SQL Migrations**: Simple migration runner tracking applied migrations in `_migrations` with `-- up` and `-- down` support.
-- **Transactions**: Full support for transactions via `db.transaction(async (tx) => { ... })`.
+- **Transactions & Graceful Shutdown**: Full transaction support (`db.transaction`) with active transaction tracking, lifecycle draining (`waitForTransactions`), connection flushing (`flush()`), and clean pool teardown (`shutdown()`).
+
 - **Extensible & Scalable**: Modular structure (`contracts/`, `queries/`, `migrations/`) designed to grow cleanly as new tables and domain operations are added.
 
 ---

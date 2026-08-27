@@ -1,6 +1,8 @@
-import { isStandaloneMode } from '@app/backend/lib/mfe';
-import type { ServerInfo, ServerVariables } from '@app/backend/types';
+import { isDbClosing } from '@app/data';
 import { Hono } from 'hono';
+import { isStandaloneMode } from '@/lib/mfe';
+import { shutdownHandler } from '@/lib/shutdown';
+import type { ServerInfo, ServerVariables } from '@/types';
 
 /**
  * Options supplied to the `/api/info` route handler.
@@ -18,6 +20,7 @@ export interface InfoRouteOptions {
 export function getServerInfo(options?: InfoRouteOptions): ServerInfo {
 	const isStandalone = options?.isStandalone ?? isStandaloneMode();
 	const liveReload = options?.liveReload ?? false;
+	const isShuttingDown = shutdownHandler.isShuttingDown || isDbClosing();
 
 	return {
 		name: '@app/backend',
@@ -29,6 +32,7 @@ export function getServerInfo(options?: InfoRouteOptions): ServerInfo {
 		embeddedAssetCount: Bun.embeddedFiles?.length ?? 0,
 		memoryUsage: process.memoryUsage(),
 		liveReload,
+		isShuttingDown,
 	};
 }
 

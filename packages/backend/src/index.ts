@@ -1,8 +1,19 @@
-import { env } from '@app/backend/lib/env';
-import { LiveReloadManager } from '@app/backend/lib/live-reload';
-import { isStandaloneMode, resolveFrontendDist, serveMicroFrontend } from '@app/backend/lib/mfe';
-import { apiRouter } from '@app/backend/routers';
-import { type ApiClient, client, createApiClient } from '@app/backend/rpc';
+import { Hono } from 'hono';
+import { compress } from 'hono/compress';
+import { cors } from 'hono/cors';
+import { env } from '@/lib/env';
+import { LiveReloadManager } from '@/lib/live-reload';
+import { isStandaloneMode, resolveFrontendDist, serveMicroFrontend } from '@/lib/mfe';
+import {
+	GracefulShutdownHandler,
+	gracefulShutdown,
+	type ShutdownOptions,
+	type ShutdownState,
+	setupGracefulShutdown,
+	shutdownHandler,
+} from '@/lib/shutdown';
+import { apiRouter } from '@/routers';
+import { type ApiClient, client, createApiClient } from '@/rpc';
 import type {
 	CreateItemInput,
 	CreateUserInput,
@@ -15,10 +26,7 @@ import type {
 	UpdateUserInput,
 	User,
 	UserFilter,
-} from '@app/backend/types';
-import { Hono } from 'hono';
-import { compress } from 'hono/compress';
-import { cors } from 'hono/cors';
+} from '@/types';
 
 export type {
 	ApiClient,
@@ -29,12 +37,23 @@ export type {
 	ServerInfo,
 	ServerOptions,
 	ServerVariables,
+	ShutdownOptions,
+	ShutdownState,
 	UpdateItemInput,
 	UpdateUserInput,
 	User,
 	UserFilter,
 };
-export { client, createApiClient, isStandaloneMode, resolveFrontendDist };
+export {
+	client,
+	createApiClient,
+	GracefulShutdownHandler,
+	gracefulShutdown,
+	isStandaloneMode,
+	resolveFrontendDist,
+	setupGracefulShutdown,
+	shutdownHandler,
+};
 
 /**
  * Root Hono application router defining all typed routes for Hono RPC.
@@ -117,23 +136,31 @@ export function createApp(optionsOrPort: number | ServerOptions = 3000) {
 }
 
 /**
+ * Extended Bun.Server interface that includes programmatic graceful shutdown.
+ */
+export type BackendServer = ReturnType<typeof Bun.serve> & {
+	shutdown: (opts?: ShutdownOptions) => Promise<void>;
+};
+
+/**
  * Creates and starts a Bun HTTP server instance powered by Hono with API routing,
  * micro-frontend hosting, SPA fallback resolution, and development live reload.
  *
  * @param optionsOrPort - Either a port number or a `ServerOptions` configuration object.
- * @returns An active `Bun.Server` instance with extended `stop()` method for graceful teardown.
+ * @returns An active `Bun.Server` instance extended with graceful shutdown capabilities.
  *
  * @example
  * ```ts
  * // Start default development server on port 3000
  * const server = createServer();
  *
- * // Start test server on ephemeral port with live reload disabled
- * const testServer = createServer({ port: 0, liveReload: false });
+ * // Gracefully shut down server, draining transactions and flushing connections
+ * await server.shutdown();
  * ```
  */
-export function createServer(optionsOrPort: number | ServerOptions = 3000) {
-	const { app: honoApp, liveReloadManager, port } = createApp(optionsOrPort);
+export function createServer(optionsOrPort: number | ServerOptions = 3000): BackendServer {
+	const options: ServerOptions = typeof optionsOrPort === 'number' ? { port: optionsOrPort } : optionsOrPort;
+	const { app: honoApp, liveReloadManager, port } = createApp(options);
 
 	const server = Bun.serve({
 		hostname: '0.0.0.0',
@@ -141,18 +168,45 @@ export function createServer(optionsOrPort: number | ServerOptions = 3000) {
 		fetch: honoApp.fetch,
 	});
 
-	// Attach clean shutdown handler
+	// Register with the global graceful shutdown handler
+	shutdownHandler.registerServer(server, liveReloadManager);
+
+	// Attach clean stop method
 	const originalStop = server.stop.bind(server);
 	server.stop = (closeActiveConnections?: boolean) => {
 		liveReloadManager?.stop();
+		shutdownHandler.unregisterServer(server);
 		return originalStop(closeActiveConnections);
 	};
 
-	return server;
+	// Attach graceful shutdown method
+	const extendedServer = server as BackendServer;
+	extendedServer.shutdown = async (shutdownOpts?: ShutdownOptions) => {
+		return await shutdownHandler.shutdown({
+			timeoutMs: options.shutdownTimeoutMs,
+			...shutdownOpts,
+		});
+	};
+
+	// Auto-register signal handlers if requested / in non-test mode
+	const autoSignals = options.autoRegisterSignals ?? (process.env.NODE_ENV !== 'test' && env.NODE_ENV !== 'test');
+	if (autoSignals) {
+		setupGracefulShutdown({ timeoutMs: options.shutdownTimeoutMs });
+	}
+
+	return extendedServer;
 }
 
 // Default export for Bun standalone binary and native HTTP server execution
 const defaultApp = createApp(env.PORT);
+
+// Auto-register signals in production / standalone / CLI mode if not in test
+if (process.env.NODE_ENV !== 'test' && env.NODE_ENV !== 'test') {
+	setupGracefulShutdown({
+		timeoutMs: 10_000,
+		exitProcess: true,
+	});
+}
 
 export default {
 	port: env.PORT,
