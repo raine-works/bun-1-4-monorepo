@@ -1,19 +1,19 @@
 {
-  "extends": "../../tsconfig.json",
-  "compilerOptions": {
-    "jsx": "react-jsx",
-    "types": ["bun", "react", "react-dom"],
-    "paths": {
-      "@/*": ["./src/*"],
-      "@docs": ["./src/index.tsx"],
-      "@docs/*": ["./src/*"],
-      "@app/docs": ["./src/index.tsx"],
-      "@app/docs/*": ["./src/*"],
-      "@data": ["../data/src/index.ts"],
-      "@data/*": ["../data/src/*"],
-      "@app/data": ["../data/src/index.ts"],
-      "@app/data/*": ["../data/src/*"]
-    }
-  },
-  "include": ["src/**/*", "scripts/**/*"]
+	"extends": "../../tsconfig.json",
+	"compilerOptions": {
+		"jsx": "react-jsx",
+		"types": ["bun", "react", "react-dom"],
+		"paths": {
+			"@/*": ["./src/*"],
+			"@docs": ["./src/index.tsx"],
+			"@docs/*": ["./src/*"],
+			"@app/docs": ["./src/index.tsx"],
+			"@app/docs/*": ["./src/*"],
+			"@data": ["../data/src/index.ts"],
+			"@data/*": ["../data/src/*"],
+			"@app/data": ["../data/src/index.ts"],
+			"@app/data/*": ["../data/src/*"]
+		}
+	},
+	"include": ["src/**/*", "scripts/**/*"]
 }

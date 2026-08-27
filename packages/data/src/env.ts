@@ -13,38 +13,38 @@
  * @module env
  */
 
-import { existsSync } from "node:fs";
-import { join } from "node:path";
-import { z } from "zod";
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
+import { z } from 'zod';
 
 // Load package-scoped .env files for local development (highest priority first)
-const packageDir = join(import.meta.dir, "..");
-const localEnvPath = join(packageDir, ".env.local");
-const baseEnvPath = join(packageDir, ".env");
+const packageDir = join(import.meta.dir, '..');
+const localEnvPath = join(packageDir, '.env.local');
+const baseEnvPath = join(packageDir, '.env');
 
 if (existsSync(localEnvPath)) {
-  process.loadEnvFile(localEnvPath);
+	process.loadEnvFile(localEnvPath);
 }
 if (existsSync(baseEnvPath)) {
-  process.loadEnvFile(baseEnvPath);
+	process.loadEnvFile(baseEnvPath);
 }
 
 export const envSchema = z.object({
-  /** Application environment. Defaults to `"development"`. */
-  NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
+	/** Application environment. Defaults to `"development"`. */
+	NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
 
-  /**
-   * PostgreSQL connection string.
-   *
-   * Used by the Bun SQL Database client and migration runner.
-   */
-  DATABASE_URL: z.url(),
+	/**
+	 * PostgreSQL connection string.
+	 *
+	 * Used by the Bun SQL Database client and migration runner.
+	 */
+	DATABASE_URL: z.url(),
 
-  /**
-   * Maximum number of connections in the PostgreSQL connection pool.
-   * When omitted, defaults to 10.
-   */
-  PGMAX_POOL: z.coerce.number().int().positive().default(10),
+	/**
+	 * Maximum number of connections in the PostgreSQL connection pool.
+	 * When omitted, defaults to 10.
+	 */
+	PGMAX_POOL: z.coerce.number().int().positive().default(10),
 });
 
 export type Env = z.infer<typeof envSchema>;

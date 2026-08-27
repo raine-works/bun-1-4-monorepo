@@ -12,43 +12,43 @@
  * @module env
  */
 
-import { existsSync } from "node:fs";
-import { join } from "node:path";
-import { z } from "zod";
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
+import { z } from 'zod';
 
 // Load package-scoped .env files for local development (highest priority first)
-const packageDir = join(import.meta.dir, "../..");
-const localEnvPath = join(packageDir, ".env.local");
-const baseEnvPath = join(packageDir, ".env");
+const packageDir = join(import.meta.dir, '../..');
+const localEnvPath = join(packageDir, '.env.local');
+const baseEnvPath = join(packageDir, '.env');
 
 if (existsSync(localEnvPath)) {
-  process.loadEnvFile(localEnvPath);
+	process.loadEnvFile(localEnvPath);
 }
 if (existsSync(baseEnvPath)) {
-  process.loadEnvFile(baseEnvPath);
+	process.loadEnvFile(baseEnvPath);
 }
 
 export const envSchema = z.object({
-  /** Application environment. Defaults to `"development"`. */
-  NODE_ENV: z.enum(["development", "production", "test"]).default("development"),
+	/** Application environment. Defaults to `"development"`. */
+	NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
 
-  /**
-   * Port the HTTP server should bind to. Defaults to `3000`.
-   */
-  PORT: z.coerce.number().int().positive().default(3000),
+	/**
+	 * Port the HTTP server should bind to. Defaults to `3000`.
+	 */
+	PORT: z.coerce.number().int().positive().default(3000),
 
-  /**
-   * PostgreSQL connection string.
-   *
-   * Used by the Bun SQL Database client and migration runner.
-   */
-  DATABASE_URL: z.url(),
+	/**
+	 * PostgreSQL connection string.
+	 *
+	 * Used by the Bun SQL Database client and migration runner.
+	 */
+	DATABASE_URL: z.url(),
 
-  /**
-   * Root directory containing the built frontend bundles.
-   * When omitted, resolves relative to the workspace packages.
-   */
-  FRONTEND_DIST: z.string().optional(),
+	/**
+	 * Root directory containing the built frontend bundles.
+	 * When omitted, resolves relative to the workspace packages.
+	 */
+	FRONTEND_DIST: z.string().optional(),
 });
 
 export type Env = z.infer<typeof envSchema>;

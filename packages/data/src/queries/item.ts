@@ -1,18 +1,18 @@
-import type { BunSql } from "@/client";
-import type { CreateItemInput, Item, ItemFilter, UpdateItemInput } from "@/contracts/item";
-import { parseCount } from "@/queries/common";
+import type { BunSql } from '@/client';
+import type { CreateItemInput, Item, ItemFilter, UpdateItemInput } from '@/contracts/item';
+import { parseCount } from '@/queries/common';
 
 /**
  * Creates type-safe database query operations for the `items` table.
  * All queries are written in raw PostgreSQL with Bun SQL tagged templates.
  */
 export function createItemsQueries(sql: BunSql) {
-  return {
-    /**
-     * Finds a single item by primary UUID.
-     */
-    async findById(id: string): Promise<Item | null> {
-      const rows = (await sql`
+	return {
+		/**
+		 * Finds a single item by primary UUID.
+		 */
+		async findById(id: string): Promise<Item | null> {
+			const rows = (await sql`
         SELECT
           id, user_id AS "userId", title, completed,
           created_at AS "createdAt", updated_at AS "updatedAt"
@@ -20,18 +20,18 @@ export function createItemsQueries(sql: BunSql) {
         WHERE id = ${id}
         LIMIT 1
       `) as unknown as Item[];
-      return rows[0] ?? null;
-    },
+			return rows[0] ?? null;
+		},
 
-    /**
-     * Lists items matching optional filter criteria, ordered by creation date descending.
-     */
-    async list(filter: ItemFilter = {}): Promise<Item[]> {
-      const limit = filter.limit ?? 50;
-      const offset = filter.offset ?? 0;
-      const searchPattern = filter.search ? `%${filter.search.trim()}%` : null;
+		/**
+		 * Lists items matching optional filter criteria, ordered by creation date descending.
+		 */
+		async list(filter: ItemFilter = {}): Promise<Item[]> {
+			const limit = filter.limit ?? 50;
+			const offset = filter.offset ?? 0;
+			const searchPattern = filter.search ? `%${filter.search.trim()}%` : null;
 
-      const rows = (await sql`
+			const rows = (await sql`
         SELECT
           id, user_id AS "userId", title, completed,
           created_at AS "createdAt", updated_at AS "updatedAt"
@@ -44,14 +44,14 @@ export function createItemsQueries(sql: BunSql) {
         LIMIT ${limit} OFFSET ${offset}
       `) as unknown as Item[];
 
-      return rows;
-    },
+			return rows;
+		},
 
-    /**
-     * Retrieves all items belonging to a specific user.
-     */
-    async listByUserId(userId: string): Promise<Item[]> {
-      const rows = (await sql`
+		/**
+		 * Retrieves all items belonging to a specific user.
+		 */
+		async listByUserId(userId: string): Promise<Item[]> {
+			const rows = (await sql`
         SELECT
           id, user_id AS "userId", title, completed,
           created_at AS "createdAt", updated_at AS "updatedAt"
@@ -60,18 +60,18 @@ export function createItemsQueries(sql: BunSql) {
         ORDER BY created_at DESC
       `) as unknown as Item[];
 
-      return rows;
-    },
+			return rows;
+		},
 
-    /**
-     * Inserts a new item record and returns the created row.
-     */
-    async create(input: CreateItemInput): Promise<Item> {
-      const title = input.title.trim();
-      const completed = input.completed ?? false;
-      const userId = input.userId ?? null;
+		/**
+		 * Inserts a new item record and returns the created row.
+		 */
+		async create(input: CreateItemInput): Promise<Item> {
+			const title = input.title.trim();
+			const completed = input.completed ?? false;
+			const userId = input.userId ?? null;
 
-      const rows = (await sql`
+			const rows = (await sql`
         INSERT INTO items (
           title, user_id, completed
         ) VALUES (
@@ -84,23 +84,23 @@ export function createItemsQueries(sql: BunSql) {
           created_at AS "createdAt", updated_at AS "updatedAt"
       `) as unknown as Item[];
 
-      const item = rows[0];
-      if (!item) {
-        throw new Error("Failed to insert item");
-      }
-      return item;
-    },
+			const item = rows[0];
+			if (!item) {
+				throw new Error('Failed to insert item');
+			}
+			return item;
+		},
 
-    /**
-     * Updates an existing item record and returns the updated row.
-     */
-    async update(id: string, input: UpdateItemInput): Promise<Item | null> {
-      const title = input.title ? input.title.trim() : null;
-      const hasUserId = input.userId !== undefined;
-      const userId = input.userId ?? null;
-      const completed = input.completed ?? null;
+		/**
+		 * Updates an existing item record and returns the updated row.
+		 */
+		async update(id: string, input: UpdateItemInput): Promise<Item | null> {
+			const title = input.title ? input.title.trim() : null;
+			const hasUserId = input.userId !== undefined;
+			const userId = input.userId ?? null;
+			const completed = input.completed ?? null;
 
-      const rows = (await sql`
+			const rows = (await sql`
         UPDATE items
         SET
           title = COALESCE(${title}, title),
@@ -113,14 +113,14 @@ export function createItemsQueries(sql: BunSql) {
           created_at AS "createdAt", updated_at AS "updatedAt"
       `) as unknown as Item[];
 
-      return rows[0] ?? null;
-    },
+			return rows[0] ?? null;
+		},
 
-    /**
-     * Toggles an item's completed status.
-     */
-    async toggle(id: string): Promise<Item | null> {
-      const rows = (await sql`
+		/**
+		 * Toggles an item's completed status.
+		 */
+		async toggle(id: string): Promise<Item | null> {
+			const rows = (await sql`
         UPDATE items
         SET
           completed = NOT completed,
@@ -131,14 +131,14 @@ export function createItemsQueries(sql: BunSql) {
           created_at AS "createdAt", updated_at AS "updatedAt"
       `) as unknown as Item[];
 
-      return rows[0] ?? null;
-    },
+			return rows[0] ?? null;
+		},
 
-    /**
-     * Deletes an item by ID and returns the deleted row.
-     */
-    async delete(id: string): Promise<Item | null> {
-      const rows = (await sql`
+		/**
+		 * Deletes an item by ID and returns the deleted row.
+		 */
+		async delete(id: string): Promise<Item | null> {
+			const rows = (await sql`
         DELETE FROM items
         WHERE id = ${id}
         RETURNING
@@ -146,14 +146,14 @@ export function createItemsQueries(sql: BunSql) {
           created_at AS "createdAt", updated_at AS "updatedAt"
       `) as unknown as Item[];
 
-      return rows[0] ?? null;
-    },
+			return rows[0] ?? null;
+		},
 
-    /**
-     * Counts items matching optional filter criteria.
-     */
-    async count(filter: { userId?: string; completed?: boolean } = {}): Promise<number> {
-      const rows = (await sql`
+		/**
+		 * Counts items matching optional filter criteria.
+		 */
+		async count(filter: { userId?: string; completed?: boolean } = {}): Promise<number> {
+			const rows = (await sql`
         SELECT COUNT(*)::text AS count
         FROM items
         WHERE
@@ -161,9 +161,9 @@ export function createItemsQueries(sql: BunSql) {
           AND (${filter.completed ?? null}::boolean IS NULL OR completed = ${filter.completed ?? null})
       `) as unknown as Array<{ count: string }>;
 
-      return parseCount(rows);
-    },
-  };
+			return parseCount(rows);
+		},
+	};
 }
 
 export type ItemsQueries = ReturnType<typeof createItemsQueries>;

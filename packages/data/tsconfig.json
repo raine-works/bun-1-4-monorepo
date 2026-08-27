@@ -1,21 +1,21 @@
 {
-  "extends": "../../tsconfig.json",
-  "compilerOptions": {
-    "types": ["bun"],
-    "paths": {
-      "@/*": ["./src/*"],
-      "@data": ["./src/index.ts"],
-      "@data/*": ["./src/*"],
-      "@app/data": ["./src/index.ts"],
-      "@app/data/*": ["./src/*"],
-      "@contracts": ["./src/contracts/index.ts"],
-      "@contracts/*": ["./src/contracts/*"],
-      "@queries": ["./src/queries/index.ts"],
-      "@queries/*": ["./src/queries/*"],
-      "@client": ["./src/client.ts"],
-      "@env": ["./src/env.ts"],
-      "@migrator": ["./src/migrator.ts"]
-    }
-  },
-  "include": ["src/**/*", "scripts/**/*"]
+	"extends": "../../tsconfig.json",
+	"compilerOptions": {
+		"types": ["bun"],
+		"paths": {
+			"@/*": ["./src/*"],
+			"@data": ["./src/index.ts"],
+			"@data/*": ["./src/*"],
+			"@app/data": ["./src/index.ts"],
+			"@app/data/*": ["./src/*"],
+			"@contracts": ["./src/contracts/index.ts"],
+			"@contracts/*": ["./src/contracts/*"],
+			"@queries": ["./src/queries/index.ts"],
+			"@queries/*": ["./src/queries/*"],
+			"@client": ["./src/client.ts"],
+			"@env": ["./src/env.ts"],
+			"@migrator": ["./src/migrator.ts"]
+		}
+	},
+	"include": ["src/**/*", "scripts/**/*"]
 }

@@ -1,29 +1,24 @@
-import { Route as rootRoute } from "@docs/routes/__root";
-import { DocsOverviewPage } from "@docs/routes/index";
-import { NotFoundPage } from "@docs/routes/not-found";
-import {
-  createMemoryHistory,
-  createRoute,
-  createRouter,
-  lazyRouteComponent,
-} from "@tanstack/react-router";
+import { Route as rootRoute } from '@docs/routes/__root';
+import { DocsOverviewPage } from '@docs/routes/index';
+import { NotFoundPage } from '@docs/routes/not-found';
+import { createMemoryHistory, createRoute, createRouter, lazyRouteComponent } from '@tanstack/react-router';
 
 const indexRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "/",
-  component: DocsOverviewPage,
+	getParentRoute: () => rootRoute,
+	path: '/',
+	component: DocsOverviewPage,
 });
 
 const guidesRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "/guides",
-  component: lazyRouteComponent(() => import("@docs/routes/guides"), "DocsGuidesPage"),
+	getParentRoute: () => rootRoute,
+	path: '/guides',
+	component: lazyRouteComponent(() => import('@docs/routes/guides'), 'DocsGuidesPage'),
 });
 
 const apiRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "/api",
-  component: lazyRouteComponent(() => import("@docs/routes/api"), "DocsApiPage"),
+	getParentRoute: () => rootRoute,
+	path: '/api',
+	component: lazyRouteComponent(() => import('@docs/routes/api'), 'DocsApiPage'),
 });
 
 export const routeTree = rootRoute.addChildren([indexRoute, guidesRoute, apiRoute]);
@@ -35,16 +30,13 @@ export const routeTree = rootRoute.addChildren([indexRoute, guidesRoute, apiRout
  * @param initialPath - The initial path used when instantiating in memory history mode (e.g. during SSR or unit tests).
  * @returns A fully initialized TanStack Router instance with scoped basepath `/docs` and registered routes.
  */
-export function createAppRouter(initialPath = "/docs/") {
-  return createRouter({
-    routeTree,
-    basepath: "/docs",
-    defaultNotFoundComponent: NotFoundPage,
-    history:
-      typeof window === "undefined"
-        ? createMemoryHistory({ initialEntries: [initialPath] })
-        : undefined,
-  });
+export function createAppRouter(initialPath = '/docs/') {
+	return createRouter({
+		routeTree,
+		basepath: '/docs',
+		defaultNotFoundComponent: NotFoundPage,
+		history: typeof window === 'undefined' ? createMemoryHistory({ initialEntries: [initialPath] }) : undefined,
+	});
 }
 
 /** Default browser router instance for the Docs micro-frontend. */

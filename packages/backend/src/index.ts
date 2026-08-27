@@ -1,9 +1,9 @@
-import { handleApiRequest } from "@/api";
-import { applyCompression } from "@/lib/compression";
-import { env } from "@/lib/env";
-import { LiveReloadManager } from "@/lib/live-reload";
-import { isStandaloneMode, resolveFrontendDist, serveMicroFrontend } from "@/lib/mfe";
-import type { Item, ServerInfo, ServerOptions } from "@/types";
+import { handleApiRequest } from '@/api';
+import { applyCompression } from '@/lib/compression';
+import { env } from '@/lib/env';
+import { LiveReloadManager } from '@/lib/live-reload';
+import { isStandaloneMode, resolveFrontendDist, serveMicroFrontend } from '@/lib/mfe';
+import type { Item, ServerInfo, ServerOptions } from '@/types';
 
 export type { Item, ServerInfo, ServerOptions };
 export { isStandaloneMode, resolveFrontendDist };
@@ -25,54 +25,54 @@ export { isStandaloneMode, resolveFrontendDist };
  * ```
  */
 export function createServer(optionsOrPort: number | ServerOptions = 3000) {
-  const options: ServerOptions =
-    typeof optionsOrPort === "number" ? { port: optionsOrPort } : optionsOrPort;
-  const port = options.port ?? env.PORT;
-  const standalone = isStandaloneMode();
-  const currentEnv = process.env.NODE_ENV ?? env.NODE_ENV;
-  const isProduction = currentEnv === "production" || standalone;
-  const enableLiveReload = options.liveReload ?? (!isProduction && currentEnv !== "test");
+	const options: ServerOptions = typeof optionsOrPort === 'number' ? { port: optionsOrPort } : optionsOrPort;
+	const port = options.port ?? env.PORT;
+	const standalone = isStandaloneMode();
+	const currentEnv = process.env.NODE_ENV ?? env.NODE_ENV;
+	const isProduction = currentEnv === 'production' || standalone;
+	const enableLiveReload = options.liveReload ?? (!isProduction && currentEnv !== 'test');
 
-  const distDir = resolveFrontendDist();
-  const liveReloadManager = enableLiveReload ? new LiveReloadManager() : null;
+	const distDir = resolveFrontendDist();
+	const liveReloadManager = enableLiveReload ? new LiveReloadManager() : null;
 
-  const server = Bun.serve({
-    port,
-    async fetch(req) {
-      // 1. API route handling
-      const apiResponse = await handleApiRequest(req, {
-        isStandalone: standalone,
-        enableLiveReload,
-        liveReloadManager,
-      });
-      if (apiResponse) {
-        return applyCompression(req, apiResponse);
-      }
+	const server = Bun.serve({
+		hostname: '0.0.0.0',
+		port,
+		async fetch(req) {
+			// 1. API route handling
+			const apiResponse = await handleApiRequest(req, {
+				isStandalone: standalone,
+				enableLiveReload,
+				liveReloadManager,
+			});
+			if (apiResponse) {
+				return applyCompression(req, apiResponse);
+			}
 
-      // 2. Micro-Frontend resolution and serving
-      const mfeResponse = await serveMicroFrontend(req, {
-        distDir,
-        enableLiveReload,
-      });
-      return applyCompression(req, mfeResponse);
-    },
-  });
+			// 2. Micro-Frontend resolution and serving
+			const mfeResponse = await serveMicroFrontend(req, {
+				distDir,
+				enableLiveReload,
+			});
+			return applyCompression(req, mfeResponse);
+		},
+	});
 
-  // Attach clean shutdown handler
-  const originalStop = server.stop.bind(server);
-  server.stop = (closeActiveConnections?: boolean) => {
-    liveReloadManager?.stop();
-    return originalStop(closeActiveConnections);
-  };
+	// Attach clean shutdown handler
+	const originalStop = server.stop.bind(server);
+	server.stop = (closeActiveConnections?: boolean) => {
+		liveReloadManager?.stop();
+		return originalStop(closeActiveConnections);
+	};
 
-  return server;
+	return server;
 }
 
 // Start server when executed directly
 if (import.meta.main) {
-  const port = env.PORT;
-  const server = createServer(port);
-  const isStandalone = isStandaloneMode();
-  console.log(`🚀 Server listening at http://localhost:${server.port}`);
-  console.log(`   Mode: ${isStandalone ? "Standalone Binary (Embedded)" : "Local Development"}`);
+	const port = env.PORT;
+	const server = createServer(port);
+	const isStandalone = isStandaloneMode();
+	console.log(`🚀 Server listening at http://localhost:${server.port}`);
+	console.log(`   Mode: ${isStandalone ? 'Standalone Binary (Embedded)' : 'Local Development'}`);
 }

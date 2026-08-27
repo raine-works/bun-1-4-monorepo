@@ -1,7 +1,7 @@
 {
-  "recommendations": [
-    "biomejs.biome",
-    "bradlc.vscode-tailwindcss",
-    "oven.bun-vscode"
-  ]
+	"recommendations": [
+		"biomejs.biome",
+		"bradlc.vscode-tailwindcss",
+		"oven.bun-vscode"
+	]
 }

@@ -1,44 +1,44 @@
 {
-  "name": "bun-1-4-monorepo",
-  "private": true,
-  "type": "module",
-  "workspaces": [
-    "packages/*"
-  ],
-  "catalog": {
-    "@biomejs/biome": "2.5.10",
-    "react": "19.2.8",
-    "react-dom": "19.2.8",
-    "@types/react": "19.2.18",
-    "@types/react-dom": "19.2.5",
-    "@types/bun": "1.4.0",
-    "typescript": "7.0.2",
-    "tailwindcss": "4.3.3",
-    "bun-plugin-tailwind": "0.1.2",
-    "@tanstack/react-router": "1.170.32",
-    "zod": "4.4.3"
-  },
-  "devDependencies": {
-    "@biomejs/biome": "catalog:",
-    "@types/bun": "catalog:",
-    "bun-plugin-tailwind": "catalog:",
-    "tailwindcss": "catalog:",
-    "typescript": "catalog:",
-    "zod": "catalog:"
-  },
-  "scripts": {
-    "build": "bun run --concurrent --filter '*' build",
-    "dev": "bun run --parallel --filter '*' dev",
-    "docker:build": "bun run --parallel --filter '*' docker:build",
-    "format": "biome format --write .",
-    "lint": "biome check .",
-    "lint:fix": "biome check --write .",
-    "migrate": "bun run --filter @app/data migrate",
-    "migrate:create": "bun run --filter @app/data migrate:create",
-    "migrate:down": "bun run --filter @app/data migrate:down",
-    "migrate:status": "bun run --filter @app/data migrate:status",
-    "start": "bun run --filter @app/backend start",
-    "test": "bun test --parallel",
-    "typecheck": "tsc --noEmit"
-  }
+	"name": "bun-1-4-monorepo",
+	"private": true,
+	"type": "module",
+	"workspaces": [
+		"packages/*"
+	],
+	"catalog": {
+		"@biomejs/biome": "2.5.10",
+		"react": "19.2.8",
+		"react-dom": "19.2.8",
+		"@types/react": "19.2.18",
+		"@types/react-dom": "19.2.5",
+		"@types/bun": "1.4.0",
+		"typescript": "7.0.2",
+		"tailwindcss": "4.3.3",
+		"bun-plugin-tailwind": "0.1.2",
+		"@tanstack/react-router": "1.170.32",
+		"zod": "4.4.3"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "catalog:",
+		"@types/bun": "catalog:",
+		"bun-plugin-tailwind": "catalog:",
+		"tailwindcss": "catalog:",
+		"typescript": "catalog:",
+		"zod": "catalog:"
+	},
+	"scripts": {
+		"build": "bun run --concurrent --filter '*' build",
+		"dev": "bun run --parallel --filter '*' dev",
+		"docker:build": "bun run --parallel --filter '*' docker:build",
+		"format": "biome format --write .",
+		"lint": "biome check .",
+		"lint:fix": "biome check --write .",
+		"migrate": "bun run --filter @app/data migrate",
+		"migrate:create": "bun run --filter @app/data migrate:create",
+		"migrate:down": "bun run --filter @app/data migrate:down",
+		"migrate:status": "bun run --filter @app/data migrate:status",
+		"start": "bun run --filter @app/backend start",
+		"test": "bun test --parallel",
+		"typecheck": "tsc --noEmit"
+	}
 }

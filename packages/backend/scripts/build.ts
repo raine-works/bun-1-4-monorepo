@@ -1,5 +1,5 @@
-import { cpSync, existsSync, mkdirSync, readdirSync, rmSync } from "node:fs";
-import { join } from "node:path";
+import { cpSync, existsSync, mkdirSync, readdirSync, rmSync } from 'node:fs';
+import { join } from 'node:path';
 
 /**
  * Standalone Binary Compilation Script
@@ -10,22 +10,22 @@ import { join } from "node:path";
  *    into a single self-contained standalone executable binary (`packages/backend/dist/server`).
  */
 
-console.log("⚡ Compiling standalone binary executable with Bun 1.4...");
+console.log('⚡ Compiling standalone binary executable with Bun 1.4...');
 
-const packageDir = join(import.meta.dir, "..");
-const repoRoot = join(packageDir, "../..");
-const backendDist = join(packageDir, "dist");
-const stagedMfesDir = join(backendDist, "mfes");
-const outfile = join(backendDist, "server");
+const packageDir = join(import.meta.dir, '..');
+const repoRoot = join(packageDir, '../..');
+const backendDist = join(packageDir, 'dist');
+const stagedMfesDir = join(backendDist, 'mfes');
+const outfile = join(backendDist, 'server');
 
 /**
  * Micro-frontend applications to embed into the standalone binary.
  * To add a new MFE to the binary, register its package name, path, and mount route here.
  */
 const microFrontends = [
-  { name: "@app/hub", path: "packages/hub", route: "hub" },
-  { name: "@app/store", path: "packages/store", route: "store" },
-  { name: "@app/docs", path: "packages/docs", route: "docs" },
+	{ name: '@app/hub', path: 'packages/hub', route: 'hub' },
+	{ name: '@app/store', path: 'packages/store', route: 'store' },
+	{ name: '@app/docs', path: 'packages/docs', route: 'docs' },
 ];
 
 /**
@@ -34,16 +34,16 @@ const microFrontends = [
  * @param dir - Directory path to inspect and clean.
  */
 function cleanBunBuildArtifacts(dir: string) {
-  if (!existsSync(dir)) return;
-  for (const file of readdirSync(dir)) {
-    if (file.includes(".bun-build")) {
-      try {
-        rmSync(join(dir, file), { force: true });
-      } catch {
-        // Ignore
-      }
-    }
-  }
+	if (!existsSync(dir)) return;
+	for (const file of readdirSync(dir)) {
+		if (file.includes('.bun-build')) {
+			try {
+				rmSync(join(dir, file), { force: true });
+			} catch {
+				// Ignore
+			}
+		}
+	}
 }
 
 // Clean any leftover temp files before build
@@ -54,25 +54,25 @@ cleanBunBuildArtifacts(backendDist);
 // Ensure clean dist and staging directories
 mkdirSync(backendDist, { recursive: true });
 if (existsSync(stagedMfesDir)) {
-  rmSync(stagedMfesDir, { recursive: true, force: true });
+	rmSync(stagedMfesDir, { recursive: true, force: true });
 }
 mkdirSync(stagedMfesDir, { recursive: true });
 
 // Build and stage each micro-frontend
 for (const mfe of microFrontends) {
-  console.log(`🔨 Building ${mfe.name}...`);
-  await Bun.$`bun run --filter ${mfe.name} build`.cwd(repoRoot);
+	console.log(`🔨 Building ${mfe.name}...`);
+	await Bun.$`bun run --filter ${mfe.name} build`.cwd(repoRoot);
 
-  const mfeDist = join(repoRoot, mfe.path, "dist");
-  const targetDir = join(stagedMfesDir, mfe.route);
-  mkdirSync(targetDir, { recursive: true });
-  cpSync(mfeDist, targetDir, { recursive: true });
-  console.log(`📦 Staged ${mfe.name} -> dist/mfes/${mfe.route}`);
+	const mfeDist = join(repoRoot, mfe.path, 'dist');
+	const targetDir = join(stagedMfesDir, mfe.route);
+	mkdirSync(targetDir, { recursive: true });
+	cpSync(mfeDist, targetDir, { recursive: true });
+	console.log(`📦 Staged ${mfe.name} -> dist/mfes/${mfe.route}`);
 }
 
 // Compile standalone binary (run within dist directory to contain compiler scratch files)
 await Bun.$`bun build --compile --minify --bytecode --define process.env.NODE_ENV='"production"' --asset=mfes --outfile=server ../src/index.ts`.cwd(
-  backendDist
+	backendDist,
 );
 
 // Clean up compiler scratch files immediately

@@ -1,4 +1,4 @@
-import type { LiveReloadManager } from "@/lib/live-reload";
+import type { LiveReloadManager } from '@/lib/live-reload';
 
 /**
  * Handles incoming SSE connection requests for live reload (`/api/live-reload` or `/live-reload`).
@@ -8,13 +8,10 @@ import type { LiveReloadManager } from "@/lib/live-reload";
  * @param liveReloadManager - The active `LiveReloadManager` instance, or null if disabled.
  * @returns An SSE stream HTTP `Response` or 404 Not Found response.
  */
-export function handleLiveReloadRoute(
-  req: Request,
-  liveReloadManager: LiveReloadManager | null
-): Response {
-  if (!liveReloadManager) {
-    return new Response("Live reload disabled in production", { status: 404 });
-  }
+export function handleLiveReloadRoute(req: Request, liveReloadManager: LiveReloadManager | null): Response {
+	if (!liveReloadManager) {
+		return new Response('Live reload disabled in production', { status: 404 });
+	}
 
-  return liveReloadManager.handleSseRequest(req);
+	return liveReloadManager.handleSseRequest(req);
 }

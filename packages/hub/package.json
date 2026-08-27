@@ -1,22 +1,22 @@
 {
-  "name": "@app/hub",
-  "private": true,
-  "type": "module",
-  "scripts": {
-    "build": "bun scripts/build.ts",
-    "dev": "bun scripts/build.ts --watch",
-    "test": "bun test"
-  },
-  "dependencies": {
-    "@tanstack/react-router": "catalog:",
-    "react": "catalog:",
-    "react-dom": "catalog:"
-  },
-  "devDependencies": {
-    "@types/bun": "catalog:",
-    "@types/react": "catalog:",
-    "@types/react-dom": "catalog:",
-    "bun-plugin-tailwind": "catalog:",
-    "tailwindcss": "catalog:"
-  }
+	"name": "@app/hub",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"build": "bun scripts/build.ts",
+		"dev": "bun scripts/build.ts --watch",
+		"test": "bun test"
+	},
+	"dependencies": {
+		"@tanstack/react-router": "catalog:",
+		"react": "catalog:",
+		"react-dom": "catalog:"
+	},
+	"devDependencies": {
+		"@types/bun": "catalog:",
+		"@types/react": "catalog:",
+		"@types/react-dom": "catalog:",
+		"bun-plugin-tailwind": "catalog:",
+		"tailwindcss": "catalog:"
+	}
 }

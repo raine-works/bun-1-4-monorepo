@@ -1,18 +1,18 @@
 {
-  "extends": "../../tsconfig.json",
-  "compilerOptions": {
-    "types": ["bun"],
-    "paths": {
-      "@/*": ["./src/*", "../data/src/*"],
-      "@backend": ["./src/index.ts"],
-      "@backend/*": ["./src/*"],
-      "@data": ["../data/src/index.ts"],
-      "@data/*": ["../data/src/*"],
-      "@app/backend": ["./src/index.ts"],
-      "@app/backend/*": ["./src/*"],
-      "@app/data": ["../data/src/index.ts"],
-      "@app/data/*": ["../data/src/*"]
-    }
-  },
-  "include": ["src/**/*", "scripts/**/*"]
+	"extends": "../../tsconfig.json",
+	"compilerOptions": {
+		"types": ["bun"],
+		"paths": {
+			"@/*": ["./src/*", "../data/src/*"],
+			"@backend": ["./src/index.ts"],
+			"@backend/*": ["./src/*"],
+			"@data": ["../data/src/index.ts"],
+			"@data/*": ["../data/src/*"],
+			"@app/backend": ["./src/index.ts"],
+			"@app/backend/*": ["./src/*"],
+			"@app/data": ["../data/src/index.ts"],
+			"@app/data/*": ["../data/src/*"]
+		}
+	},
+	"include": ["src/**/*", "scripts/**/*"]
 }

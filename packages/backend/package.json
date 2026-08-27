@@ -1,23 +1,23 @@
 {
-  "name": "@app/backend",
-  "private": true,
-  "type": "module",
-  "scripts": {
-    "build": "bun scripts/build.ts",
-    "dev": "bun --watch src/index.ts",
-    "docker:build": "docker build -f Dockerfile -t app-backend ../..",
-    "docker:run": "docker run -p 3000:3000 app-backend",
-    "start": "dist/server",
-    "test": "bun test"
-  },
-  "dependencies": {
-    "@app/data": "workspace:*",
-    "@app/docs": "workspace:*",
-    "@app/hub": "workspace:*",
-    "@app/store": "workspace:*",
-    "zod": "catalog:"
-  },
-  "devDependencies": {
-    "@types/bun": "catalog:"
-  }
+	"name": "@app/backend",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"build": "bun scripts/build.ts",
+		"dev": "bun --watch src/index.ts",
+		"docker:build": "docker build -f Dockerfile -t app-backend ../..",
+		"docker:run": "docker run -p 3000:3000 app-backend",
+		"start": "dist/server",
+		"test": "bun test"
+	},
+	"dependencies": {
+		"@app/data": "workspace:*",
+		"@app/docs": "workspace:*",
+		"@app/hub": "workspace:*",
+		"@app/store": "workspace:*",
+		"zod": "catalog:"
+	},
+	"devDependencies": {
+		"@types/bun": "catalog:"
+	}
 }
