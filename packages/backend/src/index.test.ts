@@ -230,8 +230,8 @@ describe('Backend Server & Micro-Frontend Host', () => {
 	});
 
 	it('should not inject live reload script or enable SSE route in production mode', async () => {
-		const origEnv = process.env.NODE_ENV;
-		process.env.NODE_ENV = 'production';
+		const origEnv = Bun.env.NODE_ENV;
+		Bun.env.NODE_ENV = 'production';
 		const prodServer = createServer({ port: 0 });
 		const prodUrl = `http://localhost:${prodServer.port}`;
 
@@ -258,7 +258,7 @@ describe('Backend Server & Micro-Frontend Host', () => {
 			}
 		} finally {
 			prodServer.stop();
-			process.env.NODE_ENV = origEnv;
+			Bun.env.NODE_ENV = origEnv;
 		}
 	});
 

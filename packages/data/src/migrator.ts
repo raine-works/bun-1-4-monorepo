@@ -1,6 +1,9 @@
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { type BunSql, Database, db } from '@app/data/client';
+import { parseMigrationSql } from '@app/tools/sql';
+
+export { parseMigrationSql };
 
 /**
  * Migration status item.
@@ -17,23 +20,6 @@ export interface MigrationStatus {
 export interface MigrationResult {
 	applied: string[];
 	rolledBack: string[];
-}
-
-/**
- * Parses SQL file splitting into `-- up` and optional `-- down` sections.
- */
-export function parseMigrationSql(content: string): {
-	up: string;
-	down: string;
-} {
-	const parts = content.split(/^[ \t]*--\s*(?:down|rollback)\b.*$/im);
-	let up = parts[0] || '';
-	let down = parts[1] || '';
-
-	up = up.replace(/^[ \t]*--\s*up\b.*$/im, '').trim();
-	down = down.trim();
-
-	return { up, down };
 }
 
 /**

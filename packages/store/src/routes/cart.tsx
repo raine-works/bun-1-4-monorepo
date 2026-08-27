@@ -14,7 +14,7 @@ export function StoreCartPage() {
 					<Link
 						to="/"
 						aria-label="Back to Catalog"
-						className="text-xs text-sky-300 hover:text-sky-200 hover:underline min-h-[36px] inline-flex items-center"
+						className="text-xs text-sky-300 hover:text-sky-200 hover:underline min-h-9 inline-flex items-center"
 					>
 						&larr; Back to Catalog
 					</Link>
@@ -43,14 +43,14 @@ export function StoreCartPage() {
 					<Link
 						to="/"
 						aria-label="Continue Shopping"
-						className="bg-white/10 hover:bg-white/15 text-slate-100 font-medium px-4 py-2 rounded-lg text-xs transition-colors min-h-[36px] inline-flex items-center"
+						className="bg-white/10 hover:bg-white/15 text-slate-100 font-medium px-4 py-2 rounded-lg text-xs transition-colors min-h-9 inline-flex items-center"
 					>
 						Continue Shopping
 					</Link>
 					<button
 						type="button"
 						aria-label="Checkout Demo"
-						className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold px-4 py-2 rounded-lg text-xs transition-colors min-h-[36px]"
+						className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold px-4 py-2 rounded-lg text-xs transition-colors min-h-9"
 					>
 						Checkout Demo
 					</button>

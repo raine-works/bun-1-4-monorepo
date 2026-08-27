@@ -1,5 +1,6 @@
-import { cpSync, existsSync, mkdirSync, readdirSync, rmSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
+import { cleanBunBuildArtifacts } from '@app/tools/cli';
 
 /**
  * Standalone Binary Compilation Script
@@ -28,24 +29,6 @@ const microFrontends = [
 	{ name: '@app/docs', path: 'packages/docs', route: 'docs' },
 ];
 
-/**
- * Helper to clean up any temporary `.bun-build` artifacts emitted during compilation.
- *
- * @param dir - Directory path to inspect and clean.
- */
-function cleanBunBuildArtifacts(dir: string) {
-	if (!existsSync(dir)) return;
-	for (const file of readdirSync(dir)) {
-		if (file.includes('.bun-build')) {
-			try {
-				rmSync(join(dir, file), { force: true });
-			} catch {
-				// Ignore
-			}
-		}
-	}
-}
-
 // Clean any leftover temp files before build
 cleanBunBuildArtifacts(repoRoot);
 cleanBunBuildArtifacts(packageDir);
@@ -71,7 +54,7 @@ for (const mfe of microFrontends) {
 }
 
 // Compile standalone binary (run within dist directory to contain compiler scratch files)
-await Bun.$`bun build --compile --minify --bytecode --define process.env.NODE_ENV='"production"' --asset=mfes --outfile=server ../src/index.ts`.cwd(
+await Bun.$`bun build --compile --minify --bytecode --define Bun.env.NODE_ENV='"production"' --define process.env.NODE_ENV='"production"' --asset=mfes --outfile=server ../src/index.ts`.cwd(
 	backendDist,
 );
 

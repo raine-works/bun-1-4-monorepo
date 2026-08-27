@@ -1,6 +1,6 @@
 import type { Item, User } from '@app/data';
-import type { LiveReloadManager } from '@/lib/live-reload';
-import type { ShutdownOptions, ShutdownState } from '@/lib/shutdown';
+import type { LiveReloadManager } from '@backend/lib/live-reload';
+import type { ShutdownOptions, ShutdownState } from '@backend/lib/shutdown';
 
 export type {
 	CreateItemInput,

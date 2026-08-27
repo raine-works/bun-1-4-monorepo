@@ -13,26 +13,15 @@
  * @module env
  */
 
-import { existsSync } from 'node:fs';
 import { join } from 'node:path';
+import { baseEnvSchema, loadEnvFiles, parseEnv } from '@app/tools/env';
 import { z } from 'zod';
 
 // Load package-scoped .env files for local development (highest priority first)
 const packageDir = join(import.meta.dir, '..');
-const localEnvPath = join(packageDir, '.env.local');
-const baseEnvPath = join(packageDir, '.env');
+loadEnvFiles(packageDir);
 
-if (existsSync(localEnvPath)) {
-	process.loadEnvFile(localEnvPath);
-}
-if (existsSync(baseEnvPath)) {
-	process.loadEnvFile(baseEnvPath);
-}
-
-export const envSchema = z.object({
-	/** Application environment. Defaults to `"development"`. */
-	NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
-
+export const envSchema = baseEnvSchema.extend({
 	/**
 	 * PostgreSQL connection string.
 	 *
@@ -56,4 +45,4 @@ export type Env = z.infer<typeof envSchema>;
  * about every missing or invalid variable — this surfaces during
  * startup before any database operations are accepted.
  */
-export const env: Env = envSchema.parse(Bun.env);
+export const env: Env = parseEnv(envSchema);

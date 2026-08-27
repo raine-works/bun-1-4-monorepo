@@ -20,7 +20,7 @@ export function DocsOverviewPage() {
 						<Link
 							to="/guides"
 							aria-label="View Developer Guides"
-							className="bg-sky-500 hover:bg-sky-400 text-slate-950 font-semibold px-3.5 py-1.5 rounded-lg text-xs transition-colors min-h-[36px] inline-flex items-center"
+							className="bg-sky-500 hover:bg-sky-400 text-slate-950 font-semibold px-3.5 py-1.5 rounded-lg text-xs transition-colors min-h-9 inline-flex items-center"
 						>
 							View Guides &rarr;
 						</Link>

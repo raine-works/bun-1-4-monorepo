@@ -49,7 +49,7 @@ export function DocsApiPage() {
 					<Link
 						to="/"
 						aria-label="Back to Overview"
-						className="text-xs text-sky-300 hover:text-sky-200 hover:underline min-h-[36px] inline-flex items-center"
+						className="text-xs text-sky-300 hover:text-sky-200 hover:underline min-h-9 inline-flex items-center"
 					>
 						&larr; Back to Overview
 					</Link>
@@ -68,7 +68,7 @@ export function DocsApiPage() {
 							onClick={() => runTest('/api/health')}
 							disabled={testing}
 							aria-label="Test /api/health endpoint"
-							className="bg-sky-500/20 hover:bg-sky-500/30 text-sky-200 border border-sky-500/40 px-3 py-1.5 rounded text-xs transition-colors cursor-pointer min-h-[36px]"
+							className="bg-sky-500/20 hover:bg-sky-500/30 text-sky-200 border border-sky-500/40 px-3 py-1.5 rounded text-xs transition-colors cursor-pointer min-h-9"
 						>
 							{testing && activeEndpoint === '/api/health' ? 'Testing...' : 'Test ⚡'}
 						</button>
@@ -88,7 +88,7 @@ export function DocsApiPage() {
 							onClick={() => runTest('/api/info')}
 							disabled={testing}
 							aria-label="Test /api/info endpoint"
-							className="bg-sky-500/20 hover:bg-sky-500/30 text-sky-200 border border-sky-500/40 px-3 py-1.5 rounded text-xs transition-colors cursor-pointer min-h-[36px]"
+							className="bg-sky-500/20 hover:bg-sky-500/30 text-sky-200 border border-sky-500/40 px-3 py-1.5 rounded text-xs transition-colors cursor-pointer min-h-9"
 						>
 							{testing && activeEndpoint === '/api/info' ? 'Testing...' : 'Test ⚡'}
 						</button>
@@ -106,7 +106,7 @@ export function DocsApiPage() {
 							onClick={() => runTest('/api/items')}
 							disabled={testing}
 							aria-label="Test /api/items endpoint"
-							className="bg-sky-500/20 hover:bg-sky-500/30 text-sky-200 border border-sky-500/40 px-3 py-1.5 rounded text-xs transition-colors cursor-pointer min-h-[36px]"
+							className="bg-sky-500/20 hover:bg-sky-500/30 text-sky-200 border border-sky-500/40 px-3 py-1.5 rounded text-xs transition-colors cursor-pointer min-h-9"
 						>
 							{testing && activeEndpoint === '/api/items' ? 'Testing...' : 'Test ⚡'}
 						</button>
@@ -124,7 +124,7 @@ export function DocsApiPage() {
 							onClick={() => runTest('/api/users')}
 							disabled={testing}
 							aria-label="Test /api/users endpoint"
-							className="bg-sky-500/20 hover:bg-sky-500/30 text-sky-200 border border-sky-500/40 px-3 py-1.5 rounded text-xs transition-colors cursor-pointer min-h-[36px]"
+							className="bg-sky-500/20 hover:bg-sky-500/30 text-sky-200 border border-sky-500/40 px-3 py-1.5 rounded text-xs transition-colors cursor-pointer min-h-9"
 						>
 							{testing && activeEndpoint === '/api/users' ? 'Testing...' : 'Test ⚡'}
 						</button>

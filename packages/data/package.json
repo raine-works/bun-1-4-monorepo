@@ -26,6 +26,7 @@
 		"typecheck": "tsc --noEmit"
 	},
 	"dependencies": {
+		"@app/tools": "workspace:*",
 		"zod": "catalog:"
 	},
 	"devDependencies": {

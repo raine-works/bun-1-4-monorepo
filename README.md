@@ -298,7 +298,7 @@ const result = await Bun.build({
 ### 2. Standalone Binary Compilation (`--asset=mfes`)
 The backend build script (`packages/backend/scripts/build.ts`) stages each micro-frontend's `dist` output into `packages/backend/dist/mfes/` and invokes:
 ```bash
-bun build --compile --minify --bytecode --define process.env.NODE_ENV='"production"' --asset=mfes --outfile=server ../src/index.ts
+bun build --compile --minify --bytecode --define Bun.env.NODE_ENV='"production"' --asset=mfes --outfile=server ../src/index.ts
 ```
 Bun's virtual filesystem embeds all assets into the binary, accessible at runtime via `Bun.embeddedFiles` and virtual paths (`/$bunfs/...`).
 
@@ -306,7 +306,7 @@ Bun's virtual filesystem embeds all assets into the binary, accessible at runtim
 In development mode (`bun run dev`), the Bun server watches for build updates across all packages and streams reload signals via Server-Sent Events (`/api/live-reload`).
 - **Write-Readiness Polling**: Ensures newly generated JavaScript/CSS chunks and HTML files are completely flushed to disk before signaling the browser, preventing blank-screen race conditions.
 - **Socket Teardown**: SSE connections are cleanly terminated on page navigation (`beforeunload`/`pagehide`) to avoid browser connection pool exhaustion.
-- **Production Safety**: Live reload is automatically deactivated when `process.env.NODE_ENV === "production"` or running inside a standalone binary.
+- **Production Safety**: Live reload is automatically deactivated when `Bun.env.NODE_ENV === "production"` or running inside a standalone binary.
 
 ### 4. Testing with `bun:test` and TanStack Memory History
 Every micro-frontend includes tests using `bun:test` and React 19's `renderToString`. Routers use memory history for hermetic test execution without browser dependencies:

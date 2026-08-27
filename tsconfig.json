@@ -20,7 +20,9 @@
 				"./packages/data/src/*",
 				"./packages/docs/src/*",
 				"./packages/hub/src/*",
-				"./packages/store/src/*"
+				"./packages/store/src/*",
+				"./packages/tools/src/*",
+				"./packages/ui/src/*"
 			],
 			"@backend": ["./packages/backend/src/index.ts"],
 			"@backend/*": ["./packages/backend/src/*"],
@@ -32,6 +34,10 @@
 			"@hub/*": ["./packages/hub/src/*"],
 			"@store": ["./packages/store/src/index.tsx"],
 			"@store/*": ["./packages/store/src/*"],
+			"@tools": ["./packages/tools/src/index.ts"],
+			"@tools/*": ["./packages/tools/src/*"],
+			"@ui": ["./packages/ui/src/index.ts"],
+			"@ui/*": ["./packages/ui/src/*"],
 			"@app/backend": ["./packages/backend/src/index.ts"],
 			"@app/backend/*": ["./packages/backend/src/*"],
 			"@app/data": ["./packages/data/src/index.ts"],
@@ -41,7 +47,11 @@
 			"@app/hub": ["./packages/hub/src/index.tsx"],
 			"@app/hub/*": ["./packages/hub/src/*"],
 			"@app/store": ["./packages/store/src/index.tsx"],
-			"@app/store/*": ["./packages/store/src/*"]
+			"@app/store/*": ["./packages/store/src/*"],
+			"@app/tools": ["./packages/tools/src/index.ts"],
+			"@app/tools/*": ["./packages/tools/src/*"],
+			"@app/ui": ["./packages/ui/src/index.ts"],
+			"@app/ui/*": ["./packages/ui/src/*"]
 		}
 	}
 }

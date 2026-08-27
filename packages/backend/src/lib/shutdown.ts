@@ -1,7 +1,7 @@
 import { closeDatabase, flushDatabase, shutdownDatabase } from '@app/data';
+import { env } from '@backend/lib/env';
+import type { LiveReloadManager } from '@backend/lib/live-reload';
 import type { Server } from 'bun';
-import { env } from '@/lib/env';
-import type { LiveReloadManager } from '@/lib/live-reload';
 
 export type BunServer = Server<unknown>;
 

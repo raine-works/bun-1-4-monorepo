@@ -1,6 +1,7 @@
+import type { ApiRouter, AppType } from '@backend/index';
 import { hc } from 'hono/client';
-import type { AppType } from '@/index';
 
+export type { ApiRouter, AppType };
 export type ApiClient = ReturnType<typeof hc<AppType>>;
 
 /**

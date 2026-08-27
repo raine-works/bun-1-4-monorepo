@@ -34,7 +34,7 @@ export function StoreCatalogPage() {
 						<Link
 							to="/cart"
 							aria-label="View shopping cart"
-							className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold px-3.5 py-1.5 rounded-lg text-xs transition-colors min-h-[36px] inline-flex items-center"
+							className="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold px-3.5 py-1.5 rounded-lg text-xs transition-colors min-h-9 inline-flex items-center"
 						>
 							View Cart &rarr;
 						</Link>
@@ -57,7 +57,7 @@ export function StoreCatalogPage() {
 								type="button"
 								aria-label={`Add ${prod.name} to cart`}
 								onClick={() => setCartCount((c) => c + 1)}
-								className="bg-white/10 hover:bg-white/15 text-slate-100 font-medium py-2 px-3 rounded-md text-xs transition-colors min-h-[36px]"
+								className="bg-white/10 hover:bg-white/15 text-slate-100 font-medium py-2 px-3 rounded-md text-xs transition-colors min-h-9"
 							>
 								+ Add to Cart
 							</button>

@@ -9,6 +9,8 @@
 	},
 	"dependencies": {
 		"@app/backend": "workspace:*",
+		"@app/tools": "workspace:*",
+		"@app/ui": "workspace:*",
 		"@tanstack/react-router": "catalog:",
 		"hono": "catalog:",
 		"react": "catalog:",

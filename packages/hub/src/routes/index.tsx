@@ -85,14 +85,14 @@ export function DashboardPage() {
 							type="button"
 							onClick={() => setCount((c) => c + 1)}
 							aria-label={`Increment state counter. Current count is ${count}`}
-							className="bg-white/10 hover:bg-white/15 text-slate-100 px-3 py-1.5 rounded-md font-mono transition-colors min-h-[36px]"
+							className="bg-white/10 hover:bg-white/15 text-slate-100 px-3 py-1.5 rounded-md font-mono transition-colors min-h-9"
 						>
 							State Counter: {count}
 						</button>
 						<Link
 							to="/tasks"
 							aria-label="Navigate to Tasks Manager"
-							className="text-sky-300 hover:text-sky-200 font-medium flex items-center gap-1 min-h-[36px]"
+							className="text-sky-300 hover:text-sky-200 font-medium flex items-center gap-1 min-h-9"
 						>
 							Open Tasks &rarr;
 						</Link>
@@ -118,14 +118,14 @@ export function DashboardPage() {
 						<a
 							href="/store"
 							aria-label="Navigate to Store Micro-Frontend"
-							className="bg-pink-500/20 hover:bg-pink-500/30 text-pink-200 border border-pink-500/40 px-3 py-1.5 rounded-md font-semibold transition-colors flex-1 text-center min-h-[36px] flex items-center justify-center"
+							className="bg-pink-500/20 hover:bg-pink-500/30 text-pink-200 border border-pink-500/40 px-3 py-1.5 rounded-md font-semibold transition-colors flex-1 text-center min-h-9 flex items-center justify-center"
 						>
 							Store MFE (/store)
 						</a>
 						<a
 							href="/docs"
 							aria-label="Navigate to Docs Micro-Frontend"
-							className="bg-sky-500/20 hover:bg-sky-500/30 text-sky-200 border border-sky-500/40 px-3 py-1.5 rounded-md font-semibold transition-colors flex-1 text-center min-h-[36px] flex items-center justify-center"
+							className="bg-sky-500/20 hover:bg-sky-500/30 text-sky-200 border border-sky-500/40 px-3 py-1.5 rounded-md font-semibold transition-colors flex-1 text-center min-h-9 flex items-center justify-center"
 						>
 							Docs MFE (/docs)
 						</a>

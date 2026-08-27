@@ -1,0 +1,15 @@
+{
+	"extends": "../../tsconfig.json",
+	"compilerOptions": {
+		"jsx": "react-jsx",
+		"types": ["bun", "react", "react-dom"],
+		"paths": {
+			"@/*": ["./src/*"],
+			"@ui": ["./src/index.ts"],
+			"@ui/*": ["./src/*"],
+			"@app/ui": ["./src/index.ts"],
+			"@app/ui/*": ["./src/*"]
+		}
+	},
+	"include": ["src/**/*"]
+}

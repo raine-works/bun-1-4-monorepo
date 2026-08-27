@@ -16,7 +16,15 @@
 			"@backend": ["../backend/src/index.ts"],
 			"@backend/*": ["../backend/src/*"],
 			"@app/backend": ["../backend/src/index.ts"],
-			"@app/backend/*": ["../backend/src/*"]
+			"@app/backend/*": ["../backend/src/*"],
+			"@tools": ["../tools/src/index.ts"],
+			"@tools/*": ["../tools/src/*"],
+			"@app/tools": ["../tools/src/index.ts"],
+			"@app/tools/*": ["../tools/src/*"],
+			"@ui": ["../ui/src/index.ts"],
+			"@ui/*": ["../ui/src/*"],
+			"@app/ui": ["../ui/src/index.ts"],
+			"@app/ui/*": ["../ui/src/*"]
 		}
 	},
 	"include": ["src/**/*", "scripts/**/*"]

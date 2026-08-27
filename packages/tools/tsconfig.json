@@ -1,0 +1,14 @@
+{
+	"extends": "../../tsconfig.json",
+	"compilerOptions": {
+		"types": ["bun"],
+		"paths": {
+			"@/*": ["./src/*"],
+			"@tools": ["./src/index.ts"],
+			"@tools/*": ["./src/*"],
+			"@app/tools": ["./src/index.ts"],
+			"@app/tools/*": ["./src/*"]
+		}
+	},
+	"include": ["src/**/*"]
+}

@@ -14,7 +14,11 @@
 			"@queries/*": ["./src/queries/*"],
 			"@client": ["./src/client.ts"],
 			"@env": ["./src/env.ts"],
-			"@migrator": ["./src/migrator.ts"]
+			"@migrator": ["./src/migrator.ts"],
+			"@tools": ["../tools/src/index.ts"],
+			"@tools/*": ["../tools/src/*"],
+			"@app/tools": ["../tools/src/index.ts"],
+			"@app/tools/*": ["../tools/src/*"]
 		}
 	},
 	"include": ["src/**/*", "scripts/**/*"]

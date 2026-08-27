@@ -24,6 +24,7 @@
 		"@app/docs": "workspace:*",
 		"@app/hub": "workspace:*",
 		"@app/store": "workspace:*",
+		"@app/tools": "workspace:*",
 		"@hono/zod-validator": "catalog:",
 		"hono": "catalog:",
 		"zod": "catalog:"

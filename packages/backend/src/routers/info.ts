@@ -1,8 +1,8 @@
 import { isDbClosing } from '@app/data';
+import { isStandaloneMode } from '@backend/lib/mfe';
+import { shutdownHandler } from '@backend/lib/shutdown';
+import type { ServerInfo, ServerVariables } from '@backend/types';
 import { Hono } from 'hono';
-import { isStandaloneMode } from '@/lib/mfe';
-import { shutdownHandler } from '@/lib/shutdown';
-import type { ServerInfo, ServerVariables } from '@/types';
 
 /**
  * Options supplied to the `/api/info` route handler.

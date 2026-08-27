@@ -1,5 +1,5 @@
+import type { ServerVariables } from '@backend/types';
 import { Hono } from 'hono';
-import type { ServerVariables } from '@/types';
 
 /**
  * Hono router handling live reload SSE streaming requests (`/api/live-reload`).

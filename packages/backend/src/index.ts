@@ -1,9 +1,6 @@
-import { Hono } from 'hono';
-import { compress } from 'hono/compress';
-import { cors } from 'hono/cors';
-import { env } from '@/lib/env';
-import { LiveReloadManager } from '@/lib/live-reload';
-import { isStandaloneMode, resolveFrontendDist, serveMicroFrontend } from '@/lib/mfe';
+import { env } from '@backend/lib/env';
+import { LiveReloadManager } from '@backend/lib/live-reload';
+import { isStandaloneMode, resolveFrontendDist, serveMicroFrontend } from '@backend/lib/mfe';
 import {
 	GracefulShutdownHandler,
 	gracefulShutdown,
@@ -11,9 +8,9 @@ import {
 	type ShutdownState,
 	setupGracefulShutdown,
 	shutdownHandler,
-} from '@/lib/shutdown';
-import { apiRouter } from '@/routers';
-import { type ApiClient, client, createApiClient } from '@/rpc';
+} from '@backend/lib/shutdown';
+import { type ApiRouter, apiRouter } from '@backend/routers';
+import { type ApiClient, client, createApiClient } from '@backend/rpc';
 import type {
 	CreateItemInput,
 	CreateUserInput,
@@ -26,10 +23,14 @@ import type {
 	UpdateUserInput,
 	User,
 	UserFilter,
-} from '@/types';
+} from '@backend/types';
+import { Hono } from 'hono';
+import { compress } from 'hono/compress';
+import { cors } from 'hono/cors';
 
 export type {
 	ApiClient,
+	ApiRouter,
 	CreateItemInput,
 	CreateUserInput,
 	Item,
@@ -45,6 +46,7 @@ export type {
 	UserFilter,
 };
 export {
+	apiRouter,
 	client,
 	createApiClient,
 	GracefulShutdownHandler,
@@ -58,6 +60,10 @@ export {
 /**
  * Root Hono application router defining all typed routes for Hono RPC.
  */
+export const apiRoutes = new Hono().route('/api', apiRouter);
+
+export type AppType = typeof apiRoutes;
+
 export const app = new Hono<{ Variables: ServerVariables }>()
 	.use(
 		'*',
@@ -68,9 +74,7 @@ export const app = new Hono<{ Variables: ServerVariables }>()
 		}),
 	)
 	.use('*', compress())
-	.route('/api', apiRouter);
-
-export type AppType = typeof app;
+	.route('', apiRoutes);
 
 /**
  * Creates and configures the Hono application instance with all middleware,
@@ -83,7 +87,7 @@ export function createApp(optionsOrPort: number | ServerOptions = 3000) {
 	const options: ServerOptions = typeof optionsOrPort === 'number' ? { port: optionsOrPort } : optionsOrPort;
 	const port = options.port ?? env.PORT;
 	const standalone = isStandaloneMode();
-	const currentEnv = process.env.NODE_ENV ?? env.NODE_ENV;
+	const currentEnv = Bun.env.NODE_ENV ?? env.NODE_ENV;
 	const isProduction = currentEnv === 'production' || standalone;
 	const enableLiveReload = options.liveReload ?? (!isProduction && currentEnv !== 'test');
 
@@ -125,6 +129,9 @@ export function createApp(optionsOrPort: number | ServerOptions = 3000) {
 
 	// 6. Micro-Frontend & SPA resolution catch-all
 	honoApp.all('*', async (c) => {
+		if (c.req.path.startsWith('/api')) {
+			return c.json({ error: 'API route not found', path: c.req.path }, 404);
+		}
 		const response = await serveMicroFrontend(c.req.raw, {
 			distDir,
 			enableLiveReload,
@@ -189,7 +196,7 @@ export function createServer(optionsOrPort: number | ServerOptions = 3000): Back
 	};
 
 	// Auto-register signal handlers if requested / in non-test mode
-	const autoSignals = options.autoRegisterSignals ?? (process.env.NODE_ENV !== 'test' && env.NODE_ENV !== 'test');
+	const autoSignals = options.autoRegisterSignals ?? (Bun.env.NODE_ENV !== 'test' && env.NODE_ENV !== 'test');
 	if (autoSignals) {
 		setupGracefulShutdown({ timeoutMs: options.shutdownTimeoutMs });
 	}
@@ -201,7 +208,7 @@ export function createServer(optionsOrPort: number | ServerOptions = 3000): Back
 const defaultApp = createApp(env.PORT);
 
 // Auto-register signals in production / standalone / CLI mode if not in test
-if (process.env.NODE_ENV !== 'test' && env.NODE_ENV !== 'test') {
+if (Bun.env.NODE_ENV !== 'test' && env.NODE_ENV !== 'test') {
 	setupGracefulShutdown({
 		timeoutMs: 10_000,
 		exitProcess: true,

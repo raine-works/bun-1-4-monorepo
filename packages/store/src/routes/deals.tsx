@@ -19,7 +19,7 @@ export function StoreDealsPage() {
 					<Link
 						to="/"
 						aria-label="Back to Catalog"
-						className="text-xs text-sky-300 hover:text-sky-200 hover:underline min-h-[36px] inline-flex items-center"
+						className="text-xs text-sky-300 hover:text-sky-200 hover:underline min-h-9 inline-flex items-center"
 					>
 						&larr; Back to Catalog
 					</Link>

@@ -21,6 +21,7 @@
         "@app/docs": "workspace:*",
         "@app/hub": "workspace:*",
         "@app/store": "workspace:*",
+        "@app/tools": "workspace:*",
         "@hono/zod-validator": "catalog:",
         "hono": "catalog:",
         "zod": "catalog:",
@@ -33,6 +34,7 @@
       "name": "@app/data",
       "version": "1.0.0",
       "dependencies": {
+        "@app/tools": "workspace:*",
         "zod": "catalog:",
       },
       "devDependencies": {
@@ -43,6 +45,8 @@
       "name": "@app/docs",
       "dependencies": {
         "@app/backend": "workspace:*",
+        "@app/tools": "workspace:*",
+        "@app/ui": "workspace:*",
         "@tanstack/react-router": "catalog:",
         "hono": "catalog:",
         "react": "catalog:",
@@ -61,6 +65,8 @@
       "dependencies": {
         "@app/backend": "workspace:*",
         "@app/data": "workspace:*",
+        "@app/tools": "workspace:*",
+        "@app/ui": "workspace:*",
         "@tanstack/react-router": "catalog:",
         "hono": "catalog:",
         "react": "catalog:",
@@ -78,6 +84,8 @@
       "name": "@app/store",
       "dependencies": {
         "@app/backend": "workspace:*",
+        "@app/tools": "workspace:*",
+        "@app/ui": "workspace:*",
         "@tanstack/react-router": "catalog:",
         "hono": "catalog:",
         "react": "catalog:",
@@ -89,6 +97,37 @@
         "@types/react-dom": "catalog:",
         "bun-plugin-tailwind": "catalog:",
         "tailwindcss": "catalog:",
+      },
+    },
+    "packages/tools": {
+      "name": "@app/tools",
+      "version": "1.0.0",
+      "dependencies": {
+        "bun-plugin-tailwind": "catalog:",
+        "zod": "catalog:",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "tailwindcss": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "packages/ui": {
+      "name": "@app/ui",
+      "version": "1.0.0",
+      "dependencies": {
+        "@tanstack/react-router": "catalog:",
+        "clsx": "2.1.1",
+        "react": "catalog:",
+        "react-dom": "catalog:",
+        "tailwind-merge": "3.6.0",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "@types/react": "catalog:",
+        "@types/react-dom": "catalog:",
+        "tailwindcss": "catalog:",
+        "typescript": "catalog:",
       },
     },
   },
@@ -117,6 +156,10 @@
     "@app/hub": ["@app/hub@workspace:packages/hub"],
 
     "@app/store": ["@app/store@workspace:packages/store"],
+
+    "@app/tools": ["@app/tools@workspace:packages/tools"],
+
+    "@app/ui": ["@app/ui@workspace:packages/ui"],
 
     "@biomejs/biome": ["@biomejs/biome@2.5.10", "", { "optionalDependencies": { "@biomejs/cli-darwin-arm64": "2.5.10", "@biomejs/cli-darwin-x64": "2.5.10", "@biomejs/cli-linux-arm64": "2.5.10", "@biomejs/cli-linux-arm64-musl": "2.5.10", "@biomejs/cli-linux-x64": "2.5.10", "@biomejs/cli-linux-x64-musl": "2.5.10", "@biomejs/cli-win32-arm64": "2.5.10", "@biomejs/cli-win32-x64": "2.5.10" }, "bin": { "biome": "bin/biome" } }, "sha512-WRKXARA3kTuiV5sxqTpobJ/I0MVd4vk3pOL6wnp5az4LntFIhWTj1RWZq3DI9PCEN3lXcqy7p5aqUHzvq8AXyQ=="],
 
@@ -226,6 +269,8 @@
 
     "bun-types": ["bun-types@1.4.0", "", { "dependencies": { "@types/node": "*" } }, "sha512-iIKw23BspnQQYd3prITOBxeUsxBHnwzX6YJfGMuNOZzeNcMmVqzIIVGRm1l69ogaPQmb4wB6BN8mA5bE9YuC5Q=="],
 
+    "clsx": ["clsx@2.1.1", "", {}, "sha512-eYm0QWBtUrBWZWG0d386OGAw16Z995PiOVo2B7bjWSbHedGl5e0ZWaq65kOGgUSNesEIDkB9ISbTg/JK9dhCZA=="],
+
     "cookie-es": ["cookie-es@3.1.1", "", {}, "sha512-UaXxwISYJPTr9hwQxMFYZ7kNhSXboMXP+Z3TRX6f1/NyaGPfuNUZOWP1pUEb75B2HjfklIYLVRfWiFZJyC6Npg=="],
 
     "csstype": ["csstype@3.2.3", "", {}, "sha512-z1HGKcYy2xA8AGQfwrn0PAy+PB7X/GSj3UVJW9qKyn43xWa+gl5nXmU4qqLMRzWVLFC8KusUX8T/0kCiOYpAIQ=="],
@@ -243,6 +288,8 @@
     "seroval": ["seroval@1.6.4", "", {}, "sha512-LErWMNS2RRFdu2RMA5u/PA59/IWs0XsikyEXGQ2/36iEWFrdG0ABmg17E17cikrv76891kOAMq3TkTFXpwAHXw=="],
 
     "seroval-plugins": ["seroval-plugins@1.6.4", "", { "peerDependencies": { "seroval": "^1.0" } }, "sha512-R0f1U9hmn38+dFMz6b6ab8lwucmw4AtiY7St+JPWudy1dm+Bs3g884nyrsH9Cy6rKpZKLYayXuMda9GZ/fl8JQ=="],
+
+    "tailwind-merge": ["tailwind-merge@3.6.0", "", {}, "sha512-uxL7qAVQriqRQPAyK3pj66VqskWqoZ37PW94jwOTwNfq/z9oyu1V+eqrZqtR2+fCiXdYOZe/Modt8GtvqNzu+w=="],
 
     "tailwindcss": ["tailwindcss@4.3.3", "", {}, "sha512-gOhV3P7ufE62QDGg1zVaTgCR+EtPv92k2nIhVcVKcLmxT1sUBsQGhnZj175j+MqRt4zLF7ic+sCYjfhxMxj7YQ=="],
 

@@ -1,6 +1,6 @@
 import { isDbClosing } from '@app/data';
+import { shutdownHandler } from '@backend/lib/shutdown';
 import { Hono } from 'hono';
-import { shutdownHandler } from '@/lib/shutdown';
 
 /**
  * Health response payload contract.
