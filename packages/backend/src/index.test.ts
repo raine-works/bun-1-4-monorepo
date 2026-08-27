@@ -1,6 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from 'bun:test';
-import { createServer } from '@/index';
-import { createApiClient } from '@/rpc';
+import { createServer } from '@app/backend';
+import { createApiClient } from '@app/backend/rpc';
 
 describe('Backend Server & Micro-Frontend Host', () => {
 	let server: ReturnType<typeof createServer>;

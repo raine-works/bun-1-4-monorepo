@@ -1,10 +1,10 @@
+import { healthRouter } from '@app/backend/routers/health';
+import { infoRouter } from '@app/backend/routers/info';
+import { itemsRouter } from '@app/backend/routers/items';
+import { liveReloadRouter } from '@app/backend/routers/live-reload';
+import { usersRouter } from '@app/backend/routers/users';
+import type { ServerVariables } from '@app/backend/types';
 import { Hono } from 'hono';
-import { healthRouter } from '@/routers/health';
-import { infoRouter } from '@/routers/info';
-import { itemsRouter } from '@/routers/items';
-import { liveReloadRouter } from '@/routers/live-reload';
-import { usersRouter } from '@/routers/users';
-import type { ServerVariables } from '@/types';
 
 /**
  * Hono API router combining all REST endpoints and live reload routes.

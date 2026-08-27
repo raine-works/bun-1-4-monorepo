@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'bun:test';
-import type { CreateItemInput, CreateUserInput, Item, User } from '@/contracts';
+import type { CreateItemInput, CreateUserInput, Item, User } from '@app/data/contracts';
 
 describe('Typed Data Contracts', () => {
 	it('should validate User model contract fields', () => {

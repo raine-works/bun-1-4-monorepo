@@ -1,2 +1,2 @@
-export * from '@/contracts/item';
-export * from '@/contracts/user';
+export * from '@app/data/contracts/item';
+export * from '@app/data/contracts/user';

@@ -1,6 +1,6 @@
+import { isStandaloneMode } from '@app/backend/lib/mfe';
+import type { ServerInfo, ServerVariables } from '@app/backend/types';
 import { Hono } from 'hono';
-import { isStandaloneMode } from '@/lib/mfe';
-import type { ServerInfo, ServerVariables } from '@/types';
 
 /**
  * Options supplied to the `/api/info` route handler.

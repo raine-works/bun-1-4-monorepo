@@ -1,5 +1,5 @@
 #!/usr/bin/env bun
-import { migrator } from '@/migrator';
+import { migrator } from '@app/data/migrator';
 
 // ANSI colors
 const colors = {

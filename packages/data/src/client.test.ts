@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'bun:test';
-import { Database, isDbAvailable } from '@/client';
-import { parseCount } from '@/queries';
+import { Database, isDbAvailable } from '@app/data/client';
+import { parseCount } from '@app/data/queries';
 
 describe('Database Client & Query Helpers', () => {
 	it('should verify isDbAvailable helper returns a boolean promise', async () => {

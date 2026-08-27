@@ -1,11 +1,8 @@
-import { Hono } from 'hono';
-import { compress } from 'hono/compress';
-import { cors } from 'hono/cors';
-import { env } from '@/lib/env';
-import { LiveReloadManager } from '@/lib/live-reload';
-import { isStandaloneMode, resolveFrontendDist, serveMicroFrontend } from '@/lib/mfe';
-import { apiRouter } from '@/routers';
-import { type ApiClient, client, createApiClient } from '@/rpc';
+import { env } from '@app/backend/lib/env';
+import { LiveReloadManager } from '@app/backend/lib/live-reload';
+import { isStandaloneMode, resolveFrontendDist, serveMicroFrontend } from '@app/backend/lib/mfe';
+import { apiRouter } from '@app/backend/routers';
+import { type ApiClient, client, createApiClient } from '@app/backend/rpc';
 import type {
 	CreateItemInput,
 	CreateUserInput,
@@ -18,7 +15,10 @@ import type {
 	UpdateUserInput,
 	User,
 	UserFilter,
-} from '@/types';
+} from '@app/backend/types';
+import { Hono } from 'hono';
+import { compress } from 'hono/compress';
+import { cors } from 'hono/cors';
 
 export type {
 	ApiClient,

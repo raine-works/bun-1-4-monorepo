@@ -1,6 +1,6 @@
 import { existsSync, readdirSync, watch } from 'node:fs';
 import { join } from 'node:path';
-import { CORS_HEADERS } from '@/lib/cors';
+import { CORS_HEADERS } from '@app/backend/lib/cors';
 
 /**
  * Injected client-side script that handles Server-Sent Events (SSE) live reload in development mode.

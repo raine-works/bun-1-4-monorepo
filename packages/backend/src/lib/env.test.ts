@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'bun:test';
-import { env, envSchema } from '@/lib/env';
+import { env, envSchema } from '@app/backend/lib/env';
 
 describe('Environment Variables & Zod Validation (@app/backend)', () => {
 	it('should validate and export current environment variables', () => {

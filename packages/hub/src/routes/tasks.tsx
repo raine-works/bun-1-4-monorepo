@@ -84,7 +84,7 @@ export function TasksPage() {
 					<Link
 						to="/"
 						aria-label="Back to Dashboard"
-						className="text-xs text-sky-300 hover:text-sky-200 hover:underline min-h-[36px] inline-flex items-center"
+						className="text-xs text-sky-300 hover:text-sky-200 hover:underline min-h-9 inline-flex items-center"
 					>
 						&larr; Back to Dashboard
 					</Link>
@@ -98,7 +98,7 @@ export function TasksPage() {
 						id="task-title"
 						type="text"
 						aria-label="New task title"
-						className="flex-1 bg-[#0d1117] border border-[#30363d] text-[#e6edf3] placeholder:text-slate-400 px-3 py-2 rounded-lg text-xs focus:outline-none focus:border-sky-400 min-h-[36px]"
+						className="flex-1 bg-[#0d1117] border border-[#30363d] text-[#e6edf3] placeholder:text-slate-400 px-3 py-2 rounded-lg text-xs focus:outline-none focus:border-sky-400 min-h-9"
 						placeholder="Add new task..."
 						value={title}
 						onChange={(e) => setTitle(e.target.value)}
@@ -106,7 +106,7 @@ export function TasksPage() {
 					<button
 						type="submit"
 						aria-label="Add new task"
-						className="bg-pink-500 hover:bg-pink-400 text-slate-950 font-semibold px-4 py-2 rounded-lg text-xs transition-colors min-h-[36px]"
+						className="bg-pink-500 hover:bg-pink-400 text-slate-950 font-semibold px-4 py-2 rounded-lg text-xs transition-colors min-h-9"
 					>
 						Add Task
 					</button>
@@ -119,7 +119,7 @@ export function TasksPage() {
 						{items.map((item) => (
 							<li
 								key={item.id}
-								className="flex items-center justify-between bg-white/[0.02] border border-[#30363d] px-3 py-2 rounded-lg text-xs gap-2"
+								className="flex items-center justify-between bg-white/2 border border-[#30363d] px-3 py-2 rounded-lg text-xs gap-2"
 							>
 								<button
 									type="button"

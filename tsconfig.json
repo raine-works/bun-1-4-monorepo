@@ -36,11 +36,11 @@
 			"@app/backend/*": ["./packages/backend/src/*"],
 			"@app/data": ["./packages/data/src/index.ts"],
 			"@app/data/*": ["./packages/data/src/*"],
-			"@app/docs": ["./packages/docs/src/index.ts"],
+			"@app/docs": ["./packages/docs/src/index.tsx"],
 			"@app/docs/*": ["./packages/docs/src/*"],
-			"@app/hub": ["./packages/hub/src/index.ts"],
+			"@app/hub": ["./packages/hub/src/index.tsx"],
 			"@app/hub/*": ["./packages/hub/src/*"],
-			"@app/store": ["./packages/store/src/index.ts"],
+			"@app/store": ["./packages/store/src/index.tsx"],
 			"@app/store/*": ["./packages/store/src/*"]
 		}
 	}

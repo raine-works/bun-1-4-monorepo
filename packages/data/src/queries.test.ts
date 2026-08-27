@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'bun:test';
-import type { BunSql } from '@/client';
-import type { Item, User } from '@/contracts';
-import { createItemsQueries, createUsersQueries } from '@/queries';
+import type { BunSql } from '@app/data/client';
+import type { Item, User } from '@app/data/contracts';
+import { createItemsQueries, createUsersQueries } from '@app/data/queries';
 
 describe('Type-safe SQL Queries', () => {
 	it('should format user queries and parse response records', async () => {

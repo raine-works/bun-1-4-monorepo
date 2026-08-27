@@ -1,5 +1,5 @@
+import type { LiveReloadManager } from '@app/backend/lib/live-reload';
 import type { Item, User } from '@app/data';
-import type { LiveReloadManager } from '@/lib/live-reload';
 
 export type {
 	CreateItemInput,

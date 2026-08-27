@@ -1,6 +1,6 @@
+import { env } from '@app/data/env';
+import { createItemsQueries, createUsersQueries, type ItemsQueries, type UsersQueries } from '@app/data/queries';
 import { SQL } from 'bun';
-import { env } from '@/env';
-import { createItemsQueries, createUsersQueries, type ItemsQueries, type UsersQueries } from '@/queries';
 
 export type BunSql = InstanceType<typeof SQL>;
 

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'bun:test';
-import { Database } from '@/client';
-import { env, envSchema } from '@/env';
+import { Database } from '@app/data/client';
+import { env, envSchema } from '@app/data/env';
 
 describe('Environment Variables & Zod Validation (@app/data)', () => {
 	it('should validate and export current environment with DATABASE_URL', () => {

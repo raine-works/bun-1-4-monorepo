@@ -1,5 +1,5 @@
+import type { AppType } from '@app/backend';
 import { hc } from 'hono/client';
-import type { AppType } from '@/index';
 
 export type ApiClient = ReturnType<typeof hc<AppType>>;
 

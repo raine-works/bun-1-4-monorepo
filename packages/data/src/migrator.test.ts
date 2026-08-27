@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'bun:test';
-import { Migrator, parseMigrationSql } from '@/migrator';
+import { Migrator, parseMigrationSql } from '@app/data/migrator';
 
 describe('Migration Engine', () => {
 	it('should correctly parse -- up and -- down blocks from SQL migration text', () => {

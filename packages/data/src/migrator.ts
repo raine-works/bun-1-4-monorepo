@@ -1,6 +1,6 @@
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
-import { type BunSql, Database, db } from '@/client';
+import { type BunSql, Database, db } from '@app/data/client';
 
 /**
  * Migration status item.
