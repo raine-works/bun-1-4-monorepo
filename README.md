@@ -35,6 +35,8 @@ A high-performance full-stack monorepo built with **Bun 1.4**, **React 19**, **T
 ### Highlights & Key Features
 
 - ⚡ **Bun 1.4 Native Tooling**: Fast package management with catalog dependencies, TypeScript execution, native bundling via `Bun.build`, and fast `bun:test` test runner.
+- 🔥 **Hono HTTP Router & Typed Middleware**: Expressive, high-performance routing across backend and API endpoints powered by **Hono** and **@hono/zod-validator**.
+- 🔗 **End-to-End Type-Safe Hono RPC Client**: Frontend micro-frontends consume backend APIs with full type safety, autocomplete, and zero code-generation using Hono RPC (`hc<AppType>`).
 - ⚛️ **React 19 with Native React Compiler**: Automatic component and hook memoization enabled directly via `Bun.build({ reactCompiler: true })` without Babel or SWC plugins.
 - 🚦 **TanStack Router in Every Micro-Frontend**: Type-safe client-side routing with nested layouts, deep linking, active link states, and scoped basepaths (`/`, `/store`, `/docs`).
 - 🧩 **Multi-Micro-Frontend Architecture**: Host multiple independent SPAs (`hub`, `store`, `docs`) from a single origin with scoped static asset routing and SPA fallback support.
@@ -56,7 +58,7 @@ bun-1-4-monorepo/
 ├── package.json                   # Root workspace manifest and orchestrator scripts
 ├── tsconfig.json                  # Monorepo root TypeScript configuration
 ├── packages/
-│   ├── backend/                   # Bun HTTP Server & Standalone Binary Compiler
+│   ├── backend/                   # Bun HTTP Server powered by Hono & Standalone Compiler
 │   │   ├── .env.example           # Environment template for local dev (.env.local)
 │   │   ├── Dockerfile             # Multi-stage distroless Docker configuration
 │   │   ├── package.json           # Backend package manifest
@@ -64,16 +66,18 @@ bun-1-4-monorepo/
 │   │   ├── scripts/
 │   │   │   └── build.ts           # Standalone binary compiler script
 │   │   └── src/
-│   │       ├── index.ts           # Server entrypoint and createServer() factory
-│   │       ├── index.test.ts      # Backend and MFE integration test suite
-│   │       ├── types.ts           # Data models and server telemetry interfaces
-│   │       ├── api/               # Modular API endpoint routers
-│   │       │   ├── index.ts       # API dispatcher & CORS preflight handler
+│   │       ├── index.ts           # Hono root app, createApp(), createServer(), and default export
+│   │       ├── index.test.ts      # Backend, MFE, and Hono RPC integration test suite
+│   │       ├── rpc.ts            # Hono RPC client factory and typed singleton
+│   │       ├── types.ts           # Data models, ServerVariables, and Zod DTO contracts
+│   │       ├── api/               # Modular Hono API sub-routers
+│   │       │   ├── index.ts       # Unified apiRouter combining all sub-routes
 │   │       │   ├── health.ts      # Health check endpoint (/api/health)
 │   │       │   ├── info.ts        # Runtime telemetry endpoint (/api/info)
 │   │       │   ├── live-reload.ts # Live reload SSE endpoint (/api/live-reload)
 │   │       │   └── routers/
-│   │       │       └── items.ts   # CRUD task items router (/api/items)
+│   │       │       ├── items.ts   # CRUD task items router with zValidator (/api/items)
+│   │       │       └── users.ts   # CRUD users router with zValidator (/api/users)
 │   │       └── lib/               # Server utility libraries
 │   │           ├── cors.ts        # CORS headers and jsonResponse helper
 │   │           ├── env.ts         # Zod-validated server environment schema
@@ -220,20 +224,25 @@ bun start
 
 ---
 
-## 🔌 REST API Reference
+## 🔌 REST API Reference (Hono & Hono RPC)
 
-All API routes return JSON payloads with standard CORS headers (`Access-Control-Allow-Origin: *`).
+All API routes return JSON payloads with standard CORS headers (`Access-Control-Allow-Origin: *`) and Zod-validated payloads:
 
-| Method | Endpoint | Description | Request Body | Response Status |
+| Method | Endpoint | Description | Request Body / Query | Response Status |
 | :--- | :--- | :--- | :--- | :--- |
 | `GET` | `/api/health` | Service health status and uptime | None | `200 OK` |
 | `GET` | `/api/info` | Runtime metadata (Bun version, platform, memory, standalone mode) | None | `200 OK` |
-| `GET` | `/api/items` | List all task items from the store | None | `200 OK` |
-| `POST` | `/api/items` | Create a new task item | `{ "title": "string" }` | `201 Created` |
-| `PATCH` | `/api/items/:id` | Update task completion status or title | `{ "completed"?: boolean, "title"?: string }` | `200 OK` |
-| `DELETE` | `/api/items/:id` | Delete a task item by ID | None | `200 OK` |
+| `GET` | `/api/users` | List users with optional filtering | Query: `?role=...&search=...` | `200 OK` |
+| `POST` | `/api/users` | Create a new user | `{ "email": string, "name": string, "role"?: string }` | `201 Created` / `409 Conflict` |
+| `GET` | `/api/users/:id` | Get user by ID | None | `200 OK` / `404 Not Found` |
+| `PATCH` | `/api/users/:id` | Update user properties | `{ "email"?: string, "name"?: string, ... }` | `200 OK` / `404 Not Found` |
+| `DELETE` | `/api/users/:id` | Delete user by ID | None | `200 OK` / `404 Not Found` |
+| `GET` | `/api/items` | List all task items from store | None | `200 OK` |
+| `POST` | `/api/items` | Create a new task item | `{ "title": "string" }` | `201 Created` / `400 Bad Request` |
+| `PATCH` | `/api/items/:id` | Update task completion status or title | `{ "completed"?: boolean, "title"?: string }` | `200 OK` / `404 Not Found` |
+| `DELETE` | `/api/items/:id` | Delete a task item by ID | None | `200 OK` / `404 Not Found` |
 | `GET` | `/api/live-reload` | Server-Sent Events stream for development live reload | None | `200 OK` (SSE) |
-| `OPTIONS` | `/*` | CORS preflight options handler | None | `200 OK` / `204 No Content` |
+| `OPTIONS` | `/*` | CORS preflight options handler | None | `204 No Content` |
 
 ---
 

@@ -15,11 +15,14 @@
     },
     "packages/backend": {
       "name": "@app/backend",
+      "version": "1.0.0",
       "dependencies": {
         "@app/data": "workspace:*",
         "@app/docs": "workspace:*",
         "@app/hub": "workspace:*",
         "@app/store": "workspace:*",
+        "@hono/zod-validator": "catalog:",
+        "hono": "catalog:",
         "zod": "catalog:",
       },
       "devDependencies": {
@@ -39,7 +42,9 @@
     "packages/docs": {
       "name": "@app/docs",
       "dependencies": {
+        "@app/backend": "workspace:*",
         "@tanstack/react-router": "catalog:",
+        "hono": "catalog:",
         "react": "catalog:",
         "react-dom": "catalog:",
       },
@@ -54,7 +59,9 @@
     "packages/hub": {
       "name": "@app/hub",
       "dependencies": {
+        "@app/backend": "workspace:*",
         "@tanstack/react-router": "catalog:",
+        "hono": "catalog:",
         "react": "catalog:",
         "react-dom": "catalog:",
       },
@@ -69,7 +76,9 @@
     "packages/store": {
       "name": "@app/store",
       "dependencies": {
+        "@app/backend": "workspace:*",
         "@tanstack/react-router": "catalog:",
+        "hono": "catalog:",
         "react": "catalog:",
         "react-dom": "catalog:",
       },
@@ -84,11 +93,13 @@
   },
   "catalog": {
     "@biomejs/biome": "2.5.10",
+    "@hono/zod-validator": "0.9.0",
     "@tanstack/react-router": "1.170.32",
     "@types/bun": "1.4.0",
     "@types/react": "19.2.18",
     "@types/react-dom": "19.2.5",
     "bun-plugin-tailwind": "0.1.2",
+    "hono": "4.13.5",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "tailwindcss": "4.3.3",
@@ -123,6 +134,8 @@
     "@biomejs/cli-win32-arm64": ["@biomejs/cli-win32-arm64@2.5.10", "", { "os": "win32", "cpu": "arm64" }, "sha512-pxAbxduPO4xq/Cvgaa2lOrs9BB0hEXmmDqfMNP4ZOffGOkUrD1/QGw9UAMpFQpX2P8MqTIIRuQKcmetum4Oa6A=="],
 
     "@biomejs/cli-win32-x64": ["@biomejs/cli-win32-x64@2.5.10", "", { "os": "win32", "cpu": "x64" }, "sha512-M+2dgBsl3lXRiTfgPVc2p3anS4Tocojke4rzFLScZ2Y/wmF+36dRb1iHCLiyGqOzQGyTplZH1HnEYviiAqi3nA=="],
+
+    "@hono/zod-validator": ["@hono/zod-validator@0.9.0", "", { "peerDependencies": { "hono": ">=4.11.2", "zod": "^3.25.0 || ^4.0.0" } }, "sha512-n0ZSXmCiHVIp4Y5wlOOyZCeTd/rsawA/qW1cipB8QOYKZ9N8Tk0nZUZCXho9cu374AN4JpDNKioNKBJ/W+LBug=="],
 
     "@oven/bun-darwin-aarch64": ["@oven/bun-darwin-aarch64@1.4.0", "", { "os": "darwin", "cpu": "arm64" }, "sha512-GCpf8QuFLsyioVawP5HrMxA1ZRBlu6Hq9RNnSc3UTUWAzIxBso9trjoZczw1HdgpqSssFkszfIV2zmOzFTjhkw=="],
 
@@ -215,6 +228,8 @@
     "cookie-es": ["cookie-es@3.1.1", "", {}, "sha512-UaXxwISYJPTr9hwQxMFYZ7kNhSXboMXP+Z3TRX6f1/NyaGPfuNUZOWP1pUEb75B2HjfklIYLVRfWiFZJyC6Npg=="],
 
     "csstype": ["csstype@3.2.3", "", {}, "sha512-z1HGKcYy2xA8AGQfwrn0PAy+PB7X/GSj3UVJW9qKyn43xWa+gl5nXmU4qqLMRzWVLFC8KusUX8T/0kCiOYpAIQ=="],
+
+    "hono": ["hono@4.13.5", "", {}, "sha512-O6+/eCYRkzzzy0rPWwKLiGBR1nFuUPZynnwjxN1MBA62NNqbT0wQEzQyK2gSO5yDIDB336sXQleAhOHrzlYyKw=="],
 
     "isbot": ["isbot@5.2.1", "", {}, "sha512-dJ+LpKyClQZ7NG+j3OensC/mAZkGpukE9YUrgPYvAZj2doVL0edfDgywTUh5CXa0o+nW9a1V9e5+CJTX8+SxRw=="],
 

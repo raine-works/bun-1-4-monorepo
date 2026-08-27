@@ -8,7 +8,9 @@
 		"test": "bun test"
 	},
 	"dependencies": {
+		"@app/backend": "workspace:*",
 		"@tanstack/react-router": "catalog:",
+		"hono": "catalog:",
 		"react": "catalog:",
 		"react-dom": "catalog:"
 	},

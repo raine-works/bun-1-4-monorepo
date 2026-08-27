@@ -1,11 +1,7 @@
+import type { Item } from '@app/data';
 import { Link } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
-
-interface Item {
-	id: string;
-	title: string;
-	completed: boolean;
-}
+import { client } from '@/lib/api';
 
 export function TasksPage() {
 	const [items, setItems] = useState<Item[]>([]);
@@ -15,13 +11,13 @@ export function TasksPage() {
 	useEffect(() => {
 		async function loadTasks() {
 			try {
-				const res = await fetch('/api/items');
+				const res = await client.api.items.$get();
 				if (res.ok) {
-					const data = (await res.json()) as { items: Item[] };
+					const data = await res.json();
 					setItems(data.items);
 				}
 			} catch (err) {
-				console.error('Failed to load tasks:', err);
+				console.error('Failed to load tasks via Hono RPC:', err);
 			} finally {
 				setLoading(false);
 			}
@@ -34,10 +30,8 @@ export function TasksPage() {
 		if (!title.trim()) return;
 
 		try {
-			const res = await fetch('/api/items', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ title: title.trim() }),
+			const res = await client.api.items.$post({
+				json: { title: title.trim() },
 			});
 			if (res.ok) {
 				const created = (await res.json()) as Item;
@@ -45,7 +39,35 @@ export function TasksPage() {
 				setTitle('');
 			}
 		} catch (err) {
-			console.error('Failed to add task:', err);
+			console.error('Failed to add task via Hono RPC:', err);
+		}
+	};
+
+	const handleToggle = async (item: Item) => {
+		try {
+			const res = await client.api.items[':id'].$patch({
+				param: { id: item.id },
+				json: { completed: !item.completed },
+			});
+			if (res.ok) {
+				const updated = (await res.json()) as Item;
+				setItems((prev) => prev.map((i) => (i.id === item.id ? updated : i)));
+			}
+		} catch (err) {
+			console.error('Failed to toggle task via Hono RPC:', err);
+		}
+	};
+
+	const handleDelete = async (id: string) => {
+		try {
+			const res = await client.api.items[':id'].$delete({
+				param: { id },
+			});
+			if (res.ok) {
+				setItems((prev) => prev.filter((i) => i.id !== id));
+			}
+		} catch (err) {
+			console.error('Failed to delete task via Hono RPC:', err);
 		}
 	};
 
@@ -56,7 +78,7 @@ export function TasksPage() {
 					<div>
 						<h2 className="text-base font-bold text-white flex items-center gap-2">📋 Tasks Manager</h2>
 						<p className="text-xs text-slate-300">
-							Live REST API integration (<code className="text-pink-300 font-mono">/api/items</code>)
+							Live Hono RPC client integration (<code className="text-pink-300 font-mono">/api/items</code>)
 						</p>
 					</div>
 					<Link
@@ -91,16 +113,43 @@ export function TasksPage() {
 				</form>
 
 				{loading ? (
-					<div className="text-xs text-slate-400 py-4 text-center">Loading tasks from backend...</div>
+					<div className="text-xs text-slate-400 py-4 text-center">Loading tasks via Hono RPC from backend...</div>
 				) : (
 					<ul className="flex flex-col gap-2 list-none p-0 m-0">
 						{items.map((item) => (
 							<li
 								key={item.id}
-								className="flex items-center justify-between bg-white/[0.02] border border-[#30363d] px-3 py-2 rounded-lg text-xs"
+								className="flex items-center justify-between bg-white/[0.02] border border-[#30363d] px-3 py-2 rounded-lg text-xs gap-2"
 							>
-								<span className={item.completed ? 'line-through text-slate-400' : 'text-slate-200'}>{item.title}</span>
-								<span className="text-[11px] font-mono text-slate-400">#{item.id.slice(0, 4)}</span>
+								<button
+									type="button"
+									onClick={() => handleToggle(item)}
+									className="flex-1 text-left bg-transparent border-0 p-0 cursor-pointer flex items-center gap-2"
+								>
+									<span
+										className={`inline-block w-3.5 h-3.5 rounded border ${
+											item.completed
+												? 'bg-emerald-500 border-emerald-400 text-slate-950 flex items-center justify-center font-bold text-[10px]'
+												: 'border-slate-500'
+										}`}
+									>
+										{item.completed ? '✓' : ''}
+									</span>
+									<span className={item.completed ? 'line-through text-slate-400' : 'text-slate-200'}>
+										{item.title}
+									</span>
+								</button>
+								<div className="flex items-center gap-2">
+									<span className="text-[11px] font-mono text-slate-400">#{item.id.slice(0, 4)}</span>
+									<button
+										type="button"
+										onClick={() => handleDelete(item.id)}
+										aria-label={`Delete task ${item.title}`}
+										className="text-rose-400 hover:text-rose-300 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 px-1.5 py-0.5 rounded text-[10px] transition-colors"
+									>
+										×
+									</button>
+								</div>
 							</li>
 						))}
 					</ul>

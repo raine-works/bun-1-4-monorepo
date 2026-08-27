@@ -1,7 +1,45 @@
 import type { Item, User } from '@app/data';
+import type { LiveReloadManager } from '@/lib/live-reload';
 
-export type { CreateItemInput, CreateUserInput, UpdateItemInput, UpdateUserInput } from '@app/data';
+export type {
+	CreateItemInput,
+	CreateUserInput,
+	ItemFilter,
+	UpdateItemInput,
+	UpdateUserInput,
+	UserFilter,
+} from '@app/data';
+export {
+	createItemSchema,
+	createUserSchema,
+	itemFilterSchema,
+	updateItemSchema,
+	updateUserSchema,
+	userFilterSchema,
+} from '@app/data';
 export type { Item, User };
+
+/**
+ * Contextual configuration passed into the API router during HTTP request processing.
+ */
+export interface ApiRouterContext {
+	/** Whether the server is running inside a compiled standalone binary. */
+	isStandalone: boolean;
+	/** Whether development live reload is enabled. */
+	enableLiveReload: boolean;
+	/** The active LiveReloadManager instance, or null if live reload is inactive. */
+	liveReloadManager: LiveReloadManager | null;
+}
+
+/**
+ * Request-scoped variables attached to Hono Context throughout the HTTP pipeline.
+ */
+export interface ServerVariables {
+	isStandalone: boolean;
+	enableLiveReload: boolean;
+	liveReloadManager: LiveReloadManager | null;
+	distDir: string;
+}
 
 /**
  * System and runtime telemetry returned by the `/api/info` diagnostic endpoint.

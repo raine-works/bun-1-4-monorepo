@@ -1,14 +1,35 @@
-import { jsonResponse } from '@/lib/cors';
+import { Hono } from 'hono';
 
 /**
- * Handles `/api/health` requests, returning server status, timestamp, and process uptime.
- *
- * @returns An HTTP `Response` with JSON health payload and CORS headers.
+ * Health response payload contract.
  */
-export function handleHealth(): Response {
-	return jsonResponse({
+export interface HealthResponse {
+	status: 'healthy';
+	timestamp: string;
+	uptime: number;
+}
+
+/**
+ * Generates health response data payload.
+ */
+export function getHealthStatus(): HealthResponse {
+	return {
 		status: 'healthy',
 		timestamp: new Date().toISOString(),
 		uptime: process.uptime(),
-	});
+	};
+}
+
+/**
+ * Hono router handling `/api/health` GET requests.
+ */
+export const healthRouter = new Hono().get('/', (c) => {
+	return c.json(getHealthStatus(), 200);
+});
+
+/**
+ * Handles `/api/health` requests returning a standard Response.
+ */
+export function handleHealth(): Response {
+	return Response.json(getHealthStatus());
 }

@@ -1,12 +1,7 @@
+import type { ServerInfo } from '@app/backend';
 import { Link } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
-
-interface ServerInfo {
-	name: string;
-	bunVersion: string;
-	platform: string;
-	arch: string;
-}
+import { client } from '@/lib/api';
 
 export function DashboardPage() {
 	const [serverInfo, setServerInfo] = useState<ServerInfo | null>(null);
@@ -16,13 +11,13 @@ export function DashboardPage() {
 	useEffect(() => {
 		async function loadStatus() {
 			try {
-				const [healthRes, infoRes] = await Promise.all([fetch('/api/health'), fetch('/api/info')]);
+				const [healthRes, infoRes] = await Promise.all([client.api.health.$get(), client.api.info.$get()]);
 				if (healthRes.ok) {
-					const data = (await healthRes.json()) as { status: string };
+					const data = await healthRes.json();
 					setHealthStatus(data.status);
 				}
 				if (infoRes.ok) {
-					const data = (await infoRes.json()) as ServerInfo;
+					const data = await infoRes.json();
 					setServerInfo(data);
 				}
 			} catch {
@@ -39,7 +34,7 @@ export function DashboardPage() {
 				<div className="flex items-center justify-between border-b border-white/5 pb-3">
 					<div>
 						<h2 className="text-base font-bold text-white flex items-center gap-2">⚡ System &amp; Runtime Overview</h2>
-						<p className="text-xs text-slate-300">Bun native runtime telemetry and backend API status</p>
+						<p className="text-xs text-slate-300">Bun native runtime telemetry and backend API status via Hono RPC</p>
 					</div>
 					<span className="text-xs px-2.5 py-1 rounded-full font-mono font-semibold bg-emerald-500/10 text-emerald-300 border border-emerald-500/30">
 						{healthStatus}

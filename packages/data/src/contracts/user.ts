@@ -1,3 +1,5 @@
+import { z } from 'zod';
+
 /**
  * User account role.
  */
@@ -28,36 +30,51 @@ export interface User {
 }
 
 /**
+ * Zod schema for validating user creation payloads.
+ */
+export const createUserSchema = z.object({
+	email: z.string({ message: 'Valid email is required' }).email('Valid email is required'),
+	name: z.string({ message: 'Name is required' }).trim().min(1, 'Name is required'),
+	avatarUrl: z.string().nullable().optional(),
+	role: z.string().optional(),
+	isActive: z.boolean().optional(),
+	metadata: z.record(z.string(), z.unknown()).optional(),
+});
+
+/**
  * Input payload contract for creating a new User.
  */
-export interface CreateUserInput {
-	email: string;
-	name: string;
-	avatarUrl?: string | null;
-	role?: UserRole;
-	isActive?: boolean;
-	metadata?: Record<string, unknown>;
-}
+export type CreateUserInput = z.infer<typeof createUserSchema>;
+
+/**
+ * Zod schema for validating user update payloads.
+ */
+export const updateUserSchema = z.object({
+	email: z.string().email('Valid email is required').optional(),
+	name: z.string().trim().min(1).optional(),
+	avatarUrl: z.string().nullable().optional(),
+	role: z.string().optional(),
+	isActive: z.boolean().optional(),
+	metadata: z.record(z.string(), z.unknown()).optional(),
+});
 
 /**
  * Input payload contract for updating an existing User.
  */
-export interface UpdateUserInput {
-	email?: string;
-	name?: string;
-	avatarUrl?: string | null;
-	role?: UserRole;
-	isActive?: boolean;
-	metadata?: Record<string, unknown>;
-}
+export type UpdateUserInput = z.infer<typeof updateUserSchema>;
+
+/**
+ * Zod schema for querying / filtering users.
+ */
+export const userFilterSchema = z.object({
+	role: z.string().optional(),
+	isActive: z.boolean().optional(),
+	search: z.string().optional(),
+	limit: z.coerce.number().int().positive().optional(),
+	offset: z.coerce.number().int().nonnegative().optional(),
+});
 
 /**
  * Filter options for querying users.
  */
-export interface UserFilter {
-	role?: string;
-	isActive?: boolean;
-	search?: string;
-	limit?: number;
-	offset?: number;
-}
+export type UserFilter = z.infer<typeof userFilterSchema>;

@@ -1,5 +1,6 @@
 import { Link } from '@tanstack/react-router';
 import { useState } from 'react';
+import { client } from '@/lib/api';
 
 export function DocsApiPage() {
 	const [testResult, setTestResult] = useState<string | null>(null);
@@ -10,8 +11,23 @@ export function DocsApiPage() {
 		setTesting(true);
 		setActiveEndpoint(endpoint);
 		try {
-			const res = await fetch(endpoint);
-			const data = await res.json();
+			let data: unknown;
+			if (endpoint === '/api/health') {
+				const res = await client.api.health.$get();
+				data = await res.json();
+			} else if (endpoint === '/api/info') {
+				const res = await client.api.info.$get();
+				data = await res.json();
+			} else if (endpoint === '/api/items') {
+				const res = await client.api.items.$get();
+				data = await res.json();
+			} else if (endpoint === '/api/users') {
+				const res = await client.api.users.$get({ query: {} });
+				data = await res.json();
+			} else {
+				const res = await fetch(endpoint);
+				data = await res.json();
+			}
 			setTestResult(JSON.stringify(data, null, 2));
 		} catch {
 			setTestResult(JSON.stringify({ error: `Failed to connect to ${endpoint}` }, null, 2));
@@ -26,7 +42,9 @@ export function DocsApiPage() {
 				<div className="flex items-center justify-between border-b border-white/5 pb-3">
 					<div>
 						<h2 className="text-base font-bold text-white flex items-center gap-2">🔌 API Reference</h2>
-						<p className="text-xs text-slate-300">Interactive REST API explorer &amp; backend endpoints reference</p>
+						<p className="text-xs text-slate-300">
+							Interactive Hono RPC API explorer &amp; backend endpoints reference
+						</p>
 					</div>
 					<Link
 						to="/"
@@ -81,7 +99,7 @@ export function DocsApiPage() {
 						<div>
 							<span className="font-mono font-bold text-emerald-300 mr-2">GET</span>
 							<code className="font-mono text-white">/api/items</code>
-							<p className="text-slate-300 text-[11px] mt-0.5">List all tasks from in-memory store</p>
+							<p className="text-slate-300 text-[11px] mt-0.5">List all tasks from in-memory store / PostgreSQL</p>
 						</div>
 						<button
 							type="button"
@@ -94,6 +112,24 @@ export function DocsApiPage() {
 						</button>
 					</div>
 
+					{/* GET /api/users */}
+					<div className="bg-[#0d1117] border border-[#30363d] rounded-lg p-3 flex items-center justify-between">
+						<div>
+							<span className="font-mono font-bold text-emerald-300 mr-2">GET</span>
+							<code className="font-mono text-white">/api/users</code>
+							<p className="text-slate-300 text-[11px] mt-0.5">List users with optional role/search filters</p>
+						</div>
+						<button
+							type="button"
+							onClick={() => runTest('/api/users')}
+							disabled={testing}
+							aria-label="Test /api/users endpoint"
+							className="bg-sky-500/20 hover:bg-sky-500/30 text-sky-200 border border-sky-500/40 px-3 py-1.5 rounded text-xs transition-colors cursor-pointer min-h-[36px]"
+						>
+							{testing && activeEndpoint === '/api/users' ? 'Testing...' : 'Test ⚡'}
+						</button>
+					</div>
+
 					{/* POST /api/items */}
 					<div className="bg-[#0d1117] border border-[#30363d] rounded-lg p-3 flex items-center justify-between">
 						<div>
@@ -103,7 +139,19 @@ export function DocsApiPage() {
 								Create new task item with JSON payload: <code>{`{ "title": string }`}</code>
 							</p>
 						</div>
-						<span className="text-[11px] text-slate-300 font-mono">REST JSON (201)</span>
+						<span className="text-[11px] text-slate-300 font-mono">Hono RPC / REST (201)</span>
+					</div>
+
+					{/* POST /api/users */}
+					<div className="bg-[#0d1117] border border-[#30363d] rounded-lg p-3 flex items-center justify-between">
+						<div>
+							<span className="font-mono font-bold text-sky-300 mr-2">POST</span>
+							<code className="font-mono text-white">/api/users</code>
+							<p className="text-slate-300 text-[11px] mt-0.5">
+								Create user: <code>{`{ "email": string, "name": string }`}</code>
+							</p>
+						</div>
+						<span className="text-[11px] text-slate-300 font-mono">Hono RPC / REST (201)</span>
 					</div>
 
 					{/* PATCH /api/items/:id */}
@@ -113,7 +161,7 @@ export function DocsApiPage() {
 							<code className="font-mono text-white">/api/items/:id</code>
 							<p className="text-slate-300 text-[11px] mt-0.5">Update item completion status or title</p>
 						</div>
-						<span className="text-[11px] text-slate-300 font-mono">REST JSON (200)</span>
+						<span className="text-[11px] text-slate-300 font-mono">Hono RPC / REST (200)</span>
 					</div>
 
 					{/* DELETE /api/items/:id */}
@@ -121,9 +169,9 @@ export function DocsApiPage() {
 						<div>
 							<span className="font-mono font-bold text-rose-300 mr-2">DELETE</span>
 							<code className="font-mono text-white">/api/items/:id</code>
-							<p className="text-slate-300 text-[11px] mt-0.5">Delete task item from in-memory store by ID</p>
+							<p className="text-slate-300 text-[11px] mt-0.5">Delete task item by ID</p>
 						</div>
-						<span className="text-[11px] text-slate-300 font-mono">REST JSON (200)</span>
+						<span className="text-[11px] text-slate-300 font-mono">Hono RPC / REST (200)</span>
 					</div>
 
 					{/* GET /api/live-reload */}

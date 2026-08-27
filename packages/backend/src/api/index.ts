@@ -1,67 +1,60 @@
-import { handleHealth } from '@/api/health';
-import { handleInfo } from '@/api/info';
-import { handleLiveReloadRoute } from '@/api/live-reload';
-import { handleItems } from '@/api/routers/items';
-import { handleUsers } from '@/api/routers/users';
-import { handleCorsPreflight, jsonResponse } from '@/lib/cors';
-import type { LiveReloadManager } from '@/lib/live-reload';
+import { Hono } from 'hono';
+import { healthRouter } from '@/api/health';
+import { infoRouter } from '@/api/info';
+import { liveReloadRouter } from '@/api/live-reload';
+import { itemsRouter } from '@/api/routers/items';
+import { usersRouter } from '@/api/routers/users';
+import type { ApiRouterContext, ServerVariables } from '@/types';
+
+export type { ApiRouterContext };
 
 /**
- * Contextual configuration passed into the API router during HTTP request processing.
+ * Hono API router combining all REST endpoints and live reload routes.
  */
-export interface ApiRouterContext {
-	/** Whether the server is running inside a compiled standalone binary. */
-	isStandalone: boolean;
-	/** Whether development live reload is enabled. */
-	enableLiveReload: boolean;
-	/** The active LiveReloadManager instance, or null if live reload is inactive. */
-	liveReloadManager: LiveReloadManager | null;
-}
+export const apiRouter = new Hono<{ Variables: ServerVariables }>()
+	.route('/health', healthRouter)
+	.route('/info', infoRouter)
+	.route('/live-reload', liveReloadRouter)
+	.route('/users', usersRouter)
+	.route('/items', itemsRouter)
+	.all('*', (c) => {
+		return c.json({ error: 'API route not found', path: c.req.path }, 404);
+	});
+
+export type ApiRouter = typeof apiRouter;
 
 /**
- * Dispatches incoming HTTP requests to corresponding API endpoint handlers or live reload routes.
- *
- * @param req - The incoming HTTP Request.
- * @param context - Configuration context including standalone mode and live reload manager.
- * @returns An HTTP Response if the route matches `/api/*`, `/live-reload`, or OPTIONS preflight; otherwise null.
+ * Dispatches incoming HTTP requests to corresponding API endpoint handlers for backwards compatibility.
  */
 export async function handleApiRequest(req: Request, context: ApiRouterContext): Promise<Response | null> {
 	const url = new URL(req.url);
 
-	// Handle CORS preflight for all API endpoints
-	if (req.method === 'OPTIONS') {
-		return handleCorsPreflight();
+	if (url.pathname === '/live-reload') {
+		return await liveReloadRouter.fetch(req, {
+			Variables: {
+				liveReloadManager: context.liveReloadManager,
+				isStandalone: context.isStandalone,
+				enableLiveReload: context.enableLiveReload,
+				distDir: '',
+			},
+		});
 	}
 
-	// Handle live reload on /live-reload or /api/live-reload
-	if (url.pathname === '/live-reload' || url.pathname === '/api/live-reload') {
-		return handleLiveReloadRoute(req, context.liveReloadManager);
-	}
-
-	// Only handle /api/* endpoints
 	if (!url.pathname.startsWith('/api/')) {
 		return null;
 	}
 
-	if (url.pathname === '/api/health') {
-		return handleHealth();
-	}
+	const subPath = url.pathname.slice(4);
+	const subUrl = new URL(url.toString());
+	subUrl.pathname = subPath || '/';
+	const subReq = new Request(subUrl.toString(), req);
 
-	if (url.pathname === '/api/info') {
-		return handleInfo({
+	return await apiRouter.fetch(subReq, {
+		Variables: {
+			liveReloadManager: context.liveReloadManager,
 			isStandalone: context.isStandalone,
-			liveReload: context.enableLiveReload,
-		});
-	}
-
-	if (url.pathname === '/api/users' || url.pathname.startsWith('/api/users/')) {
-		return handleUsers(req);
-	}
-
-	if (url.pathname === '/api/items' || url.pathname.startsWith('/api/items/')) {
-		return handleItems(req);
-	}
-
-	// Catch-all for undefined /api/* routes
-	return jsonResponse({ error: 'API route not found', path: url.pathname }, { status: 404 });
+			enableLiveReload: context.enableLiveReload,
+			distDir: '',
+		},
+	});
 }

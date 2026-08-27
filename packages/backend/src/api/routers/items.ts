@@ -1,9 +1,9 @@
-import { db } from '@app/data';
-import { extractPathId, jsonError, jsonResponse, methodNotAllowed, notFound } from '@/lib/cors';
-import type { Item } from '@/types';
+import { createItemSchema, db, updateItemSchema } from '@app/data';
+import { zValidator } from '@hono/zod-validator';
+import { Hono } from 'hono';
 
 /**
- * RESTful CRUD request handler for task items (`/api/items` and `/api/items/:id`).
+ * RESTful CRUD router for task items (`/api/items` and `/api/items/:id`).
  * Directly executes database queries against the PostgreSQL `@app/data` layer.
  *
  * Supported Endpoints:
@@ -11,62 +11,126 @@ import type { Item } from '@/types';
  * - `POST /api/items`: Create a new item (requires JSON `{ "title": "..." }`).
  * - `GET /api/items/:id`: Get item by ID.
  * - `PATCH /api/items/:id`: Update item title and/or completed status.
+ * - `PUT /api/items/:id`: Update item title and/or completed status.
  * - `DELETE /api/items/:id`: Delete an item by ID.
- *
- * @param req - The incoming HTTP `Request`.
- * @returns An HTTP `Response` with JSON body and appropriate HTTP status code.
  */
-export async function handleItems(req: Request): Promise<Response> {
-	const url = new URL(req.url);
-
-	try {
-		// Collection endpoint: /api/items
-		if (url.pathname === '/api/items') {
-			if (req.method === 'GET') {
-				const items = await db.items.list();
-				return jsonResponse({ items });
+export const itemsRouter = new Hono()
+	.get('/', async (c) => {
+		try {
+			const items = await db.items.list();
+			return c.json({ items }, 200);
+		} catch (error: unknown) {
+			const message = error instanceof Error ? error.message : 'Internal Server Error';
+			return c.json({ error: message }, 500);
+		}
+	})
+	.post(
+		'/',
+		zValidator('json', createItemSchema, (result, c) => {
+			if (!result.success) {
+				const message = result.error.issues[0]?.message || 'Title is required';
+				return c.json({ error: message }, 400);
 			}
-
-			if (req.method === 'POST') {
-				const body = (await req.json()) as { title?: string };
-				if (!body.title || typeof body.title !== 'string' || body.title.trim() === '') {
-					return jsonError('Title is required', 400);
-				}
-
+		}),
+		async (c) => {
+			try {
+				const body = c.req.valid('json');
 				const newItem = await db.items.create({
 					title: body.title.trim(),
-					completed: false,
+					completed: body.completed ?? false,
+					userId: body.userId ?? null,
 				});
-				return jsonResponse(newItem, { status: 201 });
+				return c.json(newItem, 201);
+			} catch (error: unknown) {
+				const message = error instanceof Error ? error.message : 'Internal Server Error';
+				return c.json({ error: message }, 500);
 			}
+		},
+	)
+	.get('/:id', async (c) => {
+		try {
+			const id = c.req.param('id');
+			const item = await db.items.findById(id);
+			if (!item) {
+				return c.json({ error: 'Item not found' }, 404);
+			}
+			return c.json(item, 200);
+		} catch (error: unknown) {
+			const message = error instanceof Error ? error.message : 'Internal Server Error';
+			return c.json({ error: message }, 500);
 		}
-
-		// Individual item endpoint: /api/items/:id
-		const id = extractPathId(url.pathname, '/api/items');
-		if (id) {
-			if (req.method === 'GET') {
-				const item = await db.items.findById(id);
-				return item ? jsonResponse(item) : notFound('Item');
+	})
+	.patch(
+		'/:id',
+		zValidator('json', updateItemSchema, (result, c) => {
+			if (!result.success) {
+				const message = result.error.issues[0]?.message || 'Invalid update payload';
+				return c.json({ error: message }, 400);
 			}
-
-			if (req.method === 'PATCH' || req.method === 'PUT') {
-				const body = (await req.json()) as Partial<Item>;
+		}),
+		async (c) => {
+			try {
+				const id = c.req.param('id');
+				const body = c.req.valid('json');
 				const updated = await db.items.update(id, {
 					title: body.title,
 					completed: body.completed,
+					userId: body.userId,
 				});
-				return updated ? jsonResponse(updated) : notFound('Item');
+				if (!updated) {
+					return c.json({ error: 'Item not found' }, 404);
+				}
+				return c.json(updated, 200);
+			} catch (error: unknown) {
+				const message = error instanceof Error ? error.message : 'Internal Server Error';
+				return c.json({ error: message }, 500);
 			}
-
-			if (req.method === 'DELETE') {
-				const deleted = await db.items.delete(id);
-				return deleted ? jsonResponse(deleted) : notFound('Item');
+		},
+	)
+	.put(
+		'/:id',
+		zValidator('json', updateItemSchema, (result, c) => {
+			if (!result.success) {
+				const message = result.error.issues[0]?.message || 'Invalid update payload';
+				return c.json({ error: message }, 400);
 			}
+		}),
+		async (c) => {
+			try {
+				const id = c.req.param('id');
+				const body = c.req.valid('json');
+				const updated = await db.items.update(id, {
+					title: body.title,
+					completed: body.completed,
+					userId: body.userId,
+				});
+				if (!updated) {
+					return c.json({ error: 'Item not found' }, 404);
+				}
+				return c.json(updated, 200);
+			} catch (error: unknown) {
+				const message = error instanceof Error ? error.message : 'Internal Server Error';
+				return c.json({ error: message }, 500);
+			}
+		},
+	)
+	.delete('/:id', async (c) => {
+		try {
+			const id = c.req.param('id');
+			const deleted = await db.items.delete(id);
+			if (!deleted) {
+				return c.json({ error: 'Item not found' }, 404);
+			}
+			return c.json(deleted, 200);
+		} catch (error: unknown) {
+			const message = error instanceof Error ? error.message : 'Internal Server Error';
+			return c.json({ error: message }, 500);
 		}
+	});
 
-		return methodNotAllowed();
-	} catch (error: unknown) {
-		const message = error instanceof Error ? error.message : 'Internal Server Error';
-		return jsonError(message, 500);
-	}
+/**
+ * Handles legacy direct requests for items.
+ */
+export async function handleItems(req: Request): Promise<Response> {
+	return await itemsRouter.fetch(req);
 }

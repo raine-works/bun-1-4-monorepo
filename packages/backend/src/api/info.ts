@@ -1,34 +1,49 @@
-import { jsonResponse } from '@/lib/cors';
-import type { ServerInfo } from '@/types';
+import { Hono } from 'hono';
+import { isStandaloneMode } from '@/lib/mfe';
+import type { ServerInfo, ServerVariables } from '@/types';
 
 /**
  * Options supplied to the `/api/info` route handler.
  */
 export interface InfoRouteOptions {
 	/** Whether the server is executing inside a standalone binary. */
-	isStandalone: boolean;
+	isStandalone?: boolean;
 	/** Whether live reload is active. */
-	liveReload: boolean;
+	liveReload?: boolean;
 }
 
 /**
- * Handles `/api/info` requests, exposing runtime telemetry (Bun version, platform, memory, standalone mode).
- *
- * @param options - Info route configuration flags.
- * @returns An HTTP `Response` with JSON server telemetry and CORS headers.
+ * Generates server runtime telemetry information.
  */
-export function handleInfo(options: InfoRouteOptions): Response {
-	const info: ServerInfo = {
+export function getServerInfo(options?: InfoRouteOptions): ServerInfo {
+	const isStandalone = options?.isStandalone ?? isStandaloneMode();
+	const liveReload = options?.liveReload ?? false;
+
+	return {
 		name: '@app/backend',
 		bunVersion: Bun.version,
 		platform: process.platform,
 		arch: process.arch,
 		uptime: process.uptime(),
-		isStandalone: options.isStandalone,
+		isStandalone,
 		embeddedAssetCount: Bun.embeddedFiles?.length ?? 0,
 		memoryUsage: process.memoryUsage(),
-		liveReload: options.liveReload,
+		liveReload,
 	};
+}
 
-	return jsonResponse(info);
+/**
+ * Hono router handling `/api/info` GET requests.
+ */
+export const infoRouter = new Hono<{ Variables: ServerVariables }>().get('/', (c) => {
+	const isStandalone = c.get('isStandalone') ?? isStandaloneMode();
+	const liveReload = c.get('enableLiveReload') ?? false;
+	return c.json(getServerInfo({ isStandalone, liveReload }), 200);
+});
+
+/**
+ * Handles `/api/info` requests returning a standard Response.
+ */
+export function handleInfo(options: InfoRouteOptions): Response {
+	return Response.json(getServerInfo(options));
 }

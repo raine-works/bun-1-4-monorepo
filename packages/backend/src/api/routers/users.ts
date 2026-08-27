@@ -1,9 +1,9 @@
-import { db } from '@app/data';
-import { extractPathId, jsonError, jsonResponse, methodNotAllowed, notFound } from '@/lib/cors';
-import type { User } from '@/types';
+import { createUserSchema, db, updateUserSchema, userFilterSchema } from '@app/data';
+import { zValidator } from '@hono/zod-validator';
+import { Hono } from 'hono';
 
 /**
- * RESTful CRUD request handler for users (`/api/users` and `/api/users/:id`).
+ * RESTful CRUD router for users (`/api/users` and `/api/users/:id`).
  * Directly executes database queries against the PostgreSQL `@app/data` layer.
  *
  * Supported Endpoints:
@@ -11,43 +11,45 @@ import type { User } from '@/types';
  * - `POST /api/users`: Create a new user (`{ "email": "...", "name": "..." }`).
  * - `GET /api/users/:id`: Get user by ID.
  * - `PATCH /api/users/:id`: Update user properties.
+ * - `PUT /api/users/:id`: Update user properties.
  * - `DELETE /api/users/:id`: Delete user by ID.
- *
- * @param req - The incoming HTTP `Request`.
- * @returns An HTTP `Response` with JSON body and appropriate HTTP status code.
  */
-export async function handleUsers(req: Request): Promise<Response> {
-	const url = new URL(req.url);
-
-	try {
-		// Collection endpoint: /api/users
-		if (url.pathname === '/api/users') {
-			if (req.method === 'GET') {
-				const role = url.searchParams.get('role') || undefined;
-				const search = url.searchParams.get('search') || undefined;
-				const users = await db.users.list({ role, search });
-				return jsonResponse({ users });
+export const usersRouter = new Hono()
+	.get(
+		'/',
+		zValidator('query', userFilterSchema, (result, c) => {
+			if (!result.success) {
+				const message = result.error.issues[0]?.message || 'Invalid query parameters';
+				return c.json({ error: message }, 400);
 			}
-
-			if (req.method === 'POST') {
-				const body = (await req.json()) as {
-					email?: string;
-					name?: string;
-					role?: string;
-					avatarUrl?: string;
-					metadata?: Record<string, unknown>;
-				};
-
-				if (!body.email || typeof body.email !== 'string' || !body.email.includes('@')) {
-					return jsonError('Valid email is required', 400);
-				}
-				if (!body.name || typeof body.name !== 'string') {
-					return jsonError('Name is required', 400);
-				}
-
+		}),
+		async (c) => {
+			try {
+				const query = c.req.valid('query');
+				const role = query.role || undefined;
+				const search = query.search || undefined;
+				const users = await db.users.list({ role, search });
+				return c.json({ users }, 200);
+			} catch (error: unknown) {
+				const message = error instanceof Error ? error.message : 'Internal Server Error';
+				return c.json({ error: message }, 500);
+			}
+		},
+	)
+	.post(
+		'/',
+		zValidator('json', createUserSchema, (result, c) => {
+			if (!result.success) {
+				const message = result.error.issues[0]?.message || 'Invalid user payload';
+				return c.json({ error: message }, 400);
+			}
+		}),
+		async (c) => {
+			try {
+				const body = c.req.valid('json');
 				const existing = await db.users.findByEmail(body.email);
 				if (existing) {
-					return jsonError('User with this email already exists', 409);
+					return c.json({ error: 'User with this email already exists' }, 409);
 				}
 
 				const newUser = await db.users.create({
@@ -55,22 +57,41 @@ export async function handleUsers(req: Request): Promise<Response> {
 					name: body.name,
 					role: body.role ?? 'user',
 					avatarUrl: body.avatarUrl ?? null,
+					isActive: body.isActive ?? true,
 					metadata: body.metadata ?? {},
 				});
-				return jsonResponse(newUser, { status: 201 });
+				return c.json(newUser, 201);
+			} catch (error: unknown) {
+				const message = error instanceof Error ? error.message : 'Internal Server Error';
+				return c.json({ error: message }, 500);
 			}
+		},
+	)
+	.get('/:id', async (c) => {
+		try {
+			const id = c.req.param('id');
+			const user = await db.users.findById(id);
+			if (!user) {
+				return c.json({ error: 'User not found' }, 404);
+			}
+			return c.json(user, 200);
+		} catch (error: unknown) {
+			const message = error instanceof Error ? error.message : 'Internal Server Error';
+			return c.json({ error: message }, 500);
 		}
-
-		// Individual user endpoint: /api/users/:id
-		const id = extractPathId(url.pathname, '/api/users');
-		if (id) {
-			if (req.method === 'GET') {
-				const user = await db.users.findById(id);
-				return user ? jsonResponse(user) : notFound('User');
+	})
+	.patch(
+		'/:id',
+		zValidator('json', updateUserSchema, (result, c) => {
+			if (!result.success) {
+				const message = result.error.issues[0]?.message || 'Invalid user update payload';
+				return c.json({ error: message }, 400);
 			}
-
-			if (req.method === 'PATCH' || req.method === 'PUT') {
-				const body = (await req.json()) as Partial<User>;
+		}),
+		async (c) => {
+			try {
+				const id = c.req.param('id');
+				const body = c.req.valid('json');
 				const updated = await db.users.update(id, {
 					email: body.email,
 					name: body.name,
@@ -79,18 +100,63 @@ export async function handleUsers(req: Request): Promise<Response> {
 					isActive: body.isActive,
 					metadata: body.metadata,
 				});
-				return updated ? jsonResponse(updated) : notFound('User');
+				if (!updated) {
+					return c.json({ error: 'User not found' }, 404);
+				}
+				return c.json(updated, 200);
+			} catch (error: unknown) {
+				const message = error instanceof Error ? error.message : 'Internal Server Error';
+				return c.json({ error: message }, 500);
 			}
-
-			if (req.method === 'DELETE') {
-				const deleted = await db.users.delete(id);
-				return deleted ? jsonResponse(deleted) : notFound('User');
+		},
+	)
+	.put(
+		'/:id',
+		zValidator('json', updateUserSchema, (result, c) => {
+			if (!result.success) {
+				const message = result.error.issues[0]?.message || 'Invalid user update payload';
+				return c.json({ error: message }, 400);
 			}
+		}),
+		async (c) => {
+			try {
+				const id = c.req.param('id');
+				const body = c.req.valid('json');
+				const updated = await db.users.update(id, {
+					email: body.email,
+					name: body.name,
+					role: body.role,
+					avatarUrl: body.avatarUrl,
+					isActive: body.isActive,
+					metadata: body.metadata,
+				});
+				if (!updated) {
+					return c.json({ error: 'User not found' }, 404);
+				}
+				return c.json(updated, 200);
+			} catch (error: unknown) {
+				const message = error instanceof Error ? error.message : 'Internal Server Error';
+				return c.json({ error: message }, 500);
+			}
+		},
+	)
+	.delete('/:id', async (c) => {
+		try {
+			const id = c.req.param('id');
+			const deleted = await db.users.delete(id);
+			if (!deleted) {
+				return c.json({ error: 'User not found' }, 404);
+			}
+			return c.json(deleted, 200);
+		} catch (error: unknown) {
+			const message = error instanceof Error ? error.message : 'Internal Server Error';
+			return c.json({ error: message }, 500);
 		}
+	});
 
-		return methodNotAllowed();
-	} catch (error: unknown) {
-		const message = error instanceof Error ? error.message : 'Internal Server Error';
-		return jsonError(message, 500);
-	}
+/**
+ * Handles legacy direct requests for users.
+ */
+export async function handleUsers(req: Request): Promise<Response> {
+	return await usersRouter.fetch(req);
 }

@@ -16,6 +16,8 @@
 		"tailwindcss": "4.3.3",
 		"bun-plugin-tailwind": "0.1.2",
 		"@tanstack/react-router": "1.170.32",
+		"@hono/zod-validator": "0.9.0",
+		"hono": "4.13.5",
 		"zod": "4.4.3"
 	},
 	"devDependencies": {

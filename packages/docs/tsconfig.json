@@ -12,7 +12,11 @@
 			"@data": ["../data/src/index.ts"],
 			"@data/*": ["../data/src/*"],
 			"@app/data": ["../data/src/index.ts"],
-			"@app/data/*": ["../data/src/*"]
+			"@app/data/*": ["../data/src/*"],
+			"@backend": ["../backend/src/index.ts"],
+			"@backend/*": ["../backend/src/*"],
+			"@app/backend": ["../backend/src/index.ts"],
+			"@app/backend/*": ["../backend/src/*"]
 		}
 	},
 	"include": ["src/**/*", "scripts/**/*"]

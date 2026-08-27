@@ -1,21 +1,24 @@
 import { afterAll, beforeAll, describe, expect, it } from 'bun:test';
 import { createServer } from '@/index';
+import { createApiClient } from '@/rpc';
 
 describe('Backend Server & Micro-Frontend Host', () => {
 	let server: ReturnType<typeof createServer>;
 	let baseUrl: string;
+	let client: ReturnType<typeof createApiClient>;
 
 	beforeAll(() => {
 		// Port 0 picks a free ephemeral port for tests
 		server = createServer(0);
 		baseUrl = `http://localhost:${server.port}`;
+		client = createApiClient(baseUrl);
 	});
 
 	afterAll(() => {
 		server.stop();
 	});
 
-	it('should return healthy status on GET /api/health', async () => {
+	it('should return healthy status on GET /api/health via standard fetch', async () => {
 		const res = await fetch(`${baseUrl}/api/health`);
 		expect(res.status).toBe(200);
 		const data = (await res.json()) as { status: string; uptime: number };
@@ -23,12 +26,73 @@ describe('Backend Server & Micro-Frontend Host', () => {
 		expect(typeof data.uptime).toBe('number');
 	});
 
-	it('should return runtime info on GET /api/info', async () => {
+	it('should return healthy status on GET /api/health via Hono RPC client', async () => {
+		const res = await client.api.health.$get();
+		expect(res.status).toBe(200);
+		const data = await res.json();
+		expect(data.status).toBe('healthy');
+		expect(typeof data.uptime).toBe('number');
+	});
+
+	it('should return runtime info on GET /api/info via standard fetch', async () => {
 		const res = await fetch(`${baseUrl}/api/info`);
 		expect(res.status).toBe(200);
 		const data = (await res.json()) as { bunVersion: string; name: string };
 		expect(data.name).toBe('@app/backend');
 		expect(data.bunVersion).toBe(Bun.version);
+	});
+
+	it('should return runtime info on GET /api/info via Hono RPC client', async () => {
+		const res = await client.api.info.$get();
+		expect(res.status).toBe(200);
+		const data = await res.json();
+		expect(data.name).toBe('@app/backend');
+		expect(data.bunVersion).toBe(Bun.version);
+		expect(typeof data.uptime).toBe('number');
+	});
+
+	it('should handle CORS preflight OPTIONS requests via Hono CORS middleware', async () => {
+		const res = await fetch(`${baseUrl}/api/health`, {
+			method: 'OPTIONS',
+		});
+		expect([200, 204]).toContain(res.status);
+		expect(res.headers.get('access-control-allow-origin')).toBe('*');
+		expect(res.headers.get('access-control-allow-methods')).toBeDefined();
+	});
+
+	it('should compress responses with gzip when Accept-Encoding: gzip is requested via hono/compress', async () => {
+		const res = await fetch(`${baseUrl}/`, {
+			headers: { 'Accept-Encoding': 'gzip' },
+		});
+		expect(res.status).toBe(200);
+		expect(res.headers.get('content-encoding')).toBe('gzip');
+		expect(res.headers.get('vary')).toContain('Accept-Encoding');
+	});
+
+	it('should return 404 JSON for undefined /api/* routes', async () => {
+		const res = await fetch(`${baseUrl}/api/nonexistent-endpoint`);
+		expect(res.status).toBe(404);
+		const data = (await res.json()) as { error: string; path: string };
+		expect(data.error).toBe('API route not found');
+		expect(data.path).toBe('/api/nonexistent-endpoint');
+	});
+
+	it('should validate request body with zValidator on POST /api/items', async () => {
+		const res = await client.api.items.$post({
+			json: { title: '' },
+		});
+		expect(res.status).toBe(400);
+		const data = (await res.json()) as { error: string };
+		expect(data.error).toBe('Title is required');
+	});
+
+	it('should validate request body with zValidator on POST /api/users', async () => {
+		const res = await client.api.users.$post({
+			json: { email: 'invalid-email', name: '' },
+		});
+		expect(res.status).toBe(400);
+		const data = (await res.json()) as { error: string };
+		expect(data.error).toBeDefined();
 	});
 
 	it('should serve hub index.html on GET /', async () => {
@@ -99,9 +163,13 @@ describe('Backend Server & Micro-Frontend Host', () => {
 		const liveUrl = `http://localhost:${liveServer.port}`;
 
 		try {
-			const res = await fetch(`${liveUrl}/api/live-reload`);
+			const res = await fetch(`${liveUrl}/api/live-reload`, {
+				headers: { 'Accept-Encoding': 'gzip' },
+			});
 			expect(res.status).toBe(200);
 			expect(res.headers.get('content-type')).toContain('text/event-stream');
+			// SSE stream must not be compressed
+			expect(res.headers.get('content-encoding')).toBeNull();
 
 			const resDirect = await fetch(`${liveUrl}/live-reload`);
 			expect(resDirect.status).toBe(200);
