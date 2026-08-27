@@ -25,18 +25,22 @@ packages/data/
 │   └── migrate.ts          # Migration CLI runner
 ├── src/
 │   ├── client.ts           # Bun SQL connection initialization and transaction wrapper
+│   ├── client.test.ts      # Database client and helper tests
 │   ├── env.ts              # Zod-validated environment schema & DATABASE_URL
+│   ├── env.test.ts         # Environment validation tests
 │   ├── contracts/          # Type-safe model contracts and DTOs
 │   │   ├── user.ts         # User, CreateUserInput, UpdateUserInput, UserFilter
 │   │   ├── item.ts         # Item, CreateItemInput, UpdateItemInput, ItemFilter
 │   │   └── index.ts
+│   ├── contracts.test.ts   # Typed data contract tests
 │   ├── queries/            # Type-safe query operations written in raw SQL
 │   │   ├── user.ts         # findById, findByEmail, list, create, update, delete, count, exists
 │   │   ├── item.ts         # findById, list, listByUserId, create, update, toggle, delete, count
 │   │   └── index.ts
+│   ├── queries.test.ts     # SQL query operation tests
 │   ├── migrator.ts         # Lightweight SQL migration engine
+│   ├── migrator.test.ts    # Migration engine tests
 │   └── index.ts            # Public package exports
-└── tests/                  # Unit and integration test suite
 ```
 
 ---

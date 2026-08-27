@@ -89,21 +89,25 @@ bun-1-4-monorepo/
 │   │   │   └── 0002_create_items.sql
 │   │   ├── scripts/
 │   │   │   └── migrate.ts         # CLI migration runner (up/down/status/create/reset)
-│   │   ├── src/
-│   │   │   ├── index.ts           # Public exports
-│   │   │   ├── client.ts          # Bun SQL Database client & transaction wrapper
-│   │   │   ├── env.ts             # Zod-validated database environment schema
-│   │   │   ├── migrator.ts        # Migration engine
-│   │   │   ├── contracts/         # Strongly typed model & DTO contracts
-│   │   │   │   ├── index.ts
-│   │   │   │   ├── item.ts
-│   │   │   │   └── user.ts
-│   │   │   └── queries/           # Type-safe raw SQL query operations
-│   │   │       ├── index.ts
-│   │   │       ├── common.ts
-│   │   │       ├── item.ts
-│   │   │       └── user.ts
-│   │   └── tests/                 # Data layer unit test suite
+│   │   └── src/
+│   │       ├── index.ts           # Public exports
+│   │       ├── client.ts          # Bun SQL Database client & transaction wrapper
+│   │       ├── client.test.ts     # Database client unit tests
+│   │       ├── env.ts             # Zod-validated database environment schema
+│   │       ├── env.test.ts        # Database environment schema tests
+│   │       ├── migrator.ts        # Migration engine
+│   │       ├── migrator.test.ts   # Migration engine unit tests
+│   │       ├── contracts/         # Strongly typed model & DTO contracts
+│   │       │   ├── index.ts
+│   │       │   ├── item.ts
+│   │       │   └── user.ts
+│   │       ├── contracts.test.ts  # Typed data contract tests
+│   │       ├── queries.test.ts    # Type-safe SQL query tests
+│   │       └── queries/           # Type-safe raw SQL query operations
+│   │           ├── index.ts
+│   │           ├── common.ts
+│   │           ├── item.ts
+│   │           └── user.ts
 │   │
 │   ├── hub/                       # Primary Hub Shell Micro-Frontend (Basepath: /)
 │   │   ├── index.html             # Shell HTML entrypoint
