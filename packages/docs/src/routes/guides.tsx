@@ -31,7 +31,19 @@ export function DocsGuidesPage() {
 			desc: 'Development mode injects SSE live reload with file-write readiness polling, automatic reconnection, and asset error auto-recovery (automatically disabled in production).',
 		},
 		{
-			title: '8. Distroless Multi-Stage Container Image',
+			title: '8. PostgreSQL Data Layer & SQL Migrations',
+			desc: 'Direct PostgreSQL operations powered by Bun’s native `bun:sql` driver without heavy ORMs. Includes strongly typed model contracts, transactions, active transaction lifecycle tracking, and handwritten SQL migrations.',
+		},
+		{
+			title: '9. Shared UI Design System (@app/ui)',
+			desc: 'Monorepo-wide UI library providing standardized primitives (`Badge`, `Button`, `Card`, `TelemetryBadge`), composite blocks (`MfeHeader`, `MfeFooter`, `NotFoundView`, `GlobalMfeNav`), and layout containers (`MfeLayout`).',
+		},
+		{
+			title: '10. Shared Utilities & Prototypes (@app/tools)',
+			desc: 'Reusable build runners, HTTP header builders, environment parsers, and global prototype extensions (`Array.isEmpty`, `Array.flush`, `Array.unique`, `Promise.tryCatch`) returning typed `Result<T, E>`.',
+		},
+		{
+			title: '11. Distroless Multi-Stage Container Image',
 			desc: 'Deploy via `gcr.io/distroless/cc-debian12` for an ultra-lightweight ~47MB container containing solely the compiled standalone binary with zero external dependencies.',
 		},
 	];

@@ -2,10 +2,13 @@ import { Link } from '@tanstack/react-router';
 
 export function DocsOverviewPage() {
 	const PACKAGES = [
-		{ name: '@app/backend', path: '/api/*', role: 'Bun HTTP Server & API Host' },
-		{ name: '@app/hub', path: '/', role: 'Primary Hub & Shell SPA' },
-		{ name: '@app/store', path: '/store/*', role: 'Store Micro-Frontend' },
-		{ name: '@app/docs', path: '/docs/*', role: 'Documentation Micro-Frontend' },
+		{ name: '@app/backend', path: '/api/*', role: 'Bun HTTP Server, REST/RPC API Host & Standalone Compiler' },
+		{ name: '@app/data', path: 'N/A (Data Layer)', role: 'Type-Safe PostgreSQL Data Layer (bun:sql & Migrations)' },
+		{ name: '@app/hub', path: '/', role: 'Primary Shell & Dashboard SPA' },
+		{ name: '@app/store', path: '/store/*', role: 'Store E-Commerce Micro-Frontend' },
+		{ name: '@app/docs', path: '/docs/*', role: 'Documentation & Architecture Micro-Frontend' },
+		{ name: '@app/tools', path: 'N/A (Shared Utils)', role: 'Shared Build, CLI, HTTP, Env & SQL Utilities' },
+		{ name: '@app/ui', path: 'N/A (Shared UI)', role: 'Shared UI Components, Layouts, Blocks & Design System' },
 	];
 
 	return (

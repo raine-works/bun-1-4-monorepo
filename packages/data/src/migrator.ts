@@ -1,6 +1,7 @@
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { type BunSql, Database, db } from '@app/data/client';
+import '@app/tools/prototypes';
 import { parseMigrationSql } from '@app/tools/sql';
 
 export { parseMigrationSql };
@@ -136,7 +137,7 @@ export class Migrator {
 	async down(): Promise<MigrationResult> {
 		await this.init();
 		const applied = await this.getApplied();
-		if (applied.length === 0) {
+		if (applied.isEmpty()) {
 			return { applied: [], rolledBack: [] };
 		}
 

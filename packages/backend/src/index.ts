@@ -1,3 +1,4 @@
+import '@app/tools/prototypes';
 import { env } from '@backend/lib/env';
 import { LiveReloadManager } from '@backend/lib/live-reload';
 import { isStandaloneMode, resolveFrontendDist, serveMicroFrontend } from '@backend/lib/mfe';
@@ -28,6 +29,7 @@ import { Hono } from 'hono';
 import { compress } from 'hono/compress';
 import { cors } from 'hono/cors';
 
+export * from '@app/tools/prototypes';
 export type {
 	ApiClient,
 	ApiRouter,

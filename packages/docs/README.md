@@ -8,8 +8,8 @@ The interactive Documentation micro-frontend for the **Bun 1.4 Full-Stack Monore
 
 - **TanStack Router with Scoped Basepath (`/docs`)**:
   - `/docs/`: Monorepo architecture specification and package role mapping.
-  - `/docs/guides`: Step-by-step developer guides covering TanStack Router, adding MFEs, routing boundaries, 404 resolution, React Compiler, binary bundling, live reload, and Docker.
-  - `/docs/api`: Interactive REST API explorer with live connectivity test execution against backend endpoints (`/api/health`, `/api/info`, `/api/items`).
+  - `/docs/guides`: Step-by-step developer guides covering TanStack Router, adding MFEs, routing boundaries, 404 resolution, React Compiler, binary bundling, live reload, PostgreSQL data layer, shared UI system, and Docker.
+  - `/docs/api`: Interactive REST API explorer with live connectivity test execution against backend endpoints (`/api/health`, `/api/info`, `/api/items`, `/api/users`).
   - `/docs/*`: Scoped 404 handler with routing telemetry and return links.
 - **Scoped Public Assets (`publicPath: "/docs/"`)**: Configured in `Bun.build` so bundled chunks and stylesheets resolve cleanly under `/docs/`.
 - **Inter-MFE Navigation**: Cross-MFE switcher connecting back to Hub (`/`) and Store (`/store`).
@@ -24,6 +24,7 @@ The interactive Documentation micro-frontend for the **Bun 1.4 Full-Stack Monore
 ```
 packages/docs/
 ├── index.html            # Application HTML shell entrypoint
+├── README.md             # Docs micro-frontend guide
 ├── package.json          # Package manifest and dependencies
 ├── tsconfig.json         # TypeScript configuration with @/* path aliases
 ├── scripts/
@@ -35,6 +36,8 @@ packages/docs/
 │   ├── router.tsx        # TanStack Router instance with basepath: "/docs"
 │   ├── styles.css        # Tailwind CSS entrypoint
 │   ├── env.d.ts          # TypeScript environment declarations
+│   ├── lib/
+│   │   └── api.ts        # Backend Hono RPC API client instance
 │   └── routes/           # TanStack Router route definitions
 │       ├── __root.tsx    # Root layout with header, navigation, and telemetry badge
 │       ├── index.tsx     # Overview page (/docs/)

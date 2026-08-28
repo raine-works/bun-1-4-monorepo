@@ -6,6 +6,7 @@ dist
 .*.bun-build*
 .git
 .gitignore
+.vscode
 .zed
 *.log
 .DS_Store

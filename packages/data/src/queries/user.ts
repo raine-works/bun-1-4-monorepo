@@ -1,6 +1,7 @@
 import type { BunSql } from '@app/data/client';
 import type { CreateUserInput, UpdateUserInput, User, UserFilter } from '@app/data/contracts/user';
 import { parseCount } from '@app/data/queries/common';
+import '@app/tools/prototypes';
 
 /**
  * Creates type-safe database query operations for the `users` table.
@@ -180,7 +181,7 @@ export function createUsersQueries(sql: BunSql) {
         LIMIT 1
       `) as unknown as Array<{ exists: number }>;
 
-			return rows.length > 0;
+			return !rows.isEmpty();
 		},
 	};
 }

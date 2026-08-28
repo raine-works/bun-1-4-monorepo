@@ -1,4 +1,5 @@
 import type { Item } from '@app/data';
+import '@app/tools/prototypes';
 import { Link } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 import { client } from '@/lib/api';
@@ -10,17 +11,19 @@ export function TasksPage() {
 
 	useEffect(() => {
 		async function loadTasks() {
-			try {
-				const res = await client.api.items.$get();
-				if (res.ok) {
-					const data = await res.json();
+			const { data: res, error } = await client.api.items.$get().tryCatch();
+			if (error) {
+				console.error('Failed to load tasks via Hono RPC:', error);
+				setLoading(false);
+				return;
+			}
+			if (res.ok) {
+				const { data } = await res.json().tryCatch();
+				if (data) {
 					setItems(data.items);
 				}
-			} catch (err) {
-				console.error('Failed to load tasks via Hono RPC:', err);
-			} finally {
-				setLoading(false);
 			}
+			setLoading(false);
 		}
 		loadTasks();
 	}, []);
@@ -29,45 +32,55 @@ export function TasksPage() {
 		e.preventDefault();
 		if (!title.trim()) return;
 
-		try {
-			const res = await client.api.items.$post({
+		const { data: res, error } = await client.api.items
+			.$post({
 				json: { title: title.trim() },
-			});
-			if (res.ok) {
-				const created = (await res.json()) as Item;
+			})
+			.tryCatch();
+		if (error) {
+			console.error('Failed to add task via Hono RPC:', error);
+			return;
+		}
+		if (res.ok) {
+			const { data: created } = await res.json().tryCatch<Error, Item>();
+			if (created) {
 				setItems((prev) => [...prev, created]);
 				setTitle('');
 			}
-		} catch (err) {
-			console.error('Failed to add task via Hono RPC:', err);
 		}
 	};
 
 	const handleToggle = async (item: Item) => {
-		try {
-			const res = await client.api.items[':id'].$patch({
+		const { data: res, error } = await client.api.items[':id']
+			.$patch({
 				param: { id: item.id },
 				json: { completed: !item.completed },
-			});
-			if (res.ok) {
-				const updated = (await res.json()) as Item;
+			})
+			.tryCatch();
+		if (error) {
+			console.error('Failed to toggle task via Hono RPC:', error);
+			return;
+		}
+		if (res.ok) {
+			const { data: updated } = await res.json().tryCatch<Error, Item>();
+			if (updated) {
 				setItems((prev) => prev.map((i) => (i.id === item.id ? updated : i)));
 			}
-		} catch (err) {
-			console.error('Failed to toggle task via Hono RPC:', err);
 		}
 	};
 
 	const handleDelete = async (id: string) => {
-		try {
-			const res = await client.api.items[':id'].$delete({
+		const { data: res, error } = await client.api.items[':id']
+			.$delete({
 				param: { id },
-			});
-			if (res.ok) {
-				setItems((prev) => prev.filter((i) => i.id !== id));
-			}
-		} catch (err) {
-			console.error('Failed to delete task via Hono RPC:', err);
+			})
+			.tryCatch();
+		if (error) {
+			console.error('Failed to delete task via Hono RPC:', error);
+			return;
+		}
+		if (res.ok) {
+			setItems((prev) => prev.filter((i) => i.id !== id));
 		}
 	};
 
@@ -114,6 +127,8 @@ export function TasksPage() {
 
 				{loading ? (
 					<div className="text-xs text-slate-400 py-4 text-center">Loading tasks via Hono RPC from backend...</div>
+				) : items.isEmpty() ? (
+					<div className="text-xs text-slate-400 py-4 text-center">No tasks yet. Add one above!</div>
 				) : (
 					<ul className="flex flex-col gap-2 list-none p-0 m-0">
 						{items.map((item) => (

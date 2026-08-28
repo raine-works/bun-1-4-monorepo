@@ -9,6 +9,7 @@ export * from '@tools/env';
 
 // HTTP & Web Asset Utilities
 export * from '@tools/http';
-
+// Prototype Extensions & Result Types
+export * from '@tools/prototypes';
 // SQL Query & Migration Helpers
 export * from '@tools/sql';

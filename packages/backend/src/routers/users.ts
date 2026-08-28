@@ -1,4 +1,5 @@
 import { createUserSchema, db, updateUserSchema, userFilterSchema } from '@app/data';
+import '@app/tools/prototypes';
 import { zValidator } from '@hono/zod-validator';
 import { Hono } from 'hono';
 
@@ -24,16 +25,15 @@ export const usersRouter = new Hono()
 			}
 		}),
 		async (c) => {
-			try {
-				const query = c.req.valid('query');
-				const role = query.role || undefined;
-				const search = query.search || undefined;
-				const users = await db.users.list({ role, search });
-				return c.json({ users }, 200);
-			} catch (error: unknown) {
+			const query = c.req.valid('query');
+			const role = query.role || undefined;
+			const search = query.search || undefined;
+			const { data: users, error } = await db.users.list({ role, search }).tryCatch();
+			if (error) {
 				const message = error instanceof Error ? error.message : 'Internal Server Error';
 				return c.json({ error: message }, 500);
 			}
+			return c.json({ users }, 200);
 		},
 	)
 	.post(
@@ -45,40 +45,44 @@ export const usersRouter = new Hono()
 			}
 		}),
 		async (c) => {
-			try {
-				const body = c.req.valid('json');
-				const existing = await db.users.findByEmail(body.email);
-				if (existing) {
-					return c.json({ error: 'User with this email already exists' }, 409);
-				}
+			const body = c.req.valid('json');
+			const { data: existing, error: findError } = await db.users.findByEmail(body.email).tryCatch();
+			if (findError) {
+				const message = findError instanceof Error ? findError.message : 'Internal Server Error';
+				return c.json({ error: message }, 500);
+			}
+			if (existing) {
+				return c.json({ error: 'User with this email already exists' }, 409);
+			}
 
-				const newUser = await db.users.create({
+			const { data: newUser, error: createError } = await db.users
+				.create({
 					email: body.email,
 					name: body.name,
 					role: body.role ?? 'user',
 					avatarUrl: body.avatarUrl ?? null,
 					isActive: body.isActive ?? true,
 					metadata: body.metadata ?? {},
-				});
-				return c.json(newUser, 201);
-			} catch (error: unknown) {
-				const message = error instanceof Error ? error.message : 'Internal Server Error';
+				})
+				.tryCatch();
+			if (createError || !newUser) {
+				const message = createError instanceof Error ? createError.message : 'Internal Server Error';
 				return c.json({ error: message }, 500);
 			}
+			return c.json(newUser, 201);
 		},
 	)
 	.get('/:id', async (c) => {
-		try {
-			const id = c.req.param('id');
-			const user = await db.users.findById(id);
-			if (!user) {
-				return c.json({ error: 'User not found' }, 404);
-			}
-			return c.json(user, 200);
-		} catch (error: unknown) {
+		const id = c.req.param('id');
+		const { data: user, error } = await db.users.findById(id).tryCatch();
+		if (error) {
 			const message = error instanceof Error ? error.message : 'Internal Server Error';
 			return c.json({ error: message }, 500);
 		}
+		if (!user) {
+			return c.json({ error: 'User not found' }, 404);
+		}
+		return c.json(user, 200);
 	})
 	.patch(
 		'/:id',
@@ -89,25 +93,26 @@ export const usersRouter = new Hono()
 			}
 		}),
 		async (c) => {
-			try {
-				const id = c.req.param('id');
-				const body = c.req.valid('json');
-				const updated = await db.users.update(id, {
+			const id = c.req.param('id');
+			const body = c.req.valid('json');
+			const { data: updated, error } = await db.users
+				.update(id, {
 					email: body.email,
 					name: body.name,
 					role: body.role,
 					avatarUrl: body.avatarUrl,
 					isActive: body.isActive,
 					metadata: body.metadata,
-				});
-				if (!updated) {
-					return c.json({ error: 'User not found' }, 404);
-				}
-				return c.json(updated, 200);
-			} catch (error: unknown) {
+				})
+				.tryCatch();
+			if (error) {
 				const message = error instanceof Error ? error.message : 'Internal Server Error';
 				return c.json({ error: message }, 500);
 			}
+			if (!updated) {
+				return c.json({ error: 'User not found' }, 404);
+			}
+			return c.json(updated, 200);
 		},
 	)
 	.put(
@@ -119,37 +124,37 @@ export const usersRouter = new Hono()
 			}
 		}),
 		async (c) => {
-			try {
-				const id = c.req.param('id');
-				const body = c.req.valid('json');
-				const updated = await db.users.update(id, {
+			const id = c.req.param('id');
+			const body = c.req.valid('json');
+			const { data: updated, error } = await db.users
+				.update(id, {
 					email: body.email,
 					name: body.name,
 					role: body.role,
 					avatarUrl: body.avatarUrl,
 					isActive: body.isActive,
 					metadata: body.metadata,
-				});
-				if (!updated) {
-					return c.json({ error: 'User not found' }, 404);
-				}
-				return c.json(updated, 200);
-			} catch (error: unknown) {
+				})
+				.tryCatch();
+			if (error) {
 				const message = error instanceof Error ? error.message : 'Internal Server Error';
 				return c.json({ error: message }, 500);
 			}
+			if (!updated) {
+				return c.json({ error: 'User not found' }, 404);
+			}
+			return c.json(updated, 200);
 		},
 	)
 	.delete('/:id', async (c) => {
-		try {
-			const id = c.req.param('id');
-			const deleted = await db.users.delete(id);
-			if (!deleted) {
-				return c.json({ error: 'User not found' }, 404);
-			}
-			return c.json(deleted, 200);
-		} catch (error: unknown) {
+		const id = c.req.param('id');
+		const { data: deleted, error } = await db.users.delete(id).tryCatch();
+		if (error) {
 			const message = error instanceof Error ? error.message : 'Internal Server Error';
 			return c.json({ error: message }, 500);
 		}
+		if (!deleted) {
+			return c.json({ error: 'User not found' }, 404);
+		}
+		return c.json(deleted, 200);
 	});

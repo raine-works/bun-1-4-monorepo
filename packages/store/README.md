@@ -24,6 +24,7 @@ The independent Store e-commerce micro-frontend for the **Bun 1.4 Full-Stack Mon
 ```
 packages/store/
 ├── index.html            # Application HTML shell entrypoint
+├── README.md             # Store micro-frontend guide
 ├── package.json          # Package manifest and dependencies
 ├── tsconfig.json         # TypeScript configuration with @/* path aliases
 ├── scripts/

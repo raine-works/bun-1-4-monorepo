@@ -1,4 +1,5 @@
 import type { ServerInfo } from '@app/backend';
+import '@app/tools/prototypes';
 import { Link } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 import { client } from '@/lib/api';
@@ -10,18 +11,21 @@ export function DashboardPage() {
 
 	useEffect(() => {
 		async function loadStatus() {
-			try {
-				const [healthRes, infoRes] = await Promise.all([client.api.health.$get(), client.api.info.$get()]);
-				if (healthRes.ok) {
-					const data = await healthRes.json();
-					setHealthStatus(data.status);
-				}
-				if (infoRes.ok) {
-					const data = await infoRes.json();
-					setServerInfo(data);
-				}
-			} catch {
+			const { data: results, error } = await Promise.all([client.api.health.$get(), client.api.info.$get()]).tryCatch();
+
+			if (error || !results) {
 				setHealthStatus('offline');
+				return;
+			}
+
+			const [healthRes, infoRes] = results;
+			if (healthRes.ok) {
+				const { data } = await healthRes.json().tryCatch();
+				if (data) setHealthStatus(data.status);
+			}
+			if (infoRes.ok) {
+				const { data } = await infoRes.json().tryCatch();
+				if (data) setServerInfo(data);
 			}
 		}
 		loadStatus();

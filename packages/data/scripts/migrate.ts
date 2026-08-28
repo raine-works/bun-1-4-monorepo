@@ -1,6 +1,7 @@
 #!/usr/bin/env bun
 import { migrator } from '@app/data/migrator';
 import { colors } from '@app/tools/cli';
+import '@app/tools/prototypes';
 
 async function main() {
 	const args = process.argv.slice(2);
@@ -11,7 +12,7 @@ async function main() {
 			case 'up': {
 				console.log(`\n${colors.blue}${colors.bold}🚀 Running Migrations (UP)...${colors.reset}`);
 				const result = await migrator.up();
-				if (result.applied.length === 0) {
+				if (result.applied.isEmpty()) {
 					console.log(`${colors.green}✓ Database is up to date. No pending migrations.${colors.reset}\n`);
 				} else {
 					console.log(`\n${colors.green}✓ Applied ${result.applied.length} migration(s):${colors.reset}`);
@@ -26,7 +27,7 @@ async function main() {
 			case 'down': {
 				console.log(`\n${colors.yellow}${colors.bold}⏪ Rolling Back Last Migration (DOWN)...${colors.reset}`);
 				const result = await migrator.down();
-				if (result.rolledBack.length === 0) {
+				if (result.rolledBack.isEmpty()) {
 					console.log(`${colors.yellow}✓ No migrations to roll back.${colors.reset}\n`);
 				} else {
 					console.log(`\n${colors.yellow}✓ Rolled back:${colors.reset} ${result.rolledBack.join(', ')}\n`);
@@ -37,7 +38,7 @@ async function main() {
 			case 'status': {
 				console.log(`\n${colors.blue}${colors.bold}📊 Migration Status:${colors.reset}\n`);
 				const list = await migrator.status();
-				if (list.length === 0) {
+				if (list.isEmpty()) {
 					console.log(`  ${colors.dim}No migration files found.${colors.reset}\n`);
 					break;
 				}

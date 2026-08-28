@@ -1,6 +1,7 @@
+import { getAssetHeaders, getMimeType, isStandaloneMode } from '@app/tools/http';
+import '@app/tools/prototypes';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
-import { getAssetHeaders, getMimeType, isStandaloneMode } from '@app/tools/http';
 import { env } from '@backend/lib/env';
 import { injectLiveReload } from '@backend/lib/live-reload';
 
@@ -101,7 +102,7 @@ export async function serveMicroFrontend(req: Request, options: ServeMicroFronte
 
 	// 1. Embedded assets resolution (when compiled to standalone binary)
 	const embeddedFiles = (Bun.embeddedFiles ?? []) as Array<Blob & { name?: string }>;
-	if (embeddedFiles.length > 0) {
+	if (!embeddedFiles.isEmpty()) {
 		// Case A: Scoped sub-path MFE (e.g. /store/* -> mfes/store/*, /docs/* -> mfes/docs/*)
 		if (firstSegment && embeddedFiles.some((f) => f.name?.startsWith(`mfes/${firstSegment}/`))) {
 			const subPath = pathSegments.slice(1).join('/');

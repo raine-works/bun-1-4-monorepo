@@ -1,3 +1,4 @@
+import '@app/tools/prototypes';
 import { Link } from '@tanstack/react-router';
 import { useState } from 'react';
 import { client } from '@/lib/api';
@@ -10,30 +11,33 @@ export function DocsApiPage() {
 	const runTest = async (endpoint: string) => {
 		setTesting(true);
 		setActiveEndpoint(endpoint);
-		try {
-			let data: unknown;
+		const { data, error } = await Promise.tryCatch(async () => {
 			if (endpoint === '/api/health') {
 				const res = await client.api.health.$get();
-				data = await res.json();
-			} else if (endpoint === '/api/info') {
-				const res = await client.api.info.$get();
-				data = await res.json();
-			} else if (endpoint === '/api/items') {
-				const res = await client.api.items.$get();
-				data = await res.json();
-			} else if (endpoint === '/api/users') {
-				const res = await client.api.users.$get({ query: {} });
-				data = await res.json();
-			} else {
-				const res = await fetch(endpoint);
-				data = await res.json();
+				return await res.json();
 			}
-			setTestResult(JSON.stringify(data, null, 2));
-		} catch {
+			if (endpoint === '/api/info') {
+				const res = await client.api.info.$get();
+				return await res.json();
+			}
+			if (endpoint === '/api/items') {
+				const res = await client.api.items.$get();
+				return await res.json();
+			}
+			if (endpoint === '/api/users') {
+				const res = await client.api.users.$get({ query: {} });
+				return await res.json();
+			}
+			const res = await fetch(endpoint);
+			return await res.json();
+		});
+
+		if (error || !data) {
 			setTestResult(JSON.stringify({ error: `Failed to connect to ${endpoint}` }, null, 2));
-		} finally {
-			setTesting(false);
+		} else {
+			setTestResult(JSON.stringify(data, null, 2));
 		}
+		setTesting(false);
 	};
 
 	return (
@@ -154,6 +158,16 @@ export function DocsApiPage() {
 						<span className="text-[11px] text-slate-300 font-mono">Hono RPC / REST (201)</span>
 					</div>
 
+					{/* GET /api/items/:id */}
+					<div className="bg-[#0d1117] border border-[#30363d] rounded-lg p-3 flex items-center justify-between">
+						<div>
+							<span className="font-mono font-bold text-emerald-300 mr-2">GET</span>
+							<code className="font-mono text-white">/api/items/:id</code>
+							<p className="text-slate-300 text-[11px] mt-0.5">Get single task item by ID</p>
+						</div>
+						<span className="text-[11px] text-slate-300 font-mono">Hono RPC / REST (200)</span>
+					</div>
+
 					{/* PATCH /api/items/:id */}
 					<div className="bg-[#0d1117] border border-[#30363d] rounded-lg p-3 flex items-center justify-between">
 						<div>
@@ -174,6 +188,38 @@ export function DocsApiPage() {
 						<span className="text-[11px] text-slate-300 font-mono">Hono RPC / REST (200)</span>
 					</div>
 
+					{/* GET /api/users/:id */}
+					<div className="bg-[#0d1117] border border-[#30363d] rounded-lg p-3 flex items-center justify-between">
+						<div>
+							<span className="font-mono font-bold text-emerald-300 mr-2">GET</span>
+							<code className="font-mono text-white">/api/users/:id</code>
+							<p className="text-slate-300 text-[11px] mt-0.5">Get single user by ID</p>
+						</div>
+						<span className="text-[11px] text-slate-300 font-mono">Hono RPC / REST (200)</span>
+					</div>
+
+					{/* PATCH /api/users/:id */}
+					<div className="bg-[#0d1117] border border-[#30363d] rounded-lg p-3 flex items-center justify-between">
+						<div>
+							<span className="font-mono font-bold text-amber-300 mr-2">PATCH</span>
+							<code className="font-mono text-white">/api/users/:id</code>
+							<p className="text-slate-300 text-[11px] mt-0.5">
+								Update user fields (name, email, role, avatarUrl, metadata)
+							</p>
+						</div>
+						<span className="text-[11px] text-slate-300 font-mono">Hono RPC / REST (200)</span>
+					</div>
+
+					{/* DELETE /api/users/:id */}
+					<div className="bg-[#0d1117] border border-[#30363d] rounded-lg p-3 flex items-center justify-between">
+						<div>
+							<span className="font-mono font-bold text-rose-300 mr-2">DELETE</span>
+							<code className="font-mono text-white">/api/users/:id</code>
+							<p className="text-slate-300 text-[11px] mt-0.5">Delete user by ID</p>
+						</div>
+						<span className="text-[11px] text-slate-300 font-mono">Hono RPC / REST (200)</span>
+					</div>
+
 					{/* GET /api/live-reload */}
 					<div className="bg-[#0d1117] border border-[#30363d] rounded-lg p-3 flex items-center justify-between">
 						<div>
@@ -184,6 +230,16 @@ export function DocsApiPage() {
 							</p>
 						</div>
 						<span className="text-[11px] text-slate-300 font-mono">SSE Stream</span>
+					</div>
+
+					{/* OPTIONS /* */}
+					<div className="bg-[#0d1117] border border-[#30363d] rounded-lg p-3 flex items-center justify-between">
+						<div>
+							<span className="font-mono font-bold text-slate-400 mr-2">OPTIONS</span>
+							<code className="font-mono text-white">/*</code>
+							<p className="text-slate-300 text-[11px] mt-0.5">Global CORS preflight options handler</p>
+						</div>
+						<span className="text-[11px] text-slate-300 font-mono">CORS Preflight (204)</span>
 					</div>
 				</div>
 

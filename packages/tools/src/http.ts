@@ -1,3 +1,5 @@
+import '@tools/prototypes';
+
 /**
  * Standard CORS headers configured for open access across micro-frontends and APIs.
  */
@@ -72,5 +74,5 @@ export function getAssetHeaders(filePath: string, isDev = false): Record<string,
  * @returns `true` if running as a compiled standalone executable, `false` otherwise.
  */
 export function isStandaloneMode(): boolean {
-	return Boolean(Bun.embeddedFiles?.length > 0 || import.meta.dir.startsWith('/$bunfs'));
+	return Boolean(!Bun.embeddedFiles?.isEmpty() || import.meta.dir.startsWith('/$bunfs'));
 }

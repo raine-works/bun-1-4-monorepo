@@ -1,5 +1,6 @@
 import { env } from '@app/data/env';
 import { createItemsQueries, createUsersQueries, type ItemsQueries, type UsersQueries } from '@app/data/queries';
+import '@app/tools/prototypes';
 import { SQL } from 'bun';
 
 export type BunSql = InstanceType<typeof SQL>;
@@ -121,39 +122,35 @@ export class Database {
 		error?: string;
 	}> {
 		const start = performance.now();
-		try {
+		const { data, error } = await Promise.tryCatch(async () => {
 			const result = (await this.sql`
         SELECT current_database(), version()
       `) as unknown as Array<{ current_database: string; version: string }>;
-			const latencyMs = Math.round((performance.now() - start) * 100) / 100;
-			const row = result[0];
-			return {
-				ok: true,
-				latencyMs,
-				database: row?.current_database,
-				version: row?.version,
-			};
-		} catch (e: unknown) {
-			const latencyMs = Math.round((performance.now() - start) * 100) / 100;
-			const message = e instanceof Error ? e.message : String(e);
+			return result[0];
+		});
+		const latencyMs = Math.round((performance.now() - start) * 100) / 100;
+		if (error) {
+			const message = error instanceof Error ? error.message : String(error);
 			return {
 				ok: false,
 				latencyMs,
 				error: message || 'Database connection failed',
 			};
 		}
+		return {
+			ok: true,
+			latencyMs,
+			database: data?.current_database,
+			version: data?.version,
+		};
 	}
 
 	/**
 	 * Simple connection ping check. Returns true if connection succeeds, false otherwise.
 	 */
 	async ping(): Promise<boolean> {
-		try {
-			await this.sql`SELECT 1`;
-			return true;
-		} catch {
-			return false;
-		}
+		const { error } = await this.sql`SELECT 1`.tryCatch();
+		return !error;
 	}
 
 	/**

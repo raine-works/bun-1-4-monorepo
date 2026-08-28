@@ -137,6 +137,34 @@ DROP TABLE IF EXISTS example CASCADE;
 
 ---
 
+---
+
+## 🛠️ Scripts Reference
+
+| Command | Description |
+| :--- | :--- |
+| `bun run migrate` | Apply all pending database migrations (`bun scripts/migrate.ts up`) |
+| `bun run migrate:status` | Check the current migration status (`bun scripts/migrate.ts status`) |
+| `bun run migrate:down` | Roll back the most recently applied migration (`bun scripts/migrate.ts down`) |
+| `bun run migrate:create <name>` | Create a new SQL migration template file in `migrations/` |
+| `bun run migrate:reset` | Roll back all applied migrations and reapply from scratch |
+| `bun test` | Execute unit and integration tests for data layer using `bun:test` |
+| `bun run typecheck` | Perform TypeScript type checking (`tsc --noEmit`) |
+
+---
+
+## 🛑 Connection Pool Lifecycle & Graceful Shutdown
+
+The `@app/data` package provides robust connection management and graceful teardown primitives:
+
+- **Active Transaction Tracking**: Tracks in-flight transactions started with `db.transaction(...)`.
+- **`db.waitForTransactions(timeoutMs)`**: Waits for active transactions to complete before closing the connection pool.
+- **`db.flush()`**: Flushes pending database operations.
+- **`db.shutdown(timeoutMs)`**: Coordinated teardown sequence: marks client closing, rejects new transactions, drains in-flight transactions, and invokes `sql.close()`.
+- **`db.isAvailable()`**: Health check helper verifying active PostgreSQL connectivity.
+
+---
+
 ## 🔗 Import Aliases & Subpath Exports
 
 The `@app/data` package is configured with full import aliases and subpath exports across the monorepo:
@@ -149,7 +177,7 @@ Within `packages/data/` (source code, scripts, tests), relative imports (`./`, `
 - `@client`, `@env`, `@migrator`
 
 ### Cross-Package Consuming Aliases
-Other packages (`@app/backend`, `@app/hub`, `@app/store`, `@app/docs`) can import via:
+Other packages (`@app/backend`, `@app/hub`, `@app/store`, `@app/docs`, `@app/tools`, `@app/ui`) can import via:
 ```ts
 // Full package import
 import { db, Database, Migrator, env } from "@app/data";

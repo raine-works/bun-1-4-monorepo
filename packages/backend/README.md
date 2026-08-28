@@ -22,7 +22,9 @@ The core backend package for the **Bun 1.4 Full-Stack Monorepo**. It provides a 
 
 ```
 packages/backend/
+├── .env.example          # Environment template for local dev (.env.local)
 ├── Dockerfile            # Multi-stage distroless Docker configuration
+├── README.md             # Backend package architecture & guide
 ├── package.json          # Package manifest and workspace scripts
 ├── tsconfig.json         # TypeScript configuration with @/* path aliases
 ├── scripts/
@@ -34,7 +36,7 @@ packages/backend/
 │   ├── types.ts          # TypeScript interfaces, ServerVariables, and Zod DTO contracts
 │   ├── routers/          # Modular Hono API sub-routers
 │   │   ├── index.ts      # Unified apiRouter combining all sub-routes
-│   │   ├── health.ts     # GET /api/health Hono sub-router
+│   │   ├── health.ts     # GET /api/health Hono sub-router (reports 503 during shutdown)
 │   │   ├── info.ts       # GET /api/info telemetry Hono sub-router
 │   │   ├── items.ts      # CRUD Hono sub-router with zValidator for /api/items
 │   │   ├── live-reload.ts# GET /api/live-reload SSE Hono sub-router
@@ -42,11 +44,11 @@ packages/backend/
 │   └── lib/              # Server utility libraries
 │       ├── cors.ts       # Standard CORS headers configuration
 │       ├── env.ts        # Zod-validated environment schema
+│       ├── env.test.ts   # Unit tests for environment variable validation
 │       ├── live-reload.ts# LiveReloadManager and safe script injector
 │       ├── mfe.ts        # Micro-frontend resolution & virtual asset resolver
 │       ├── shutdown.ts   # GracefulShutdownHandler, signal listeners, connection flush & drain
 │       └── shutdown.test.ts # Unit tests for graceful shutdown lifecycle
-
 ```
 
 ---
@@ -55,17 +57,17 @@ packages/backend/
 
 | Method | Endpoint | Description | Request Validation | Status Code |
 | :--- | :--- | :--- | :--- | :--- |
-| `GET` | `/api/health` | Service health status, timestamp, and uptime | None | `200 OK` |
+| `GET` | `/api/health` | Service health status, timestamp, and uptime | None | `200 OK` / `503 Service Unavailable` (during shutdown) |
 | `GET` | `/api/info` | Runtime metadata (Bun version, platform, arch, standalone mode, memory) | None | `200 OK` |
-| `GET` | `/api/users` | List users with optional filtering | `userFilterSchema` (`?role=...&search=...`) | `200 OK` |
-| `POST` | `/api/users` | Create a new user | `createUserSchema` (`{ email, name, role?, avatarUrl? }`) | `201 Created` / `409 Conflict` |
+| `GET` | `/api/users` | List users with optional filtering | `userFilterSchema` (`?role=...&search=...`) | `200 OK` / `400 Bad Request` |
+| `POST` | `/api/users` | Create a new user | `createUserSchema` (`{ email, name, role?, avatarUrl? }`) | `201 Created` / `400 Bad Request` / `409 Conflict` |
 | `GET` | `/api/users/:id` | Get user by ID | None | `200 OK` / `404 Not Found` |
-| `PATCH` | `/api/users/:id` | Update user fields | `updateUserSchema` | `200 OK` / `404 Not Found` |
+| `PATCH`, `PUT` | `/api/users/:id` | Update user fields | `updateUserSchema` | `200 OK` / `400 Bad Request` / `404 Not Found` |
 | `DELETE` | `/api/users/:id` | Delete user by ID | None | `200 OK` / `404 Not Found` |
-| `GET` | `/api/items` | List all task items | `itemFilterSchema` | `200 OK` |
+| `GET` | `/api/items` | List all task items | None | `200 OK` |
 | `POST` | `/api/items` | Create new task item | `createItemSchema` (`{ title: string }`) | `201 Created` / `400 Bad Request` |
 | `GET` | `/api/items/:id` | Get task item by ID | None | `200 OK` / `404 Not Found` |
-| `PATCH` | `/api/items/:id` | Update task item | `updateItemSchema` (`{ title?, completed? }`) | `200 OK` / `404 Not Found` |
+| `PATCH`, `PUT` | `/api/items/:id` | Update task item | `updateItemSchema` (`{ title?, completed? }`) | `200 OK` / `400 Bad Request` / `404 Not Found` |
 | `DELETE` | `/api/items/:id` | Delete task item by ID | None | `200 OK` / `404 Not Found` |
 | `GET` | `/api/live-reload` | Server-Sent Events stream for dev live reload (disabled in production) | None | `200 OK` (SSE) |
 | `OPTIONS` | `/*` | Global CORS preflight handling via `hono/cors` | None | `204 No Content` |
